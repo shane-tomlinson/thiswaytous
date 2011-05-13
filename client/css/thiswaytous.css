@@ -197,7 +197,7 @@ section > footer > ul > li > .button {
 	text-align: center;
 }
 
-#enterCode input {
+.page input {
 	font-size: 2em;
 	padding: .5em;
 	width: 7em;
@@ -207,12 +207,12 @@ section > footer > ul > li > .button {
 	border-radius: 5px;
 }
 
-#enterCode label {
+.page label {
 	color: #eee;
 	font-size: 1.5em;
 }
 
-#enterCode input:empty {
+.page input:empty {
 	color: #ddd;
 	font-style: italic;
 }
@@ -242,4 +242,8 @@ section > footer > ul > li > .button {
 	-moz-border-radius: 5px;
 	-webkit-border-radius: 5px;
 	border-radius: 5px;
+}
+
+#userInfo input[type=text] {
+	width: 10em;
 }

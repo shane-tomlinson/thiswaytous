@@ -80,6 +80,8 @@
 	<script type="text/javascript" src="client/scripts/map.js"></script>
 	<script type="text/javascript" src="client/scripts/page.js"></script>
 	<script type="text/javascript" src="client/scripts/user.js"></script>
+	<script type="text/javascript" src="client/scripts/currentUser.js"></script>
+	<script type="text/javascript" src="client/scripts/users.js"></script>
 	<script type="text/javascript" src="client/scripts/session.js"></script>
 	<script type="text/javascript" src="client/scripts/invitePage.js"></script>
 	<script type="text/javascript" src="client/scripts/joinPage.js"></script>

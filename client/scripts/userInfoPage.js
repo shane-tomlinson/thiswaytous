@@ -14,9 +14,12 @@ TWTU.UserInfoPage = (function() {
 			} );
 		},
 
-		onSubmit: function() {
-			this.form.save();
-			Page.sc.onSubmit.apply( this, arguments );
+		onSubmit: function( event ) {
+			var me=this;
+			if( me.form.save() ) {
+				me.user.save();
+				Page.sc.onSubmit.call( me, event );
+			}
 		}
 	} );
 

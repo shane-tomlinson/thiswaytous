@@ -15,8 +15,7 @@ TWTU.JoinPage = (function() {
 		},
 		onSubmit: function() {
 			var me=this;
-			if( me.form.checkValidity() ) {
-				me.form.save();
+			if( me.form.save() ) {
 				me.session.join();
 			}
 

@@ -52,8 +52,8 @@ TWTU.Session = (function() {
 		for( var key in data ) {
 			this.set( key, data[ key ] );
 		}
-		AFrame.log( 'session joined' );
-		this.triggerEvent( 'requestComplete' );
+		AFrame.log( 'session updated' );
+		this.triggerEvent( 'requestComplete', data );
 	}
 
 	return Session;

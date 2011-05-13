@@ -4,21 +4,18 @@
 	"use strict";
 
 	var map, userPosition = AFrame.create( TWTU.UserPosition ), markerID,
-		pages = {}, session, currentUser = AFrame.create( TWTU.User );
+		pages = {}, session, currentUser, users;
 
-//	currentUser.set( 'name', 'Shane' );
+	initialize();
 
 	function initialize() {
 		attachButtons();
+		createCurrentUser();
 		createSession();
+		createUsers();
 		createPages();
 		showUserInfo();
 		userPosition.getPosition( createMapSetPosition );
-	}
-
-	function showUserInfo() {
-		var page = pages[ 'userInfo' ];
-		page.show();
 	}
 
 	function attachButtons() {
@@ -33,10 +30,25 @@
 		} );
 	}
 
+	function createCurrentUser() {
+		currentUser = AFrame.create( TWTU.CurrentUser );
+	}
+
 	function createSession() {
 		session = AFrame.create( TWTU.Session, {
 			currentUser: currentUser
 		} );
+	}
+
+	function createUsers() {
+		users = AFrame.create( TWTU.Users, {
+			session: session,
+			plugins: [ [ AFrame.CollectionPluginModel, {
+				schema: TWTU.User.schema
+			} ] ]
+		} );
+
+		users.insert( currentUser );
 	}
 
 	function createPages() {
@@ -67,25 +79,33 @@
 			position: position
 		} );
 
-		var coords = position.coords;
-		currentUser.set( 'lat', coords.latitude );
-		currentUser.set( 'lon', coords.longitude );
+		updateCurrentUserCoords( position );
 
-		markerID = map.addMarker( 'Shane', position );
+		markerID = map.addMarker( currentUser.get( 'name' ), position );
 		startPositionUpdate();
 	}
 
 	function startPositionUpdate() {
 		userPosition.intervalUpdate( function( position ) {
-			var coords = position.coords;
-
-			currentUser.set( 'lat', coords.latitude );
-			currentUser.set( 'lon', coords.longitude );
+			updateCurrentUserCoords( position );
 
 			map.moveMarker( markerID, position );
 		} );
 	}
 
-	initialize();
+	function updateCurrentUserCoords( position ) {
+		var coords = position.coords;
+
+		currentUser.set( 'lat', coords.latitude );
+		currentUser.set( 'lon', coords.longitude );
+	}
+
+	function showUserInfo() {
+		if( !currentUser.hasData() ) {
+			var page = pages[ 'userInfo' ];
+			page.show();
+		}
+	}
+
 }() );
 

@@ -1,4 +1,6 @@
 TWTU.Page = (function() {
+	"use strict";
+
 	var Page = AFrame.Class( AFrame.Display, {
 		domevents: {
 			'click .submit': 'onSubmit',
