@@ -120,7 +120,7 @@ button, .button {
 }
 
 button:hover, .button:hover {
-	text-decoration: underline;	
+	text-decoration: underline;
 }
 
 #main {
@@ -217,8 +217,12 @@ section > footer > ul > li > .button {
 	font-style: italic;
 }
 
-#invite > h2, #invite > h3 {
+.page > h2, .page > h3, .page > label {
 	color: #eee;
+}
+
+.page > label {
+	font-weight: normal;
 }
 
 #invitecode {

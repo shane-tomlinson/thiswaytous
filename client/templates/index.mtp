@@ -27,6 +27,20 @@
 
 	</section>
 
+	<section id="userInfo" class="page">
+		<h2>User Information</h2>
+
+		<label for="enterName">Name:</label>
+		<input type="text" data-field name="name" />
+
+		<footer>
+			<ul>
+				<li><button class="submit">OK</button></li>
+				<li><button class="cancel">Cancel</button></li>
+			</ul>
+		</footer>
+	</section>
+
 	<section id="enterCode" class="page">
 		<label for="enterCodeForm">Enter Code:</label>
 		<formset id="enterCodeForm">
@@ -70,6 +84,7 @@
 	<script type="text/javascript" src="client/scripts/invitePage.js"></script>
 	<script type="text/javascript" src="client/scripts/joinPage.js"></script>
 	<script type="text/javascript" src="client/scripts/network.js"></script>
+	<script type="text/javascript" src="client/scripts/userInfoPage.js"></script>
 	<script type="text/javascript" src="client/scripts/initialize.js"></script>
 </body>
 </html>

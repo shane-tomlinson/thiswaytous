@@ -6,13 +6,19 @@
 	var map, userPosition = AFrame.create( TWTU.UserPosition ), markerID,
 		pages = {}, session, currentUser = AFrame.create( TWTU.User );
 
-	currentUser.set( 'name', 'Shane' );
+//	currentUser.set( 'name', 'Shane' );
 
 	function initialize() {
 		attachButtons();
 		createSession();
 		createPages();
+		showUserInfo();
 		userPosition.getPosition( createMapSetPosition );
+	}
+
+	function showUserInfo() {
+		var page = pages[ 'userInfo' ];
+		page.show();
 	}
 
 	function attachButtons() {
@@ -36,7 +42,9 @@
 	function createPages() {
 		var constructors = {
 			invite: TWTU.InvitePage,
-			'default': TWTU.JoinPage
+			enterCode: TWTU.JoinPage,
+			userInfo: TWTU.UserInfoPage,
+			'default': TWTU.Page
 		};
 
 		$( '.page' ).each( function( index, element ) {
@@ -45,7 +53,8 @@
 
 			var page = AFrame.create( constr, {
 				target: element,
-				session: session
+				session: session,
+				user: currentUser
 			} );
 
 			pages[ id ] = page;
