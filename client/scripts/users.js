@@ -10,20 +10,24 @@ TWTU.Users = (function() {
 	"use strict";
 	var Users = AFrame.Class( AFrame.CollectionHash, {
 		importconfig: [ 'session' ],
-
-		init: function( config ) {
-			var me=this;
-
-			Users.sc.init.call( me, config );
-
-			me.session.bindEvent( 'requestComplete', onSessionUpdate, me );
+		events: {
+			'requestComplete session': onSessionUpdate
 		}
 	} );
 
 	function onSessionUpdate( event, data ) {
+		updateCurrentUserID.call( this, data.user_id );
+
 		var users = data && data.users
 		if( users ) {
 			insertUpdateUsers.call( this, users );
+		}
+	}
+
+	function updateCurrentUserID( userID ) {
+		var tempUser = this.get( 'temp' );
+		if( tempUser ) {
+			tempUser.set( 'id', userID );
 		}
 	}
 
