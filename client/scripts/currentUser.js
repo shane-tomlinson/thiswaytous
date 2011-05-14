@@ -6,11 +6,12 @@ TWTU.CurrentUser = (function() {
 
 	var User = AFrame.Class( TWTU.User, {
 		init: function( config ) {
-			loadData.call( this, config );
+			var me=this;
+			config.cid = 'currentUser';
+			config.data = loadData.call( me );
+			loadData.call( me, config );
 
-			User.sc.init.call( this, config );
-
-			this.set( 'id', 'temp' );
+			User.sc.init.call( me, config );
 		},
 
 		save: function() {
@@ -27,15 +28,20 @@ TWTU.CurrentUser = (function() {
 	} );
 
 	function loadData( config ) {
+		var data = {};
+
 		if( canStore ) {
-			var data = localStorage.getItem( 'localUser' );
+			var store = localStorage.getItem( 'localUser' );
 
-			if( data ) {
-				config.data = JSON.parse( data );
-				this.haveData = !!config.data.name;
+			if( store ) {
+				data = JSON.parse( store );
+				this.haveData = !!data.name;
 			}
-
 		}
+
+		data.id = 'currentUser';
+
+		return data;
 	}
 
 	return User;
