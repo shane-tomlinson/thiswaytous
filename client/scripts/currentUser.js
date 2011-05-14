@@ -10,9 +10,7 @@ TWTU.CurrentUser = (function() {
 
 			User.sc.init.call( this, config );
 
-			if( !this.get( 'id' ) ) {
-				this.set( 'id', 'temp' );
-			}
+			this.set( 'id', 'temp' );
 		},
 
 		save: function() {
