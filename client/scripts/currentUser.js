@@ -33,8 +33,8 @@ TWTU.CurrentUser = (function() {
 			var data = localStorage.getItem( 'localUser' );
 
 			if( data ) {
-				config.dataSource = JSON.parse( data );
-				this.haveData = !!config.dataSource.name;
+				config.data = JSON.parse( data );
+				this.haveData = !!config.data.name;
 			}
 
 		}
