@@ -22,7 +22,7 @@ TWTU.UserMapMarkers = (function() {
 
 		var markerID = this.map.addMarker( user.get( 'name' ),
 			getUserPosition( user ) );
-		this.markers[ user.get( 'id' ) ] = markerID;
+		this.markers[ user.getCID() ] = markerID;
 	}
 
 	function onUserRemove( event, user ) {
