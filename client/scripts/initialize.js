@@ -47,8 +47,6 @@
 				schema: TWTU.User.schema
 			} ] ]
 		} );
-
-		users.insert( currentUser );
 	}
 
 	function createPages() {
@@ -76,21 +74,24 @@
 	function createMapSetPosition( position ) {
 		map = AFrame.create( TWTU.Map, {
 			target: $( '#map' ),
-			position: position
+			position: position.coords
+		} );
+
+		var markers = AFrame.create( TWTU.UserMapMarkers, {
+			users: users,
+			map: map
 		} );
 
 		updateCurrentUserCoords( position );
 
-		markerID = map.addMarker( currentUser.get( 'name' ), position );
+		// do this after we have created the map/marker so the initial user
+		//	gets inserted
+		users.insert( currentUser );
 		startPositionUpdate();
 	}
 
 	function startPositionUpdate() {
-		userPosition.intervalUpdate( function( position ) {
-			updateCurrentUserCoords( position );
-
-			map.moveMarker( markerID, position );
-		} );
+		userPosition.intervalUpdate( updateCurrentUserCoords );
 	}
 
 	function updateCurrentUserCoords( position ) {

@@ -1,23 +1,23 @@
 TWTU.Map = ( function() {
 	"use strict";
-	
+
 	var maps = google.maps;
-	
+
 	var Map = AFrame.Class( AFrame.Display, {
 		init: function( config ) {
 			Map.sc.init.call( this, config );
-			
+
 			this.markers = {};
 			this.currMarkerID = 0;
-						
+
 			var options = {
 				zoom: 15,
 				center: toGLatLng( config.position ),
 				mapTypeId: maps.MapTypeId.ROADMAP
 			};
-			this.map = new maps.Map( this.getDOMElement(), options );	
+			this.map = new maps.Map( this.getDOMElement(), options );
 		},
-		
+
 		/**
 		* Add a marker to the map
 		* @method addMarker
@@ -27,16 +27,16 @@ TWTU.Map = ( function() {
 		*/
 		addMarker: function( name, position ) {
 			var currPosition = toGLatLng( position );
-			
+
 			var marker = new google.maps.Marker( {
 				position: currPosition,
 				map: this.map,
 				title: name
 			} );
-			
+
 			return storeMarker.call( this, marker );
 		},
-		
+
 		/**
 		* Move a marker
 		* @method moveMarker
@@ -52,12 +52,11 @@ TWTU.Map = ( function() {
 		}
 	} );
 
-	function toGLatLng( position ) { 
-		var coords = position.coords;
-		var gLatLng = new google.maps.LatLng( coords.latitude, coords.longitude );
+	function toGLatLng( position ) {
+		var gLatLng = new google.maps.LatLng( position.latitude, position.longitude );
 		return gLatLng;
 	}
-	
+
 	/**
 	* Store a marker off
 	* @method storeMarker
@@ -68,10 +67,10 @@ TWTU.Map = ( function() {
 	function storeMarker( marker ) {
 		var id = this.currMarkerID;
 		this.currMarkerID++;
-		
+
 		this.markers[ id ] = marker;
 		return id;
 	}
-	
+
 	return Map;
 }() );
