@@ -25,7 +25,7 @@ TWTU.Users = (function() {
 	}
 
 	function updateCurrentUserID( userID ) {
-		var tempUser = this.get( 'temp' );
+		var tempUser = this.get( 'currentUser' );
 		if( tempUser ) {
 			tempUser.set( 'id', userID );
 		}
@@ -37,9 +37,7 @@ TWTU.Users = (function() {
 			var existingUser = me.search( searchForItemWithID.curry( user.id ) );
 
 			if( existingUser ) {
-				existingUser.set( 'name', user.name );
-				existingUser.set( 'lat', user.lat );
-				existingUser.set( 'lon', user.lon );
+				existingUser.set( user );
 			}
 			else {
 				me.insert( user );

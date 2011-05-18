@@ -2,6 +2,7 @@ TWTU.User = ( function() {
 	"use strict";
 
 	var schema = {
+		id: 'string',
 		name: 'string',
 		lat: 'number',
 		lon: 'number'
@@ -10,8 +11,6 @@ TWTU.User = ( function() {
 	var User = AFrame.Class( AFrame.Model, {
 		schema: schema
 	} );
-
-	User.schema = schema;
 
 	return User;
 }() );

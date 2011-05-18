@@ -44,7 +44,7 @@
 		users = AFrame.create( TWTU.Users, {
 			session: session,
 			plugins: [ [ AFrame.CollectionPluginModel, {
-				schema: TWTU.User.schema
+				schema: TWTU.User
 			} ] ]
 		} );
 	}
