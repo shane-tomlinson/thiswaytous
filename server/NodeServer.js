@@ -1,6 +1,6 @@
 var sys = require( 'sys' ), http = require( 'http' ), fs = require( 'fs' ),
-	AFrame = require( './aframe-current-node' ), Session = require( './session' ),
-	sessions = AFrame.create( AFrame.CollectionArray ), sessionID = 0;
+	AFrame = require( './aframe-current-node' ), Sessions = require( './sessions' ),
+	Session = require( './session' ), sessions = AFrame.create( Sessions ), sessionID = 0;
 
 var express = require( 'express' );
 
@@ -18,22 +18,12 @@ app.get( '/', function( req, res ) {
 
 app.post( '/session/start', function( req, res ) {
 	console.log( req.body );
-	var session = AFrame.create( Session, {
-		data: {
-			id: sessionID++,
-			start_date: Date.now(),
-			invite_code_1: 'abc',
-			invite_code_2: 'def',
-			invite_code_3: 'geh',
-		}
-	} );
-	sessions.insert( session );
+	var session = sessions.createSession();
 
-	var user = req.body;
-	var userID = session.addUser( user.name, user.lat, user.lon );
+	var userID = session.addUpdateUser( req.body );
 	session.set( 'user_id', userID );
 
-	writeContentType( res, 'json' );
+	writeContentType( res, ContentTypes.json );
 	res.end( session.toString() );
 } );
 
@@ -42,25 +32,14 @@ app.post( '/session/join', function( req, res ) {
 	var session = sessions.get( body.session_id || 0 );
 
 	if( session ) {
-		var userID = body.id;
-		var user = userID && session.getUser( userID );
-
-		if( !user ) {
-			userID = session.addUser( body.name, body.lat, body.lon );
-			session.set( 'user_id', userID );
-		}
-		else {
-			user.name = body.name;
-			user.lat = body.lat;
-			user.lon = body.lon;
-		}
-
+		var userID = session.addUpdateUser( body );
 		session.set( 'user_id', userID );
 	}
 
-	writeContentType( res, 'json' );
+	writeContentType( res, ContentTypes.json );
 	res.end( session.toString() );
 } );
+
 
 app.listen( 8000 );
 
@@ -81,7 +60,7 @@ var ContentTypes = {
 
 function writeContentType( res, type ) {
 	res.writeHead( 200, {
-		'Content-Type': ContentTypes[ type ]
+		'Content-Type': type
 	} );
 }
 

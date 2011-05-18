@@ -21,6 +21,21 @@
 
 	var Session = AFrame.Class( AFrame.Model, {
 		schema: schema,
+		addUpdateUser: function( userData ) {
+			var me=this, userID = userData.id,
+				user = userID && me.getUser( userID );
+
+			if( !user ) {
+				userID = me.addUser( userData.name, userData.lat, userData.lon );
+			}
+			else {
+				me.updateUser( userID, userData.lat, userData.lon );
+			}
+
+			return userID;
+
+		},
+
 		addUser: function( name, lat, lon ) {
 			var userID = Session.userID;
 			Session.userID++;
