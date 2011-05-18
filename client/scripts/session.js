@@ -19,11 +19,14 @@ TWTU.Session = (function() {
 			me.set( 'invite_code_2', '' );
 			me.set( 'invite_code_3', '' );
 
-			makeRequest.call( me, 'start' );
+			makeRequest.call( me, 'start', this.currentUser.serializeItems() );
 		},
 		join: function() {
 			var me=this;
-			makeRequest.call( me, 'join' );
+			makeRequest.call( me, 'join', {
+				session: JSON.stringify( this.serializeItems() ),
+				user: JSON.stringify( this.currentUser.serializeItems() )
+			} );
 		},
 		update: function() {
 
@@ -38,12 +41,12 @@ TWTU.Session = (function() {
 		update: 'update'
 	};
 
-	function makeRequest( service ) {
+	function makeRequest( service, data ) {
 		this.triggerEvent( 'requestStart' );
 		TWTU.Network.ajax( {
 			url: urlBase + services[ service ],
 			success: onSessionInitialized.bind( this ),
-			data: this.currentUser.serializeItems(),
+			data: data,
 			type: 'POST'
 		} );
 	}

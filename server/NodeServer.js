@@ -20,8 +20,7 @@ app.post( '/session/start', function( req, res ) {
 	console.log( req.body );
 	var session = sessions.createSession();
 
-	var userID = session.addUpdateUser( req.body );
-	session.set( 'user_id', userID );
+	session.addUpdateUser( req.body );
 
 	writeContentType( res, ContentTypes.json );
 	res.end( session.toString() );
@@ -29,15 +28,24 @@ app.post( '/session/start', function( req, res ) {
 
 app.post( '/session/join', function( req, res ) {
 	var body = req.body;
-	var session = sessions.get( body.session_id || 0 );
+	var user = JSON.parse( body.user );
+	var sessionData = JSON.parse( body.session );
+
+	var session = sessions.getSession( sessionData );
 
 	if( session ) {
-		var userID = session.addUpdateUser( body );
-		session.set( 'user_id', userID );
+		session.addUpdateUser( user );
+		writeContentType( res, ContentTypes.json );
+		res.end( session.toString() );
+	}
+	else {
+		console.log( 'session not found' );
+		res.writeHead( 404 );
+		res.end();
 	}
 
-	writeContentType( res, ContentTypes.json );
-	res.end( session.toString() );
+
+
 } );
 
 

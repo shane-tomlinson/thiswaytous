@@ -32,6 +32,8 @@
 				me.updateUser( userID, userData.lat, userData.lon );
 			}
 
+			me.set( 'user_id', userID );
+
 			return userID;
 
 		},
