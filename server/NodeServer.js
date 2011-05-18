@@ -35,17 +35,28 @@ app.post( '/session/start', function( req, res ) {
 
 	writeContentType( res, 'json' );
 	res.end( session.toString() );
-
 } );
 
 app.post( '/session/join', function( req, res ) {
 	var body = req.body;
+	var session = sessions.get( body.session_id || 0 );
 
-	console.log( body );
-	var id = body.session_id;
+	if( session ) {
+		var userID = body.id;
+		var user = userID && session.getUser( userID );
 
-	var session = sessions.get( id || 0 );
-	session.addUser( body.name, body.lat, body.lon );
+		if( !user ) {
+			userID = session.addUser( body.name, body.lat, body.lon );
+			session.set( 'user_id', userID );
+		}
+		else {
+			user.name = body.name;
+			user.lat = body.lat;
+			user.lon = body.lon;
+		}
+
+		session.set( 'user_id', userID );
+	}
 
 	writeContentType( res, 'json' );
 	res.end( session.toString() );

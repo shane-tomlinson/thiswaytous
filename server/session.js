@@ -3,6 +3,7 @@
 
 	var AFrame = require( './aframe-current-node' );
 	var userSchema = {
+		id: 'string',
 		name: 'string',
 		lat: 'number',
 		lon: 'number'
@@ -20,14 +21,9 @@
 
 	var Session = AFrame.Class( AFrame.Model, {
 		schema: schema,
-		init: function( config ) {
-			this.userID = 0;
-			Session.sc.init.call( this, config );
-		},
-
 		addUser: function( name, lat, lon ) {
-			var userID = this.userID;
-			this.userID++;
+			var userID = Session.userID;
+			Session.userID++;
 
 			var users = this.get( 'users' );
 
@@ -41,8 +37,12 @@
 			return userID;
 		},
 
+		getUser: function( id ) {
+			return this.get( 'users' )[ id ];
+		},
+
 		updateUser: function( id, lat, lon ) {
-			var user = this.users[ id ];
+			var user = this.getUser( id );
 			if( user ) {
 				user.lat = lat;
 				user.lon = lon;
@@ -56,9 +56,8 @@
 		toString: function() {
 			return JSON.stringify( this.serializeItems() );
 		}
-
-
 	} );
+	Session.userID = 0;
 
 	module.exports = Session;
 }());
