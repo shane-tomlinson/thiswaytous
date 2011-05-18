@@ -410,8 +410,7 @@ section > footer > ul {
   .page label {
     color: #eeeeee;
     font-size: 1.5em;
-    font-weight: normal;
-    color: #eeeeee; }
+    font-weight: normal; }
     .page label:empty {
       color: #ddd;
       font-style: italic; }

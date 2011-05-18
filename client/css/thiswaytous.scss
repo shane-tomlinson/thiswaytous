@@ -164,9 +164,6 @@ button, .button {
 
 
 section > footer > ul {
-}
-
-section > footer > ul {
 	text-align: center;
 	width: 100%;
 	> li {
@@ -207,7 +204,6 @@ section > footer > ul {
 		color: $text-color;
 		font-size: 1.5em;
 		font-weight: normal;
-		color: $text-color;
 
 		&:empty {
 			color: #ddd;
@@ -248,9 +244,7 @@ section > footer > ul {
 		padding: .25em;
 		margin: .25em auto;
 		border: 2px solid #ccc;
-		-moz-border-radius: 5px;
-		-webkit-border-radius: 5px;
-		border-radius: 5px;
+		@include rounded(5px);
 	}
 }
 
