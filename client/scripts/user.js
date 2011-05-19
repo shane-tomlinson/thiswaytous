@@ -2,7 +2,7 @@ TWTU.User = ( function() {
 	"use strict";
 
 	var schema = {
-		id: 'string',
+		id: 'id',
 		name: 'string',
 		lat: 'number',
 		lon: 'number'

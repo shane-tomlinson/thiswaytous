@@ -99,6 +99,8 @@
 
 		currentUser.set( 'lat', coords.latitude );
 		currentUser.set( 'lon', coords.longitude );
+
+		session.update();
 	}
 
 	function showUserInfo() {

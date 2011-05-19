@@ -6,30 +6,56 @@ TWTU.Session = (function() {
 		start_date: { type: 'iso8601' },
 		invite_code_1: { type: 'string' },
 		invite_code_2: { type: 'string' },
-		invite_code_3: { type: 'string' }/*,
-		users: { type: TWTU.Users, has_many: true }*/
+		invite_code_3: { type: 'string' }
 	};
 
 	var Session = AFrame.Class( AFrame.Model, {
 		importconfig: [ 'currentUser' ],
 		schema: schema,
+		connected: false,
 		start: function() {
 			var me=this;
 			me.set( 'invite_code_1', '' );
 			me.set( 'invite_code_2', '' );
 			me.set( 'invite_code_3', '' );
 
-			makeRequest.call( me, 'start', this.currentUser.serializeItems() );
-		},
-		join: function() {
-			var me=this;
-			makeRequest.call( me, 'join', {
-				session: JSON.stringify( this.serializeItems() ),
-				user: JSON.stringify( this.currentUser.serializeItems() )
+			request.call( me, 'start', this.currentUser.serializeItems(),
+				function( data ) {
+					me.connected = true;
+				},
+				function( data ) {
+
 			} );
 		},
-		update: function() {
 
+		join: function() {
+			var me=this;
+			request.call( me, 'join', {
+					session: JSON.stringify( me.serializeItems() ),
+					user: JSON.stringify( me.currentUser.serializeItems() )
+				},
+				function( data ) {
+					me.connected = true;
+				},
+				function( data ) {
+
+			} );
+
+		},
+
+		update: function() {
+			if( this.connected ) {
+				var me=this;
+				request.call( me, 'update', {
+						session: JSON.stringify( me.serializeItems() ),
+						user: JSON.stringify( me.currentUser.serializeItems() )
+					},
+					function( data ) {
+					},
+					function( data ) {
+
+				} );
+			}
 		}
 	} );
 
@@ -41,22 +67,29 @@ TWTU.Session = (function() {
 		update: 'update'
 	};
 
-	function makeRequest( service, data ) {
-		this.triggerEvent( 'requestStart' );
+	function request( service, data, success, failure ) {
+		var me=this;
 		TWTU.Network.ajax( {
 			url: urlBase + services[ service ],
-			success: onSessionInitialized.bind( this ),
+			success: function( resp ) {
+				importData.call( me, resp );
+
+				if( success ) {
+					success( resp )
+				}
+
+				me.triggerEvent( 'requestComplete', resp );
+			},
+			failure: failure,
 			data: data,
 			type: 'POST'
 		} );
 	}
 
-	function onSessionInitialized( data ) {
+	function importData( data ) {
 		for( var key in data ) {
 			this.set( key, data[ key ] );
 		}
-		AFrame.log( 'session updated' );
-		this.triggerEvent( 'requestComplete', data );
 	}
 
 	return Session;

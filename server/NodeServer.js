@@ -26,7 +26,12 @@ app.post( '/session/start', function( req, res ) {
 	res.end( session.toString() );
 } );
 
-app.post( '/session/join', function( req, res ) {
+app.post( '/session/join', joinUpdateUser );
+app.post( '/session/update', joinUpdateUser );
+
+app.listen( 8000 );
+
+function joinUpdateUser( req, res ) {
 	var body = req.body;
 	var user = JSON.parse( body.user );
 	var sessionData = JSON.parse( body.session );
@@ -43,13 +48,7 @@ app.post( '/session/join', function( req, res ) {
 		res.writeHead( 404 );
 		res.end();
 	}
-
-
-
-} );
-
-
-app.listen( 8000 );
+}
 
 function sendFile( fileName, res ) {
 	fs.readFile( root + fileName, function( err, data ) {

@@ -22,48 +22,47 @@
 	var Session = AFrame.Class( AFrame.Model, {
 		schema: schema,
 		addUpdateUser: function( userData ) {
-			var me=this, userID = userData.id,
-				user = userID && me.getUser( userID );
+			var me=this, userID = getUserID( userData.id ),
+				user = AFrame.defined( userID ) && me.getUser( userID ),
+				func = user ? 'updateUser' : 'addUser';
 
-			if( !user ) {
-				userID = me.addUser( userData.name, userData.lat, userData.lon );
-			}
-			else {
-				me.updateUser( userID, userData.lat, userData.lon );
-			}
+			userID = me[ func ]( userID, userData.name, userData.lat, userData.lon );
 
 			me.set( 'user_id', userID );
 
 			return userID;
-
 		},
 
-		addUser: function( name, lat, lon ) {
-			var userID = Session.userID;
-			Session.userID++;
+		addUser: function( id, name, lat, lon ) {
+			id = AFrame.defined( id ) ? id : createUserID();
 
 			var users = this.get( 'users' );
-
 			users.push( {
 				name: name,
 				lat: lat,
 				lon: lon,
-				id: userID
+				id: id
 			} );
 
-			return userID;
+			console.log( 'adding user: ' + users[ users.length - 1 ] );
+
+			return id;
 		},
 
 		getUser: function( id ) {
 			return this.get( 'users' )[ id ];
 		},
 
-		updateUser: function( id, lat, lon ) {
+		updateUser: function( id, name, lat, lon ) {
 			var user = this.getUser( id );
 			if( user ) {
+				user.name = name;
 				user.lat = lat;
 				user.lon = lon;
 			};
+
+			console.log( 'updating user: ' + user );
+			return id;
 		},
 
 		removeUser: function( id ) {
@@ -74,7 +73,18 @@
 			return JSON.stringify( this.serializeItems() );
 		}
 	} );
+
+	function getUserID( seed ) {
+		var id = seed != 'currentUser' ? seed : undefined;
+		return id;
+	}
+
 	Session.userID = 0;
+	function createUserID() {
+		var userID = Session.userID;
+		Session.userID++;
+		return userID;
+	}
 
 	module.exports = Session;
 }());
