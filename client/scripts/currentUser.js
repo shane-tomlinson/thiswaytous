@@ -39,7 +39,7 @@ TWTU.CurrentUser = (function() {
 			}
 		}
 
-		data.id = 'currentUser';
+		data.id = data.id || 'currentUser';
 
 		return data;
 	}
