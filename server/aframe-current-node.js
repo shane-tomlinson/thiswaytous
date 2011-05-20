@@ -137,23 +137,49 @@ var AFrame = ( function() {
         *    } );
         *
         * @method extend
-        * @param {function} derived - class to extend
-        * @param {function} sc - class to extend with.
+        * @param {function} subClass - the class to extend
+        * @param {function} superClass - The super class.
         * @param {object} extrafuncs (optional) - all additional parameters will have their functions mixed in.
         */
-        extend: function( derived, sc ) {
+        extend: function( subClass, superClass ) {
             var F = function() {};
-            F.prototype = sc.prototype;
-            derived.prototype = new F();
-            derived.superclass = sc;        // superclass and sc are different.  sc points to the superclasses prototype, superclass points to the superclass itself.
-            derived.sc = sc.prototype;
+            F.prototype = superClass.prototype;
+            subClass.prototype = new F;
+            subClass.superclass = superClass;        // superclass and sc are different.  sc points to the superclasses prototype, superclass points to the superclass itself.
+            subClass.sc = superClass.prototype;
 
             var mixins = Array.prototype.slice.call( arguments, 2 );
             for( var mixin, index = 0; mixin = mixins[ index ]; ++index ) {
-                AFrame.mixin( derived.prototype, mixin );
+                AFrame.mixin( subClass.prototype, mixin );
             }
-            derived.prototype.constructor = derived;
+            subClass.prototype.constructor = subClass;
         },
+
+		/**
+		* Checks whether the subClass is a sub-class of superClass, as is
+		*  done using AFrame.extend or AFrame.Class.
+		*
+		*    var SubClass = AFrame.Class( AFrame.AObject );
+		*
+		*    // extendsFrom will be true;
+		*    var extendsFrom = AFrame.extendsFrom( SubClass, AFrame.AObject );
+		*
+		* @method extendsFrom
+		* @param {function} subClass - the potential subclass
+		* @param {function} superClass - the potential superclass
+		* @return {boolean} true if subClass is a subclass of superClass, false otw.
+		*/
+		extendsFrom: function( subClass, superClass ) {
+			var same = false;
+			if( AFrame.func( subClass ) ) {
+				do {
+					same = subClass === superClass;
+					subClass = subClass.superclass;
+				} while( subClass && !same );
+			}
+
+			return same;
+		},
 
         /**
         * extend an object with the members of another object.
@@ -882,9 +908,9 @@ AFrame.EnumerableMixin = ( function() {
 }() );/**
  * The base object of nearly everything.  It is recommended to create all new classes as a subclass
  * of AObject since it provides general functionality such as event binding and teardown housekeeping.
- * All AObjects in the system have a cid, a cid is a unique identifier within the application.  
- * If an AObject creates and is responsible for maintaining other AObjects, [addChild](#method_addChild) 
- * should be called with the created children.  When this object is torn down, the child object added via addChild will 
+ * All AObjects in the system have a cid, a cid is a unique identifier within the application.
+ * If an AObject creates and is responsible for maintaining other AObjects, [addChild](#method_addChild)
+ * should be called with the created children.  When this object is torn down, the child object added via addChild will
  * have its teardown function called as well.  This can ensure that all memory is freed and that
  * no references are kept when the object's lifespan has ended.
  *
@@ -909,23 +935,23 @@ AFrame.EnumerableMixin = ( function() {
  *        secondImportedParam: "So is this",
  *        thirdParam: "But this is not"
  *    } );
- * 
+ *
  * Event Usage
  *=========
  *
- * All AFrame.AObject based classes have a built in event mechanism.  Events are 
- *  dynamically created, there is no need to explicitly create an event, all that is 
+ * All AFrame.AObject based classes have a built in event mechanism.  Events are
+ *  dynamically created, there is no need to explicitly create an event, all that is
  *  needed is to call the object's triggerEvent or bindEvent.
  *
  * Event Example Usage:
  *
  *    // Assume anObject is an AFrame.AObject based object.
- *    // Every AFrame.AObject based object triggers an onInit event 
+ *    // Every AFrame.AObject based object triggers an onInit event
  *    // when its init function is called.
  *    var onObjectInit = function() {
  *       // called whenever anObject.init is called.
  *    };
- *   
+ *
  *    anObject.bindEvent( 'onInit', onObjectInit );
  *    anObject.init();    // calls onObjectInit function
  *
@@ -955,8 +981,8 @@ AFrame.EnumerableMixin = ( function() {
  *        event2Handler: function() {
  *             // handle event here
  *        }
- *    } );		
- *  
+ *    } );
+ *
  * @class AFrame.AObject
  * @uses AFrame.ObservablesMixin
  */
@@ -964,9 +990,9 @@ AFrame.EnumerableMixin = ( function() {
  * cid for the object, if not given, a unique id is assigned
  * @config {cid} cid
  */
-AFrame.AObject = (function(){ 
+AFrame.AObject = (function(){
     "use strict";
-    
+
     var AObject = AFrame.Class( {
         /**
          * Initialize the object.  Note that if [AFrame.construct](AFrame.html#method_construct) or [AFrame.create](AFrmae.html#method_create)is used, this will be called automatically.
@@ -974,7 +1000,7 @@ AFrame.AObject = (function(){
          *    var obj = new AFrame.SomeObject();
          *    obj.init( { name: 'value' } );
          *
-         * 
+         *
          * @method init
          * @param config {object} - configuration
          * @param config.cid {id} - cid to give to the object, if not given, one is generated.
@@ -983,10 +1009,10 @@ AFrame.AObject = (function(){
             this.config = config;
             this.cid = config.cid || AFrame.getUniqueID();
             this.children = {};
-            
+
             importConfig.call( this );
             this.bindEvents();
-            
+
             /**
              * Triggered when the object is initialized
              * @event onInit
@@ -994,7 +1020,7 @@ AFrame.AObject = (function(){
              */
              this.triggerEvent( 'onInit' );
         },
-        
+
         /**
          * Return the configuration object given in init.
          *
@@ -1006,7 +1032,7 @@ AFrame.AObject = (function(){
         getConfig: function() {
             return this.config;
         },
-        
+
         /**
          * Override to do any event binding
          * @method bindEvents
@@ -1014,7 +1040,7 @@ AFrame.AObject = (function(){
         bindEvents: function() {
             bindEvents.call( this );
         },
-        
+
         /**
          * Tear the object down, free any references
          *
@@ -1035,7 +1061,7 @@ AFrame.AObject = (function(){
             this.teardownChildren();
             this.config = this.cid = this.children = null;
         },
-        
+
         teardownChildren: function() {
             for( var cid in this.children ) {
                 var child = this.children[ cid ];
@@ -1043,7 +1069,7 @@ AFrame.AObject = (function(){
                 AFrame.remove( this.children, cid );
             }
         },
-        
+
         /**
          * Get the CID of the object
          *
@@ -1055,7 +1081,7 @@ AFrame.AObject = (function(){
         getCID: function() {
             return this.cid;
         },
-        
+
         /**
          * Add a child.  All children are torn down on this object's teardown
          *
@@ -1069,11 +1095,11 @@ AFrame.AObject = (function(){
         addChild: function( child ) {
             this.children[ child.getCID() ] = child;
         },
-        
+
         /**
          * Remove a child.
          *
-         *    // childToRemove is a child that this object has already 
+         *    // childToRemove is a child that this object has already
          *    // created and no longer needs.
          *    this.removeChild( childToRemove.getCID() );
          *
@@ -1083,15 +1109,15 @@ AFrame.AObject = (function(){
         removeChild: function( cid ) {
             AFrame.remove( this.children, cid );
         },
-        
-        
+
+
         /**
-        * Create a trigger event proxy function.  Useful to re-broadcast an event or when a DOM 
+        * Create a trigger event proxy function.  Useful to re-broadcast an event or when a DOM
         *   event should trigger a normal AObject based event.
         *
         *    // use triggerProxy to rebroadcast an event from a child
         *    child.bindEvent( 'eventToProxy', this.triggerProxy( 'eventToProxy' ) );
-        *    
+        *
         *
         * @method triggerProxy
         * @param {string} eventName - name of event to trigger
@@ -1100,58 +1126,62 @@ AFrame.AObject = (function(){
             return this.triggerEvent.bind( this, eventName );
         }
     }, AFrame.ObservablesMixin );
-    
+
     function importConfig() {
         var me = this;
         AFrame.Class.walkChain( function( currClass ) {
-            var classImports = currClass.prototype.importconfig || [];
-            classImports.forEach( function( importName ) {
-                if( AFrame.defined( me.config[ importName ] ) ) {
-                    me[ importName ] = me.config[ importName ];
-                }
-            } );
-        }, me );
-    }
-    
-    function bindEvents() {
-        var me = this;
-        
-        AFrame.Class.walkChain( function( currClass ) {
-            var events = currClass.prototype.events || {};
-            
-            for( var eventName in events ) {
-                var nameTarget = getNameAndTarget.call( me, eventName );
-                bindHandlers.call( me, nameTarget.name, nameTarget.target, events[ eventName ] );
+        	if( currClass.prototype.hasOwnProperty( 'importconfig' ) ) {
+				var classImports = currClass.prototype.importconfig;
+				classImports.forEach( function( importName ) {
+					if( AFrame.defined( me.config[ importName ] ) ) {
+						me[ importName ] = me.config[ importName ];
+					}
+				} );
             }
         }, me );
-        
+    }
+
+    function bindEvents() {
+        var me = this;
+
+        AFrame.Class.walkChain( function( currClass ) {
+        	if( currClass.prototype.hasOwnProperty( 'events' ) ) {
+				var events = currClass.prototype.events;
+
+				for( var eventName in events ) {
+					var nameTarget = getNameAndTarget.call( me, eventName );
+					bindHandlers.call( me, nameTarget.name, nameTarget.target, events[ eventName ] );
+				}
+            }
+        }, me );
+
         function getNameAndTarget( eventName ) {
             var parts = eventName.split( ' ' );
             var target = me[ parts[ 1 ] ] || me;
-            
+
             return {
                 name: parts[ 0 ],
                 target: target
             };
         }
-        
+
         function bindHandlers( name, target, handlers ) {
             handlers = AFrame.array( handlers ) ? handlers : [ handlers ];
-            
+
             handlers.forEach( function( handler ) {
                 handler = AFrame.func( handler ) ? handler : me[ handler ];
                 target.bindEvent( name, handler, me );
             } );
         }
     }
-    
+
 
     return AObject;
 }() );
 /**
 * A basic data container. Used like a hash. Provides functionality that allows the binding of callbacks
 * to the change in a piece of data.  The preferred method of creating an AFrame.DataContainer is to
-* do 
+* do
 *
 *    dataContainer = AFrame.DataContainer( data );
 * This ensures that only one DataContainer is ever created for a given object.
@@ -1167,25 +1197,25 @@ AFrame.AObject = (function(){
 *        firstName: 'Shane',
 *        lastName: 'Tomlinson'
 *    };
-*    
+*
 *    var dataContainer = AFrame.DataContainer( dataObject );
 *    dataContainer.bindField( 'firstName', function( notification ) {
 *        alert( 'new name: ' + notification.value );
 *    } );
-*    
+*
 *    dataContainer.set( 'firstName', 'Charlotte' );
-*    
+*
 * @class AFrame.DataContainer
 * @extends AFrame.AObject
 * @uses AFrame.EnumerableMixin
 * @constructor
-* @param {object || AFrame.DataContainer} data (optional) If given, creates a new AFrame.DataContainer for the data.  
-*   If already an AFrame.DataContainer, returns self, if the data already has an AFrame.DataContainer associated with 
+* @param {object || AFrame.DataContainer} data (optional) If given, creates a new AFrame.DataContainer for the data.
+*   If already an AFrame.DataContainer, returns self, if the data already has an AFrame.DataContainer associated with
 *	it, then the original AFrame.DataContainer is used.
 */
 AFrame.DataContainer = ( function() {
     "use strict";
-    
+
     var DataContainer = function( data ) {
         if( data instanceof DataContainer ) {
             return data;
@@ -1217,21 +1247,32 @@ AFrame.DataContainer = ( function() {
             * @default {}
             */
             this.data = config.data || {};
-            
+
             if( this.data.__dataContainer ) {
                 throw Error( 'Cannot create a second DataContainer for an object' );
             }
-            
+
             this.data.__dataContainer = this;
             this.fieldBindings = {};
-            
+
             DataContainer.sc.init.call( this, config );
         },
-        
+
         /**
-        * Set an item of data.  
+        * Update a field.
         *
-        *    dataContainer.set( 'name', 'Shane Tomlinson' );
+        *    // If passing two arguments, the first argument is
+        *	 // the name of the field, the second is the value
+        *    var prevVal = dataContainer.set( 'name', 'Shane Tomlinson' );
+        *
+        *    // If passing a single argument, it must be an
+        *	 // object with key/value pairs.  prevVals will
+        *    // be an object with the previous value of each
+        *    // field that is updated.
+        *    var prevVals = dataContainer.set( {
+        *        name: 'Shane Tomlinson',
+        *        employer: 'AFrame Foundary'
+        *    } );
         *
         * @method set
         * @param {string} fieldName name of field
@@ -1239,9 +1280,17 @@ AFrame.DataContainer = ( function() {
         * @return {variant} previous value of field
         */
         set: function( fieldName, fieldValue ) {
+        	if( 'object' === typeof( fieldName ) ) {
+				var prevVals = {};
+        		for( var key in fieldName ) {
+					prevVals[ key ] = this.set( key, fieldName[ key ] );
+        		}
+        		return prevVals;
+        	}
+
             var oldValue = this.data[ fieldName ];
             this.data[ fieldName ] = fieldValue;
-            
+
             /**
             * Triggered whenever any item on the object is set.
             * @event onSet
@@ -1271,10 +1320,10 @@ AFrame.DataContainer = ( function() {
                 value: fieldValue,
                 type: 'onSet-' + fieldName
             } );
-            
+
             return oldValue;
         },
-        
+
         /**
         * Get the value of a field
         *
@@ -1287,7 +1336,7 @@ AFrame.DataContainer = ( function() {
         get: function( fieldName ) {
             return this.data[ fieldName ];
         },
-        
+
         /**
         * Get an object with all fields contained in the DataContainer.
         *
@@ -1300,9 +1349,9 @@ AFrame.DataContainer = ( function() {
         getDataObject: function() {
             return this.data;
         },
-        
+
         /**
-        * Bind a callback to a field.  Function is called once on initialization as well as any time the field changes.  
+        * Bind a callback to a field.  Function is called once on initialization as well as any time the field changes.
         *   When function is called, it is called with an event.
         *
         *    var onChange = function( event ) {
@@ -1327,10 +1376,10 @@ AFrame.DataContainer = ( function() {
             } );
             var event = this.getEventObject();
             callback.call( context, event );
-            
+
             return this.bindEvent( 'onSet-' + fieldName, callback, context );
         },
-        
+
         /**
         * Unbind a field.
         *
@@ -1343,7 +1392,7 @@ AFrame.DataContainer = ( function() {
         unbindField: function( id ) {
             return this.unbindEvent( id );
         },
-        
+
         /**
         * Iterate over each item in the dataContainer.  Callback will be called with two parameters, the first the value, the second the key
         *
@@ -1363,7 +1412,7 @@ AFrame.DataContainer = ( function() {
             }
         }
     } );
-    
+
     return DataContainer;
 }() );
 /**
@@ -2451,14 +2500,14 @@ AFrame.CollectionPluginPersistence = ( function() {
 *        name: { type: 'text' },
 *        employer: { type: 'text', 'def': 'AFrame Foundary' }
 *    };
-*    
+*
 *    // create the collection.
 *    this.collection = AFrame.create( AFrame.CollectionArray, {
 *        plugins: [ [ AFrame.CollectionPluginModel, {
 *            schema: schemaConfig
 *        } ] ]
 *    } );
-* 
+*
 * @class AFrame.CollectionPluginModel
 * @extends AFrame.Plugin
 * @constructor
@@ -2466,12 +2515,12 @@ AFrame.CollectionPluginPersistence = ( function() {
 /**
 * The schema or schemaConfig to use.
 * @config schema
-* @type {SchemaConfig || Schema}
+* @type {SchemaConfig || Schema || Model}
 */
 /**
 * The model factory to use.  If not given, a default model factory is used
 *   which creates an AFrame.Model with the data inserted and the schema
-*   given.  The factory will be called with two parameters, the data 
+*   given.  The factory will be called with two parameters, the data
 *   and the schema.
 *
 *    // example of an overridden model factory function.
@@ -2488,43 +2537,47 @@ AFrame.CollectionPluginPersistence = ( function() {
 */
 AFrame.CollectionPluginModel = ( function() {
     "use strict";
-    
+
     var Plugin = AFrame.Class( AFrame.Plugin, {
         importconfig: [ 'schema' ],
 
         init: function( config ) {
-            this.modelFactory = config.modelFactory || createModel;
-            
-            Plugin.sc.init.call( this, config );
-            
-            var plugged = this.getPlugged();
-            plugged.insert = augmentInsert.bind( this, plugged.insert );
-            
+        	var me=this;
+            me.modelFactory = config.modelFactory || createModel;
+
+            Plugin.sc.init.call( me, config );
+
+			me.defaultModelConstructor = AFrame.extendsFrom( me.schema, AFrame.Model ) ? me.schema : AFrame.Model;
+
+            var plugged = me.getPlugged();
+            plugged.insert = augmentInsert.bind( me, plugged.insert );
+
             if( plugged.add ) {
-                plugged.add = augmentInsert.bind( this, plugged.add );
+                plugged.add = augmentInsert.bind( me, plugged.add );
             }
         }
-        
+
     } );
-    
+
     function augmentInsert( decorated, item, insertAt ) {
         if( !( item instanceof AFrame.Model ) ) {
-            item = this.modelFactory( item, this.schema );
+            item = this.modelFactory( item );
         }
-        
+
         decorated.call( this.getPlugged(), item, insertAt );
     }
-    
-    function createModel( data, schema ) {
-        var model = AFrame.create( AFrame.Model, {
-            schema: schema,
-            data: data
-        } );
+
+    function createModel( data ) {
+		var model = AFrame.create( this.defaultModelConstructor, {
+			schema: this.schema,
+			data: data
+		} );
         return model;
     }
-    
+
     return Plugin;
-}() );/**
+}() );
+/**
  * A basic data schema, useful for defining a data structure, validating data, and preparing data to 
  * be loaded from or saved to a persistence store.  Schema's define the data structure and can
  * be nested to create complex data structures.  Schemas perform serialization duties in getAppData and
@@ -3001,21 +3054,21 @@ AFrame.Schema = (function() {
 *    var fieldValidityState = AFrame.DataValidation.validate( {
 *        data: 1,
 *        criteria: criteria
-*    } );  
+*    } );
 *    // fieldValidityState.valid is false
 *    // fieldValidityState.rangeUnderflow is true
 *
 *    fieldValidityState = AFrame.DataValidation.validate( {
 *        data: 10,
 *        criteria: criteria
-*    } );  
+*    } );
 *    // fieldValidityState.valid is true
 *    // fieldValidityState.rangeUnderflow is false
 *
 *
 *    // Add a custom validator
 *
-*    AFrame.DataValidation.setValidator( 'specializednumber', 'min', function( dataToValidate, 
+*    AFrame.DataValidation.setValidator( 'specializednumber', 'min', function( dataToValidate,
 *           fieldValidityState, thisCriteria, allCriteria ) {
 *       // Do validation here.  If there is a problem, set the error on fieldValidityState
 *       var valid = // code to do validation
@@ -3028,19 +3081,19 @@ AFrame.Schema = (function() {
 *         min: 1234
 *         type: 'specializednumber'
 *    };
-*            
+*
 *    var fieldValidityState = AFrame.DataValidation.validate( {
 *        data: 1,
 *        criteria: criteria
-*    } );  
-*                
+*    } );
+*
 *
 * @class AFrame.DataValidation
 * @static
 */
 AFrame.DataValidation = ( function() {
     "use strict";
-    
+
     var defined = AFrame.defined;
     var validationFuncs = {};
     var jsTypes = {
@@ -3048,9 +3101,9 @@ AFrame.DataValidation = ( function() {
         number: 'number',
         integer: 'number'
     };
-    
+
     var Validation = {
-        
+
         /**
         * validate the dataToValidate using the given criteria.
         *
@@ -3069,14 +3122,14 @@ AFrame.DataValidation = ( function() {
         *    fieldValidityState = AFrame.DataValidation.validate( {
         *        data: 10,
         *        criteria: criteria
-        *    } ); 
+        *    } );
         *    // fieldValidityState.valid is true
         *    // fieldValidityState.rangeUnderflow is false
         *
         * @method validate
         * @param {variant} options.data - dataToValidate to validate
         * @param {object} options.criteria - the criteria to validate against
-        * @param {FieldValidityState} options.fieldValidityState (optional) - 
+        * @param {FieldValidityState} options.fieldValidityState (optional) -
         *  field validity state to use, one is created if not given
         * @return {FieldValidityState} [FieldValidityState](AFrame.FieldValidityState.html) for the dataToValidate.
         */
@@ -3085,15 +3138,15 @@ AFrame.DataValidation = ( function() {
             var allCriteria = options.criteria;
             var fieldValidityState = options.fieldValidityState || AFrame.FieldValidityState.getInstance();
             var type = allCriteria.type || 'text';
-            
+
             for( var key in allCriteria ) {
                 this.validateDataForTypeCriteria( dataToValidate, type, key, fieldValidityState, allCriteria );
                 this.validateDataForTypeCriteria( dataToValidate, 'all', key, fieldValidityState, allCriteria );
             }
-            
+
             return fieldValidityState;
         },
-        
+
         validateDataForTypeCriteria: function( dataToValidate, type, currCriteriaName, fieldValidityState, allCriteria ) {
             var validators = validationFuncs[ type ] || {};
             var validator = validators[ currCriteriaName ];
@@ -3101,11 +3154,11 @@ AFrame.DataValidation = ( function() {
                 validator( dataToValidate, fieldValidityState, allCriteria[ currCriteriaName ], allCriteria );
             }
         },
-        
+
         /**
         * Set a validator to be used for a certain type
         *
-        *    AFrame.DataValidation.setValidator( 'specializednumber', 'min', function( dataToValidate, 
+        *    AFrame.DataValidation.setValidator( 'specializednumber', 'min', function( dataToValidate,
         *           fieldValidityState, thisCriteria, allCriteria ) {
         *       // Do validation here.  If there is a problem, set the error on fieldValidityState
         *       var valid = // code to do validation
@@ -3118,12 +3171,12 @@ AFrame.DataValidation = ( function() {
         *         min: 'criteria',
         *         type: 'specializednumber'
         *    };
-        *            
+        *
         *    var fieldValidityState = AFrame.DataValidation.validate( {
         *        data: 1,
         *        criteria: criteria
         *    } );
-        *                  
+        *
         * @method setValidator
         * @param {string} type - type of data to set validator for
         * @param {string} criteria - name of criteria to set validator for
@@ -3140,24 +3193,31 @@ AFrame.DataValidation = ( function() {
             fieldValidityState.setError( 'valueMissing' );
         }
     } );
-        
+
     Validation.setValidator( 'all', 'type', function( dataToValidate, fieldValidityState, type ) {
-        if( defined( dataToValidate ) ) {            
+        if( defined( dataToValidate ) ) {
             var jsType = jsTypes[ type ];
-            
+
             if( jsType && jsType != typeof( dataToValidate ) ) {
                 fieldValidityState.setError( 'typeMismatch' );
             }
         }
-    
     } );
-    
+
+    Validation.setValidator( 'integer', 'type', function( dataToValidate, fieldValidityState, type ) {
+		if( defined( dataToValidate ) ) {
+			if( parseInt( dataToValidate, 10 ) !== dataToValidate ) {
+				fieldValidityState.setError( 'typeMismatch' );
+			}
+		}
+    } );
+
     var numberMinValidation = function( dataToValidate, fieldValidityState, min ) {
         if( defined( dataToValidate ) && ( dataToValidate < min ) ) {
             fieldValidityState.setError( 'rangeUnderflow' );
         }
     };
-    
+
     Validation.setValidator( 'number', 'min', numberMinValidation );
     Validation.setValidator( 'integer', 'min', numberMinValidation );
 
@@ -3165,10 +3225,10 @@ AFrame.DataValidation = ( function() {
         if( defined( dataToValidate ) && ( dataToValidate > max ) ) {
             fieldValidityState.setError( 'rangeOverflow' );
         }
-    };    
+    };
     Validation.setValidator( 'number', 'max', numberMaxValidation );
     Validation.setValidator( 'integer', 'max', numberMaxValidation );
-        
+
     var numberStepValidation = function( dataToValidate, fieldValidityState, step, allCriteria ) {
         if( defined( dataToValidate ) ) {
             var min = allCriteria.min || 0;
@@ -3178,10 +3238,10 @@ AFrame.DataValidation = ( function() {
             }
         }
     };
-    
+
     Validation.setValidator( 'number', 'step', numberStepValidation );
     Validation.setValidator( 'integer', 'step', numberStepValidation );
-        
+
     Validation.setValidator( 'text', 'required', function( dataToValidate, fieldValidityState ) {
         if( !dataToValidate ) {
             fieldValidityState.setError( 'valueMissing' );
@@ -3193,20 +3253,20 @@ AFrame.DataValidation = ( function() {
             fieldValidityState.setError( 'tooLong' );
         }
     } );
-        
+
     Validation.setValidator( 'text', 'pattern', function( dataToValidate, fieldValidityState, pattern ) {
         var regexp = new RegExp( pattern );
         if( defined( dataToValidate ) && !regexp.test( dataToValidate ) ) {
             fieldValidityState.setError( 'patternMismatch' );
         }
     } );
-    
-    
+
+
     return Validation;
 
 })();
 /**
-* A Model is a DataContainer that is associated with a Schema.  If no initial data is given, 
+* A Model is a DataContainer that is associated with a Schema.  If no initial data is given,
 *   default values will be retreived from the schema.  When doing a set, only data that validates
 *   will be set.  If data to set is invalid, set will return a [FieldValidityState](AFrame.FieldValidityState.html).
 *
@@ -3239,12 +3299,12 @@ AFrame.DataValidation = ( function() {
 *    // update a field.  prevVal will be 'Get some milk'
 *    var prevVal = model.set( 'title', 'Get some milk and eggs' );
 *
-*    // This is setting the date in error, the prevVal will have a 
+*    // This is setting the date in error, the prevVal will have a
 *    // FieldValidityState with its typeMismatch field set to true.
 *    // This will NOT actually set the value.
 *    prevVal = model.set( 'edit_date', '1' );
 *
-*    // Check the overall model for validity.  Returns true if all valid, an 
+*    // Check the overall model for validity.  Returns true if all valid, an
 *    // object of FieldValidityStates otherwise
 *    var isValid = model.checkValidity();
 *
@@ -3257,7 +3317,7 @@ AFrame.DataValidation = ( function() {
 *    // Manually create a model
 *    var model = AFrame.create( AFrame.Model, {
 *        schema: noteSchemaConfig,
-*        data: { 
+*        data: {
 *            // data here
 *        }
 *    } );
@@ -3279,46 +3339,63 @@ AFrame.DataValidation = ( function() {
 */
 AFrame.Model = ( function() {
     "use strict";
-    
+
     var Model = AFrame.Class( AFrame.DataContainer, {
         init: function( config ) {
             this.schema = getSchema( this.schema || config.schema );
-            
+
             config.data = getInitialData( this.schema, config.data );
-            
+
             Model.sc.init.call( this, config );
         },
-        
+
 	    /**
 	    * Set an item of data.  Model will only be updated if data validates or force is set to true.  If data validates, the previous
 	    * value will be returned.  If data does not validate, a [FieldValidityState](AFrame.FieldValidityState.html)
 	    * will be returned.
         *
+        *    // update single item
         *    var retval = model.set( 'name', 'Shane Tomlinson' );
         *    if( retval !== true ) {
         *        // something went wrong
         *    }
         *
+        *    // bulk update.  retVals will have a true/FieldValidityState for
+        *    // each item being set.
+        *    var retVals = model.set( {
+        *        name: 'Shane Tomlinson',
+        *        employer: 'AFrame Foundary'
+        *    } );
+        *
 	    * @method set
 	    * @param {string} fieldName name of field
 	    * @param {variant} fieldValue value of field
 	    * @param {boolean} force force update
-	    * @return {variant} previous value of field if correctly set, a 
+	    * @return {variant} previous value of field if correctly set, a
 	    *   [FieldValidityState](AFrame.FieldValidityState.html) otherwise
 	    */
         set: function( fieldName, fieldValue, force ) {
-            var fieldValidity = this.checkValidity( fieldName, fieldValue );
-            
+        	if( 'object' === typeof( fieldName ) ) {
+				var prevVals = {};
+        		for( var key in fieldName ) {
+        			// fieldValue becomes the "force" field in this case
+					prevVals[ key ] = this.set( key, fieldName[ key ], fieldValue );
+        		}
+        		return prevVals;
+        	}
+
+        	var fieldValidity = this.checkValidity( fieldName, fieldValue );
+
             if( true === fieldValidity || force ) {
-                var setval = Model.sc.set.call( this, fieldName, fieldValue );
+                var prevVal = Model.sc.set.call( this, fieldName, fieldValue );
                 if( !force ) {
-                    fieldValidity = setval;
+                    fieldValidity = prevVal;
                 }
             }
-            
+
             return fieldValidity;
         },
-        
+
         /**
         * Check the validity of the potential value of a field
         *
@@ -3331,26 +3408,26 @@ AFrame.Model = ( function() {
         * @method checkValidity
 	    * @param {string} fieldName name of field
 	    * @param {variant} fieldValue potential value of field
-	    * @return {variant} true if field would be valid, a 
+	    * @return {variant} true if field would be valid, a
 	    *   [FieldValidityState](AFrame.FieldValidityState.html) otherwise
         */
         checkValidity: function( fieldName, fieldValue ) {
             var data = {};
             data[ fieldName ] = fieldValue;
-            
+
             var fieldValidity = this.schema.validate( data, true );
-            
+
             if( fieldValidity !== true ) {
                 fieldValidity = fieldValidity[ fieldName ];
             }
-            
+
             return fieldValidity;
         },
-        
+
         /**
         * Get an object suitable to send to persistence.  This is based roughly on converting
         *	the data to a [FormData](https://developer.mozilla.org/en/XMLHttpRequest/FormData) "like" object - see [MDC](https://developer.mozilla.org/en/XMLHttpRequest/FormData)
-        *	All items in the schema that do not have save parameter set to false and have values defined in dataToSerialize 
+        *	All items in the schema that do not have save parameter set to false and have values defined in dataToSerialize
         *	will have values returned.
         *
         *     // Get an object suitable to send to persistence.
@@ -3364,31 +3441,31 @@ AFrame.Model = ( function() {
             return this.schema.serializeItems( dataObject );
         }
     } );
-    
+
     return Model;
-    
+
     function getSchema( candidate ) {
-        var schema = candidate instanceof AFrame.Schema ? candidate : 
+        var schema = candidate instanceof AFrame.Schema ? candidate :
             AFrame.Schema( candidate );
-        
+
         return schema;
     }
-    
+
     function getInitialData( schema, initialData ) {
         if( !initialData ) {
             initialData = schema.getDefaults();
         }
-        
+
         // use the initialData structure to store deserialized data
         //  so that we do not have two copies of the data running around.
         var deserialized = schema.getAppData( initialData );
         for( var key in deserialized ) {
             initialData[ key ] = deserialized[ key ];
         }
-        
+
         return initialData;
     }
-    
+
 
 } )();
 /**

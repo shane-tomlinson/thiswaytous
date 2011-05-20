@@ -383,11 +383,11 @@ AFrame.Class = ( function() {
     /**
     * A shortcut to create a new class with a default constructor.  A default
     *   constructor does nothing unless it has a superclass, where it calls the
-    *   superclasses constructor.  If the first parameter to Class is a function, 
-    *   the parameter is assumed to be the superclass.  All other parameters 
+    *   superclasses constructor.  If the first parameter to Class is a function,
+    *   the parameter is assumed to be the superclass.  All other parameters
     *   should be objects which are mixed in to the new classes prototype.
     *
-    * If a new class needs a non-standard constructor, the class constructor should 
+    * If a new class needs a non-standard constructor, the class constructor should
     *   be created manually and then any mixins/superclasses set up using the
     *   [AFrame.extend](#method_extend) function.
     *
@@ -408,18 +408,18 @@ AFrame.Class = ( function() {
     * @method AFrame.Class
     * @param {function} superclass (optional) - superclass to use.  If not given, class has
     *   no superclass.
-    * @param {object} 
+    * @param {object}
     * @return {function} - the new class.
     */
     var Class = function() {
         var F;
-        
+
         var args = Array.prototype.slice.call( arguments, 0 );
-        
+
         // we have a superclass, do everything related to a superclass
         if( AFrame.func( args[ 0 ] ) ) {
-            F = function() { 
-                F.sc.constructor.call( this ); 
+            F = function() {
+                F.sc.constructor.call( this );
             };
             AFrame.extend( F, args[ 0 ] );
             args.splice( 0, 1 );
@@ -428,17 +428,17 @@ AFrame.Class = ( function() {
             // no superclass.  Create a base class.
             F = function() {};
         }
-        
+
         for( var mixin, index = 0; mixin = args[ index ]; ++index ) {
             AFrame.mixin( F.prototype, mixin );
         }
-        
+
         // Always set the constructor last in case any mixins overwrote it.
         F.prototype.constructor = F;
-        
+
         return F;
     };
-        
+
     /**
     * Walk the class chain of an object.  The object must be an AFrame.Class/AFrame.extend based.
     *
@@ -461,9 +461,10 @@ AFrame.Class = ( function() {
             currClass = currClass.superclass;
         } while( currClass );
     };
-        
+
     return Class;
-}() );/**
+}() );
+/**
  * An Observable is the way events are done.  Observables are very similar to DOM Events in that 
  * each object has a set of events that it can trigger.  Objects that are concerned with a particular event register a callback to be
  * called whenever the event is triggered.  Observables allow for each event to have zero or many listeners, meaning the developer does not have
@@ -907,9 +908,9 @@ AFrame.EnumerableMixin = ( function() {
 }() );/**
  * The base object of nearly everything.  It is recommended to create all new classes as a subclass
  * of AObject since it provides general functionality such as event binding and teardown housekeeping.
- * All AObjects in the system have a cid, a cid is a unique identifier within the application.  
- * If an AObject creates and is responsible for maintaining other AObjects, [addChild](#method_addChild) 
- * should be called with the created children.  When this object is torn down, the child object added via addChild will 
+ * All AObjects in the system have a cid, a cid is a unique identifier within the application.
+ * If an AObject creates and is responsible for maintaining other AObjects, [addChild](#method_addChild)
+ * should be called with the created children.  When this object is torn down, the child object added via addChild will
  * have its teardown function called as well.  This can ensure that all memory is freed and that
  * no references are kept when the object's lifespan has ended.
  *
@@ -934,23 +935,23 @@ AFrame.EnumerableMixin = ( function() {
  *        secondImportedParam: "So is this",
  *        thirdParam: "But this is not"
  *    } );
- * 
+ *
  * Event Usage
  *=========
  *
- * All AFrame.AObject based classes have a built in event mechanism.  Events are 
- *  dynamically created, there is no need to explicitly create an event, all that is 
+ * All AFrame.AObject based classes have a built in event mechanism.  Events are
+ *  dynamically created, there is no need to explicitly create an event, all that is
  *  needed is to call the object's triggerEvent or bindEvent.
  *
  * Event Example Usage:
  *
  *    // Assume anObject is an AFrame.AObject based object.
- *    // Every AFrame.AObject based object triggers an onInit event 
+ *    // Every AFrame.AObject based object triggers an onInit event
  *    // when its init function is called.
  *    var onObjectInit = function() {
  *       // called whenever anObject.init is called.
  *    };
- *   
+ *
  *    anObject.bindEvent( 'onInit', onObjectInit );
  *    anObject.init();    // calls onObjectInit function
  *
@@ -980,8 +981,8 @@ AFrame.EnumerableMixin = ( function() {
  *        event2Handler: function() {
  *             // handle event here
  *        }
- *    } );		
- *  
+ *    } );
+ *
  * @class AFrame.AObject
  * @uses AFrame.ObservablesMixin
  */
@@ -989,9 +990,9 @@ AFrame.EnumerableMixin = ( function() {
  * cid for the object, if not given, a unique id is assigned
  * @config {cid} cid
  */
-AFrame.AObject = (function(){ 
+AFrame.AObject = (function(){
     "use strict";
-    
+
     var AObject = AFrame.Class( {
         /**
          * Initialize the object.  Note that if [AFrame.construct](AFrame.html#method_construct) or [AFrame.create](AFrmae.html#method_create)is used, this will be called automatically.
@@ -999,7 +1000,7 @@ AFrame.AObject = (function(){
          *    var obj = new AFrame.SomeObject();
          *    obj.init( { name: 'value' } );
          *
-         * 
+         *
          * @method init
          * @param config {object} - configuration
          * @param config.cid {id} - cid to give to the object, if not given, one is generated.
@@ -1008,10 +1009,10 @@ AFrame.AObject = (function(){
             this.config = config;
             this.cid = config.cid || AFrame.getUniqueID();
             this.children = {};
-            
+
             importConfig.call( this );
             this.bindEvents();
-            
+
             /**
              * Triggered when the object is initialized
              * @event onInit
@@ -1019,7 +1020,7 @@ AFrame.AObject = (function(){
              */
              this.triggerEvent( 'onInit' );
         },
-        
+
         /**
          * Return the configuration object given in init.
          *
@@ -1031,7 +1032,7 @@ AFrame.AObject = (function(){
         getConfig: function() {
             return this.config;
         },
-        
+
         /**
          * Override to do any event binding
          * @method bindEvents
@@ -1039,7 +1040,7 @@ AFrame.AObject = (function(){
         bindEvents: function() {
             bindEvents.call( this );
         },
-        
+
         /**
          * Tear the object down, free any references
          *
@@ -1060,7 +1061,7 @@ AFrame.AObject = (function(){
             this.teardownChildren();
             this.config = this.cid = this.children = null;
         },
-        
+
         teardownChildren: function() {
             for( var cid in this.children ) {
                 var child = this.children[ cid ];
@@ -1068,7 +1069,7 @@ AFrame.AObject = (function(){
                 AFrame.remove( this.children, cid );
             }
         },
-        
+
         /**
          * Get the CID of the object
          *
@@ -1080,7 +1081,7 @@ AFrame.AObject = (function(){
         getCID: function() {
             return this.cid;
         },
-        
+
         /**
          * Add a child.  All children are torn down on this object's teardown
          *
@@ -1094,11 +1095,11 @@ AFrame.AObject = (function(){
         addChild: function( child ) {
             this.children[ child.getCID() ] = child;
         },
-        
+
         /**
          * Remove a child.
          *
-         *    // childToRemove is a child that this object has already 
+         *    // childToRemove is a child that this object has already
          *    // created and no longer needs.
          *    this.removeChild( childToRemove.getCID() );
          *
@@ -1108,15 +1109,15 @@ AFrame.AObject = (function(){
         removeChild: function( cid ) {
             AFrame.remove( this.children, cid );
         },
-        
-        
+
+
         /**
-        * Create a trigger event proxy function.  Useful to re-broadcast an event or when a DOM 
+        * Create a trigger event proxy function.  Useful to re-broadcast an event or when a DOM
         *   event should trigger a normal AObject based event.
         *
         *    // use triggerProxy to rebroadcast an event from a child
         *    child.bindEvent( 'eventToProxy', this.triggerProxy( 'eventToProxy' ) );
-        *    
+        *
         *
         * @method triggerProxy
         * @param {string} eventName - name of event to trigger
@@ -1125,51 +1126,55 @@ AFrame.AObject = (function(){
             return this.triggerEvent.bind( this, eventName );
         }
     }, AFrame.ObservablesMixin );
-    
+
     function importConfig() {
         var me = this;
         AFrame.Class.walkChain( function( currClass ) {
-            var classImports = currClass.prototype.importconfig || [];
-            classImports.forEach( function( importName ) {
-                if( AFrame.defined( me.config[ importName ] ) ) {
-                    me[ importName ] = me.config[ importName ];
-                }
-            } );
-        }, me );
-    }
-    
-    function bindEvents() {
-        var me = this;
-        
-        AFrame.Class.walkChain( function( currClass ) {
-            var events = currClass.prototype.events || {};
-            
-            for( var eventName in events ) {
-                var nameTarget = getNameAndTarget.call( me, eventName );
-                bindHandlers.call( me, nameTarget.name, nameTarget.target, events[ eventName ] );
+        	if( currClass.prototype.hasOwnProperty( 'importconfig' ) ) {
+				var classImports = currClass.prototype.importconfig;
+				classImports.forEach( function( importName ) {
+					if( AFrame.defined( me.config[ importName ] ) ) {
+						me[ importName ] = me.config[ importName ];
+					}
+				} );
             }
         }, me );
-        
+    }
+
+    function bindEvents() {
+        var me = this;
+
+        AFrame.Class.walkChain( function( currClass ) {
+        	if( currClass.prototype.hasOwnProperty( 'events' ) ) {
+				var events = currClass.prototype.events;
+
+				for( var eventName in events ) {
+					var nameTarget = getNameAndTarget.call( me, eventName );
+					bindHandlers.call( me, nameTarget.name, nameTarget.target, events[ eventName ] );
+				}
+            }
+        }, me );
+
         function getNameAndTarget( eventName ) {
             var parts = eventName.split( ' ' );
             var target = me[ parts[ 1 ] ] || me;
-            
+
             return {
                 name: parts[ 0 ],
                 target: target
             };
         }
-        
+
         function bindHandlers( name, target, handlers ) {
             handlers = AFrame.array( handlers ) ? handlers : [ handlers ];
-            
+
             handlers.forEach( function( handler ) {
                 handler = AFrame.func( handler ) ? handler : me[ handler ];
                 target.bindEvent( name, handler, me );
             } );
         }
     }
-    
+
 
     return AObject;
 }() );
@@ -2038,26 +2043,26 @@ AFrame.CollectionArray = ( function() {
  *  Views that are tied to specific pieces of data.
  *
  *    <button id="submitForm">Submit</button>
- *    
+ *
  *    ---------
- * 
+ *
  *    var buttonSelector = '#submitForm';
- *   
- *    // buttonSelector is a selector used to specify the root node of 
+ *
+ *    // buttonSelector is a selector used to specify the root node of
  *    //    the target.
  *    var button = AFrame.create( AFrame.Display, {
  *        target: buttonSelector
  *    } );
- *   
- *    // When binding to a DOM event, must define the target, which 
- *    //    can be any element or selector. If a selector is given, 
- *    //    the target is looked for as a descendant of the display's 
+ *
+ *    // When binding to a DOM event, must define the target, which
+ *    //    can be any element or selector. If a selector is given,
+ *    //    the target is looked for as a descendant of the display's
  *    //    target.
  *    button.bindClick( buttonSelector, function( event ) {
- *      // take care of the click, the event's default action is 
+ *      // take care of the click, the event's default action is
  *      //     already prevented.
  *    } );
- *   
+ *
  *    // Any DOM event can be bound to.
  *    button.bindDOMEvent( buttonSelector, 'mouseenter', function( event ) {
  *       // Do a button highlight or some other such thing.
@@ -2073,7 +2078,7 @@ AFrame.CollectionArray = ( function() {
  *
  *     ...
  *     // Using the jQuery DOM adapter.
- *     
+ *
  *     // Example of render which directly inserts HTML
  *     render: function() {
  *         AFrame.DOM.setInner( this.getTarget(), '<div>This is rendered ' +
@@ -2085,7 +2090,7 @@ AFrame.CollectionArray = ( function() {
  *         this.getTarget().setTemplate( $( '#template' ).html() )
  *             .processTemplate( {} );
  *     },
- * 
+ *
  *
  * Declaring DOM Event Bindings
  *========
@@ -2112,9 +2117,18 @@ AFrame.CollectionArray = ( function() {
  *    var Display = AFrame.Class( AFrame.Display, {
  *        domevents: {
  *            mouseover: 'onMouseOver'
- *        },			
+ *        },
  *        onMouseOver: function( event ) {
  *            // Handle Event
+ *        }
+ *    } );
+ *
+ *    // Frequently, it is necessary to attach an event not to the target
+ *	  // element of the object, but to one of its children.  This is possible
+ *	  // by specifying a selector to attach to.
+ *    var Display = AFrame.Class( AFrame.Display, {
+ *        domevents: {
+ *            'click .selector': function( event ) {}
  *        }
  *    } );
  *
@@ -2126,7 +2140,7 @@ AFrame.CollectionArray = ( function() {
  *            click: [ function( event ) {
  *            // Handle Event
  *            }, 'onClick' ],
- *        },			
+ *        },
  *        onClick: function( event ) {
  *            // Handle Event
  *        }
@@ -2136,14 +2150,14 @@ AFrame.CollectionArray = ( function() {
  *	  // of inline and class handlers
  *    var Display = AFrame.Class( AFrame.Display, {
  *        domevents: {
- *            click: [ function( event ) {
+ *            'click .selector': [ function( event ) {
  *                // Handle Event
  *            }, 'onClick' ],
- *            mouseover: 'onMouseOver'
- *        },			
+ *            mouseover: 'onMouseOver',
+ *        },
  *        onClick: function( event ) {
  *            // Handle Event
- *        },			
+ *        },
  *        onMouseOver: function( event ) {
  *            // Handle Event
  *        }
@@ -2155,7 +2169,7 @@ AFrame.CollectionArray = ( function() {
  */
 AFrame.Display = (function() {
     "use strict";
-    
+
     var currDOMEventID = 0;
 
     var Display = AFrame.Class( AFrame.AObject, {
@@ -2166,17 +2180,17 @@ AFrame.Display = (function() {
          */
         init: function( config ) {
             this.target = AFrame.DOM.getElements( config.target );
-            
+
             if( !this.target.length ) {
                 throw 'invalid target';
             }
 
             this.render();
-            
+
             this.domEventHandlers = {};
-            
+
             Display.sc.init.call( this, config );
-            
+
             bindDOMEvents.call( this );
         },
 
@@ -2186,20 +2200,20 @@ AFrame.Display = (function() {
             }
 
             this.target = null;
-            
+
             Display.sc.teardown.call( this );
         },
-        
-        
+
+
         /**
-        * Render the HTML element, by default, only triggers the onRender observable.  Should be overridden in 
+        * Render the HTML element, by default, only triggers the onRender observable.  Should be overridden in
         *   subclasses to do any templating, setting up the DOM, etc.  Subclasses do not need to do anything
         *   if the full DOM for this display has already been created.  AFrame does not care what templating system
         *   that is used, so any way of setting the target's HTML is fine.
         *
         *
         *     ...
-        * 
+        *
         *     // Example of render which directly inserts HTML
         *     render: function() {
         *         AFrame.DOM.setInner( this.getTarget(), '<div>This is rendered inside of ' +
@@ -2210,7 +2224,7 @@ AFrame.Display = (function() {
         *     render: function() {
         *         this.getTarget().setTemplate( $( '#template' ).html() ).processTemplate( {} );
         *     },
-        * 
+        *
         *
         * @method render
         */
@@ -2222,7 +2236,7 @@ AFrame.Display = (function() {
             */
             this.triggerEvent( 'onRender', this );
         },
-        
+
         /**
          * Get the display's target.
          *
@@ -2234,10 +2248,10 @@ AFrame.Display = (function() {
         getTarget: function() {
             return this.target;
         },
-        
+
         /**
         * Get the display's native DOM Element.
-        * 
+        *
         *    var element = display.getDOMElement();
         *
         * @method getDOMElement
@@ -2275,10 +2289,10 @@ AFrame.Display = (function() {
                 eventName: eventName,
                 callback: eventCallback
             };
-            
+
             return id;
         },
-        
+
         /**
         * a convenience function for binding click events.  The event has it's default prevented so that
         *	if binding to an anchor with an href of "#", the screen does not jump.
@@ -2302,7 +2316,7 @@ AFrame.Display = (function() {
                 callback.call( this, event );
             }, context );
         },
-        
+
         /**
          * Unbind a DOM event
          *
@@ -2323,7 +2337,7 @@ AFrame.Display = (function() {
             }
         }
     } );
-    
+
     function getEventTarget( target ) {
         var eventTarget;
 
@@ -2333,42 +2347,44 @@ AFrame.Display = (function() {
         else {
             eventTarget = AFrame.DOM.getElements( target );
         }
-        
+
         return eventTarget;
     }
-    
+
     function bindDOMEvents() {
         var me = this, target = me.getTarget();
-        
+
         AFrame.Class.walkChain( function( currClass ) {
-            var domEvents = currClass.prototype.domevents || {};
-            
-            for( var eventName in domEvents ) {
-                var nameTarget = getNameAndTarget.call( me, eventName );
-                bindHandlers.call( me, nameTarget.name, nameTarget.target, domEvents[ eventName ] );
+        	if( currClass.prototype.hasOwnProperty( 'domevents' ) ) {
+				var domEvents = currClass.prototype.domevents;
+
+				for( var eventName in domEvents ) {
+					var nameTarget = getNameAndTarget.call( me, eventName );
+					bindHandlers.call( me, nameTarget.name, nameTarget.target, domEvents[ eventName ] );
+				}
             }
         }, me );
-        
+
         function getNameAndTarget( eventName ) {
             var parts = eventName.split( ' ' );
             var target = parts.length == 1 ? me.getTarget() : parts.slice( 1 ).join( ' ' );
-            
+
             return {
                 name: parts[ 0 ],
                 target: target
             };
         }
-        
+
         function bindHandlers( name, target, handlers ) {
             handlers = AFrame.array( handlers ) ? handlers : [ handlers ];
-            
+
             handlers.forEach( function( handler ) {
                 handler = AFrame.func( handler ) ? handler : me[ handler ];
                 me.bindDOMEvent( target, name, handler );
             } );
         }
     }
-    
+
     return Display;
 } )();
 /**
