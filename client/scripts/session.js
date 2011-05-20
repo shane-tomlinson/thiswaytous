@@ -2,7 +2,7 @@ TWTU.Session = (function() {
 	"use strict";
 
 	var schema = {
-		id: { type: 'string' },
+		id: { type: 'id' },
 		start_date: { type: 'iso8601' },
 		invite_code_1: { type: 'string' },
 		invite_code_2: { type: 'string' },
@@ -15,6 +15,7 @@ TWTU.Session = (function() {
 		connected: false,
 		start: function() {
 			var me=this;
+			me.set( 'id', '' );
 			me.set( 'invite_code_1', '' );
 			me.set( 'invite_code_2', '' );
 			me.set( 'invite_code_3', '' );
