@@ -8,7 +8,7 @@
 			google.maps.clearChanges();
 
 			map = AFrame.create( TWTU.Map, {
-				target: '#map',
+				target: '#target',
 				position: {
 					latitude: 0,
 					longitude: 1

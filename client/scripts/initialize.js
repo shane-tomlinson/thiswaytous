@@ -13,6 +13,7 @@
 		createCurrentUser();
 		createSession();
 		createUsers();
+		createInviteCodeForm();
 		createPages();
 		showUserInfo();
 		userPosition.getPosition( createMapSetPosition );
@@ -46,6 +47,13 @@
 			plugins: [ [ AFrame.CollectionPluginModel, {
 				schema: TWTU.User
 			} ] ]
+		} );
+	}
+
+	function createInviteCodeForm() {
+		var form = AFrame.create( AFrame.DataForm, {
+			target: '#invitecode',
+			dataSource: session
 		} );
 	}
 
