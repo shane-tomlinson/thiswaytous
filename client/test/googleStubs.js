@@ -3,7 +3,8 @@
 
 	google = {
 		maps: {
-			Map: function() {},
+			Map: function() {
+			},
 			Marker: function( config ) {
 				var currentPosition = config.position;
 				positionChanged = true;

@@ -26,10 +26,8 @@ TWTU.Map = ( function() {
 		* @return {id} id of marker - used to move/remove the marker.
 		*/
 		addMarker: function( name, position ) {
-			var currPosition = toGLatLng( position );
-
 			var marker = new google.maps.Marker( {
-				position: currPosition,
+				position: toGLatLng( position ),
 				map: this.map,
 				title: name
 			} );

@@ -16,17 +16,29 @@ TWTU.UserMapMarkers = (function() {
 	} );
 
 	function onUserAdd( event ) {
-		var user = event.item;
+		var user = event.item,
+			markerID = this.map.addMarker( user.get( 'name' ),
+				getUserPosition( user ) );
 
-		console.log( 'added user: ' + user.get( 'name' ) );
-
-		var markerID = this.map.addMarker( user.get( 'name' ),
-			getUserPosition( user ) );
 		this.markers[ user.getCID() ] = markerID;
+
+		user.bindEvent( 'onSet', onUserChange, this );
 	}
 
-	function onUserRemove( event, user ) {
-		console.log( 'removed user' );
+	function onUserRemove( event ) {
+		var user = event.item, markerID = getMarkerIDForUser.call( this, user );
+		if( markerID ) {
+			this.map.removeMarker( markerID );
+			console.log( 'removed user: ' + user.get( 'name' ) );
+		}
+	}
+
+	function onUserChange( event ) {
+		var user = event.target, markerID = getMarkerIDForUser.call( this, user );
+		if( markerID ) {
+			console.log( 'user moved: ' + user.get( 'name' ) );
+			this.map.moveMarker( markerID, getUserPosition( user ) );
+		}
 	}
 
 	function getUserPosition( user ) {
@@ -34,6 +46,10 @@ TWTU.UserMapMarkers = (function() {
 			latitude: user.get( 'lat' ),
 			longitude: user.get( 'lon' )
 		}
+	}
+
+	function getMarkerIDForUser( user ) {
+		return this.markers[ user.getCID() ];
 	}
 
 	return Markers;
