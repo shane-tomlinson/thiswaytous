@@ -42,9 +42,9 @@
 		<label for="enterCodeForm">Enter Code:</label>
 		<formset id="enterCodeForm">
 			<ul>
-				<li><input type="text" placeholder="XYZ" name="invite_code_1" data-field/></li>
-				<li><input type="text" placeholder="123" name="invite_code_2" data-field/></li>
-				<li><input type="text" placeholder="ABC" name="invite_code_3" data-field/></li>
+				<li><input type="text" placeholder="XYZ" name="invite_code_1" maxlength=3 data-field/></li>
+				<li><input type="text" placeholder="123" name="invite_code_2" maxlength=3 data-field/></li>
+				<li><input type="text" placeholder="ABC" name="invite_code_3" maxlength=3 data-field/></li>
 			</ul>
 		</formset>
 
