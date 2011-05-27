@@ -62,4 +62,25 @@
 		ok( google.maps.areBoundsFitted(), 'bounds have been fitted' );
 
 	} );
+
+	test( 'moveMarker with 2 or more users causes the viewport to move', function() {
+		map.addMarker( 'Marker 1', {
+			latitude: 0,
+			longitude: 0
+		} );
+
+		var id = map.addMarker( 'marker 2', {
+			latitude: 0,
+			longitude: 0
+		} );
+
+		google.maps.clearChanges();
+
+		var marker = map.moveMarker( id, {
+			latitude: 0,
+			longitude: 1
+		} );
+		ok( google.maps.areBoundsFitted(), 'bounds have been fitted' );
+	} );
+
 }() );
