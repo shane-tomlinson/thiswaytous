@@ -2,13 +2,16 @@
 	"use strict";
 
 	var testCase = require('nodeunit').testCase,
-		Session = require('../session.js'),
-		AFrame = require('../aframe-current-node.js');
+		assert = require('../assert-extras'),
+		Session = require('../session'),
+		AFrame = require('../aframe-current-node');
 
 	var session, userInfo;
 
 	module.exports = testCase({
 		setUp: function( callback ) {
+			debugger;
+
 			session = Session.create();
 			userInfo = {
 				name: 'Shane',
@@ -70,6 +73,8 @@
 
 			var sessionInfo = JSON.parse( string );
 			test.strictEqual( 1, sessionInfo.users && sessionInfo.users.length, 'users are added to the string' );
+
+			console.log( string );
 
 			test.done();
 		}
