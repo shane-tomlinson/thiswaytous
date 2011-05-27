@@ -35,7 +35,7 @@ TWTU.UserMapMarkers = (function() {
 
 	function onUserChange( event ) {
 		var user = event.target, markerID = getMarkerIDForUser.call( this, user );
-		if( markerID ) {
+		if( AFrame.defined( markerID ) ) {
 			console.log( 'user moved: ' + user.get( 'name' ) );
 			this.map.moveMarker( markerID, getUserPosition( user ) );
 		}
