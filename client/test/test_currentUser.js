@@ -24,14 +24,14 @@
 		equal( user.get( 'id' ), 'currentUser', 'currentUser used as ID if no data ' );
 	} );
 
-	test( 'Can set, save, and reload data', function() {
+	test( 'Can set, and reload data and it stays the same', function() {
+		// this should cause a save to happen
 		user.set( {
 			name: 'Test User',
 			lat: 0.01,
 			lon: 0.01,
 			id: 1
 		} );
-		user.save();
 
 		user = AFrame.create( TWTU.CurrentUser );
 

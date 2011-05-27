@@ -5,6 +5,9 @@ TWTU.CurrentUser = (function() {
 	var localStorage = window.localStorage;
 
 	var User = AFrame.Class( TWTU.User, {
+		events: {
+			'onSet': save
+		},
 		init: function( config ) {
 			var me=this;
 			config.cid = 'currentUser';
@@ -14,18 +17,18 @@ TWTU.CurrentUser = (function() {
 			User.sc.init.call( me, config );
 		},
 
-		save: function() {
-			if( canStore ) {
-				var localUser = JSON.stringify( this.serializeItems() );
-
-				localStorage.setItem( 'localUser', localUser );
-			}
-		},
-
 		hasData: function() {
 			return this.haveData;
 		}
 	} );
+
+	function save() {
+		if( canStore ) {
+			var localUser = JSON.stringify( this.serializeItems() );
+
+			localStorage.setItem( 'localUser', localUser );
+		}
+	}
 
 	function loadData( config ) {
 		var data = {};
