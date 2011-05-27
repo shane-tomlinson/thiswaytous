@@ -124,37 +124,6 @@ var AFrame = ( function() {
     "use strict";
 
     var AFrame = {
-        /**
-        * Used to extend a class with another class and optional functions.
-        *
-        *    AFrame.NewClass = function() {
-        *        AFrame.NewClass.sc.constructor.apply( this, arguments );
-        *    }
-        *    AFrame.extend( AFrame.NewClass, AFrame.AObject, {
-        *        someFunc: function() {
-        *            // do something here
-        *        }
-        *    } );
-        *
-        * @method extend
-        * @param {function} subClass - the class to extend
-        * @param {function} superClass - The super class.
-        * @param {object} extrafuncs (optional) - all additional parameters will have their functions mixed in.
-        */
-        extend: function( subClass, superClass ) {
-            var F = function() {};
-            F.prototype = superClass.prototype;
-            subClass.prototype = new F;
-            subClass.superclass = superClass;        // superclass and sc are different.  sc points to the superclasses prototype, superclass points to the superclass itself.
-            subClass.sc = superClass.prototype;
-
-            var mixins = Array.prototype.slice.call( arguments, 2 );
-            for( var mixin, index = 0; mixin = mixins[ index ]; ++index ) {
-                AFrame.mixin( subClass.prototype, mixin );
-            }
-            subClass.prototype.constructor = subClass;
-        },
-
 		/**
 		* Checks whether the subClass is a sub-class of superClass, as is
 		*  done using AFrame.extend or AFrame.Class.
@@ -201,6 +170,10 @@ var AFrame = ( function() {
         },
 
         /**
+        * @deprecated
+        * This has been deprecated in favor of calling a Class' static create method
+        *	instead.
+        *
         * Instantiate an [AFrame.AObject](#AFrame.AObject.html) compatible object.
         * When using the create function, any Plugins are automatically created
         * and bound, and init is called on the created object.
@@ -237,31 +210,7 @@ var AFrame = ( function() {
         * @param {array} config.plugins (optional) - Any plugins to attach
         */
         create: function( construct, config ) {
-            var retval;
-            if( construct ) {
-                try {
-                    retval = new construct;
-                } catch ( e ) {
-                    AFrame.log( e.toString() );
-                }
-
-                config = config || {};
-                var plugins = config.plugins || [];
-
-                // recursively create and bind any plugins
-                for( var index = 0, plugin; plugin = plugins[ index ]; ++index ) {
-                    plugin = AFrame.array( plugin ) ? plugin : [ plugin ];
-                    var pluginConfig = AFrame.mixin( { plugged: retval }, plugin[ 1 ] || {} );
-                    AFrame.create( plugin[ 0 ], pluginConfig );
-                }
-
-                retval.init( config );
-            }
-            else {
-                throw 'Class does not exist.';
-            }
-            return retval;
-
+        	return construct.create( config );
         },
 
         /**
@@ -370,6 +319,7 @@ var AFrame = ( function() {
         }
     };
 
+
     if( typeof( module ) != 'undefined' ) {
         module.exports = AFrame;
     }
@@ -398,43 +348,26 @@ AFrame.Class = ( function() {
     *        }
     *     } );
     *
-    *     // Create a Subclass of AFrame.AObject
-    *     var SubClass = AFrame.Class( AFrame.AObject, {
+    *     // Create a Subclass of Class
+    *     var SubClass = Class.extend( {
     *        anOperation: function() {
     *           // do an operation here
     *        }
     *     } );
     *
-    * @method AFrame.Class
+    * @method Class
     * @param {function} superclass (optional) - superclass to use.  If not given, class has
     *   no superclass.
     * @param {object}
     * @return {function} - the new class.
     */
     var Class = function() {
-        var F;
+        var args = [].slice.call( arguments, 0 ),
+        	F = createChain( args );
 
-        var args = Array.prototype.slice.call( arguments, 0 );
-
-        // we have a superclass, do everything related to a superclass
-        if( AFrame.func( args[ 0 ] ) ) {
-            F = function() {
-                F.sc.constructor.call( this );
-            };
-            AFrame.extend( F, args[ 0 ] );
-            args.splice( 0, 1 );
-        }
-        else {
-            // no superclass.  Create a base class.
-            F = function() {};
-        }
-
-        for( var mixin, index = 0; mixin = args[ index ]; ++index ) {
-            AFrame.mixin( F.prototype, mixin );
-        }
-
-        // Always set the constructor last in case any mixins overwrote it.
-        F.prototype.constructor = F;
+		addMixins( F, args );
+		addCreate( F );
+		addExtend( F );
 
         return F;
     };
@@ -444,7 +377,7 @@ AFrame.Class = ( function() {
     *
     *    // Walk the object's class chain
     *    // SubClass is an AFrame.Class based class
-    *    var obj = AFrame.create( SubClass );
+    *    var obj = SubClass.create();
     *    AFrame.Class.walkChain( function( currClass ) {
     *        // do something.  Context of function is the obj
     *    }, obj );
@@ -462,20 +395,127 @@ AFrame.Class = ( function() {
         } while( currClass );
     };
 
+    function createChain( args ) {
+    	var F;
+        if( AFrame.func( args[ 0 ] ) ) {
+	        // we have a superclass, do everything related to a superclass
+        	F = chooseConstructor( args[ 1 ], function() {
+				F.sc.constructor.call( this );
+			} );
+			extendWithSuper( F, args[ 0 ] );
+            args.splice( 0, 1 );
+        }
+        else {
+        	F = chooseConstructor( args[ 0 ], function() {} );
+        }
+        return F;
+    }
+
+	function chooseConstructor( checkForConst, alternate ) {
+		var F;
+		if( checkForConst && checkForConst.hasOwnProperty( 'constructor' ) ) {
+			F = checkForConst.constructor;
+		}
+		else {
+			F = alternate;
+		}
+		return F;
+	}
+
+	function extendWithSuper( subClass, superClass ) {
+		var F = function() {};
+		F.prototype = superClass.prototype;
+		subClass.prototype = new F;
+		subClass.superclass = superClass;        // superclass and sc are different.  sc points to the superclasses prototype, superclass points to the superclass itself.
+		subClass.sc = superClass.prototype;
+
+		var mixins = [].slice.call( arguments, 2 );
+		for( var mixin, index = 0; mixin = mixins[ index ]; ++index ) {
+			AFrame.mixin( subClass.prototype, mixin );
+		}
+		subClass.prototype.constructor = subClass;
+
+		addCreate( subClass );
+	}
+
+	function addMixins( F, args ) {
+        for( var mixin, index = 0; mixin = args[ index ]; ++index ) {
+            AFrame.mixin( F.prototype, mixin );
+        }
+
+        // Always set the constructor last in case any mixins overwrote it.
+        F.prototype.constructor = F;
+    }
+
+	/**
+	* @private
+	* Add a create function to a Class if the Class has an init function.
+	*  The create function is an alias to call AFrame.create with this
+	*  class.
+	*
+	* @method addCreate
+	* @param {function} Class
+	*/
+	function addCreate( Class ) {
+		if( Class.prototype && AFrame.func( Class.prototype.init ) && !Class.create ) {
+			// Add a create function so that every class with init has one.
+			Class.create = create.bind( null, Class );
+		}
+	}
+
+	function addExtend( F ) {
+		F.extend = Class.bind( null, F );
+	}
+
+	function create( construct, config ) {
+		var retval;
+		if( construct ) {
+			try {
+				retval = new construct;
+			} catch ( e ) {
+				AFrame.log( e.toString() );
+			}
+
+			AFrame.Class.walkChain( function( currClass ) {
+				if( currClass.prototype && currClass.prototype.hasOwnProperty( 'plugins' ) ) {
+					addPlugins( retval, currClass.prototype.plugins );
+				}
+			}, retval );
+
+			config = config || {};
+			addPlugins( retval, config.plugins || [] );
+
+			retval.init( config );
+		}
+		else {
+			throw 'Class does not exist.';
+		}
+		return retval;
+	}
+
+	function addPlugins( plugged, plugins ) {
+		// recursively create and bind any plugins
+		for( var index = 0, plugin; plugin = plugins[ index ]; ++index ) {
+			plugin = AFrame.array( plugin ) ? plugin : [ plugin ];
+			var pluginConfig = AFrame.mixin( { plugged: plugged }, plugin[ 1 ] || {} );
+			plugin[ 0 ].create( pluginConfig );
+		}
+	}
+
     return Class;
 }() );
 /**
- * An Observable is the way events are done.  Observables are very similar to DOM Events in that 
+ * An Observable is the way events are done.  Observables are very similar to DOM Events in that
  * each object has a set of events that it can trigger.  Objects that are concerned with a particular event register a callback to be
  * called whenever the event is triggered.  Observables allow for each event to have zero or many listeners, meaning the developer does not have
  * to manually keep track of who to notify when a particular event happens.  This completely decouples the triggering object from any
  * objects that care about it.
- * 
+ *
  * @class AFrame.Observable
  */
 AFrame.Observable = ( function() {
     "use strict";
-    
+
     var Observable = AFrame.Class( {
         /**
          * Initialize the observable
@@ -484,7 +524,7 @@ AFrame.Observable = ( function() {
         init: function() {
             this.callbacks = {};
         },
-        
+
         /**
          * Tear the observable down, free references
          * @method teardown
@@ -492,7 +532,7 @@ AFrame.Observable = ( function() {
         teardown: function() {
             this.unbindAll();
         },
-        
+
         /**
          * Trigger the observable, calls any callbacks bound to the observable.
          * @method trigger
@@ -505,7 +545,7 @@ AFrame.Observable = ( function() {
                 callback.apply( this, arguments );
             }
         },
-        
+
         /**
          * Bind a callback to the observable
          * @method bind
@@ -514,12 +554,12 @@ AFrame.Observable = ( function() {
          */
         bind: function( callback ) {
             var id = AFrame.getUniqueID();
-            
+
             this.callbacks[ id ] = callback;
-            
+
             return id;
         },
-        
+
         /**
          * Unbind an observable
          * @method unbind
@@ -528,7 +568,7 @@ AFrame.Observable = ( function() {
         unbind: function( id ) {
             AFrame.remove( this.callbacks, id );
         },
-        
+
         /**
          * Unbind all observables
          * @method unbindAll
@@ -538,7 +578,7 @@ AFrame.Observable = ( function() {
               AFrame.remove( this.callbacks, key );
             }
         },
-        
+
         /**
          * Check whether the observable has been triggered
          * @method isTriggered
@@ -549,19 +589,6 @@ AFrame.Observable = ( function() {
         }
     } );
 
-    /**
-     * Get an instance of the observable
-     *
-     *    var observable = Observable.getInstance();
-     *    var id = observable.bind( this.onInit, this );
-     
-     * @method Observable.getInstance
-     * @return {Observable}
-     */
-    Observable.getInstance = function() {
-        return AFrame.create( Observable );
-    };
-    
     return Observable;
 }() );
 /**
@@ -575,7 +602,7 @@ AFrame.ObservablesMixin = {
      *
      *    // trigger an event using event name only.  Event object returned.
      *    var event = object.triggerEvent( 'eventName' );
-     *    
+     *
      *    // trigger an event using event name and some extra parameters
      *    object.triggerEvent( 'eventName', 'extraParameterValue' );
      *
@@ -606,7 +633,7 @@ AFrame.ObservablesMixin = {
 		var eventData = arguments[ 0 ];
         var isDataObj = !AFrame.string( eventData );
         var eventName = isDataObj ? eventData.type : eventData;
-        
+
 		var observable = this.handlers && this.handlers[ eventName ];
 		if( observable ) {
             eventData = isDataObj ? eventData : {
@@ -614,15 +641,15 @@ AFrame.ObservablesMixin = {
             };
             this.setEventData( eventData );
             var eventObject = this.getEventObject();
-            
+
 			var args = Array.prototype.slice.call( arguments, 1 );
             args.splice( 0, 0, eventObject );
 			observable.trigger.apply( observable, args );
-            
+
             return eventObject;
 		}
 	},
-    
+
     /**
     * Set data to be added on to the next event triggered.
     *
@@ -647,7 +674,7 @@ AFrame.ObservablesMixin = {
             AFrame.mixin( this.eventData, data );
         }
     },
-    
+
     /**
     * Get an event object.  Should not be called directly, but can be overridden in subclasses to add
     *   specialized fields to the event object.
@@ -658,14 +685,14 @@ AFrame.ObservablesMixin = {
         if( !this.eventData.target ) {
             this.eventData.target = this;
         }
-        
-        var event = this.event || AFrame.Event.createEvent( this.eventData );
+
+        var event = this.event || AFrame.Event.create( this.eventData );
         this.eventData = null;
-    
+
         this.event = null;
         return event;
     },
-	
+
 	/**
 	 * Check to see if an event has been triggered
 	 * @method isEventTriggered
@@ -675,14 +702,14 @@ AFrame.ObservablesMixin = {
 	isEventTriggered: function( eventName ) {
 		var retval = false;
 		var observable = this.handlers && this.handlers[ eventName ];
-		
+
 		if( observable ) {
 			retval = observable.isTriggered();
 		}
-		
+
 		return retval;
 	},
-	
+
 	/**
 	 * Bind a callback to an event.  When an event is triggered and the callback is called,
      *  the first argument to the callback will be an [AFrame.Event](AFrame.Event.html) object.
@@ -690,7 +717,7 @@ AFrame.ObservablesMixin = {
      *
      *     // Bind a callback to an event
      *     obj.bindEvent( 'eventname', function( event, arg1 ) {
-     *         // event is an AFrame.Event, arg1 is the first argument passed 
+     *         // event is an AFrame.Event, arg1 is the first argument passed
      *         // (when triggered below, will be 'arg1Value')
      *     } );
      *
@@ -706,10 +733,10 @@ AFrame.ObservablesMixin = {
 	 */
 	bindEvent: function( eventName, callback, context ) {
 		this.handlers = this.handlers || {};
-		
-		var observable = this.handlers[ eventName ] || AFrame.Observable.getInstance();
+
+		var observable = this.handlers[ eventName ] || AFrame.Observable.create();
 		this.handlers[ eventName ] = observable;
-		
+
 		var eid = observable.bind( callback.bind( context || this ) );
 
 		this.bindings = this.bindings || {};
@@ -721,7 +748,7 @@ AFrame.ObservablesMixin = {
 		if( context && context.bindTo ) {
 			context.bindTo( this, eid );
 		}
-		
+
 		return eid;
 	},
 
@@ -732,14 +759,14 @@ AFrame.ObservablesMixin = {
 	 */
 	unbindEvent: function( id ) {
 		var binding = this.bindings && this.bindings[ id ];
-		
+
 		if( binding ) {
 			AFrame.remove( this.bindings, id );
 
 			if( binding.object && binding.object.unbindTo ) {
 				binding.object.unbindTo( id );
 			}
-			
+
 			return binding.observable.unbind( id );
 		}
 	},
@@ -757,7 +784,7 @@ AFrame.ObservablesMixin = {
 		for( var id in this.bindings ) {
 			var binding = this.bindings[ id ];
 			AFrame.remove( this.bindings, id );
-			
+
 			if( binding.object && binding.object.unbindTo ) {
 				binding.object.unbindTo( id );
 			}
@@ -776,18 +803,18 @@ AFrame.ObservablesMixin = {
 			proxyFrom.bindEvent( eventName, function() {
                 // get rid of the original event, a new one will be created.
 				var args = Array.prototype.slice.call( arguments, 1 );
-                
+
                 // create a new event, used in getEventObject
                 this.event = arguments[ 0 ];
                 this.event.originalTarget = this.event.target;
                 this.event.target = this;
-                
+
 				args.splice( 0, 0, eventName );
 				this.triggerEvent.apply( this, args );
 			}.bind( this ), this );
 		}, this );
 	},
-	
+
 	/**
 	 * Create a binding between this object and another object.  This means this object
 	 * is listening to an event on another object.
@@ -801,7 +828,7 @@ AFrame.ObservablesMixin = {
 			object: bindToObject
 		};
 	},
-	
+
 	/**
 	 * Unbind a listener bound from this object to another object
 	 * @method unbindTo
@@ -814,7 +841,7 @@ AFrame.ObservablesMixin = {
 			AFrame.remove( this.boundTo, id );
 		}
 	},
-	
+
 	/**
 	 * Unbind all events registered from this object on other objects.  Useful when tearing
 	 * an object down
@@ -829,7 +856,8 @@ AFrame.ObservablesMixin = {
 		this.boundTo = null;
 		this.boundTo = {};
 	}
-};/**
+};
+/**
 * A collection of functions common to enumerable objects.  When mixing in 
 * this class, the class being mixed into must define a forEach function.
 *
@@ -930,7 +958,7 @@ AFrame.EnumerableMixin = ( function() {
  *        importconfig: [ 'firstImportedParam', 'secondImportedParam' ]
  *    } );
  *
- *    var someClassInst = AFrame.create( SomeClass, {
+ *    var someClassInst = SomeClass.create( {
  *        firstImportedParam: "This is imported",
  *        secondImportedParam: "So is this",
  *        thirdParam: "But this is not"
@@ -970,7 +998,7 @@ AFrame.EnumerableMixin = ( function() {
  *    // bind to two events on insertedObj, event1, and event2.
  *    // event1 has an inline handler.
  *    // event2 uses a class member as a handler.
- *    var Class = AFrame.Class( AFrame.AObject, {
+ *    var Class = AFrame.AObject.extend( {
  *        importconfig: [ 'insertedObj' ],
  *        events: {
  *            'event1 insertedObj': function() {
@@ -995,7 +1023,7 @@ AFrame.AObject = (function(){
 
     var AObject = AFrame.Class( {
         /**
-         * Initialize the object.  Note that if [AFrame.construct](AFrame.html#method_construct) or [AFrame.create](AFrmae.html#method_create)is used, this will be called automatically.
+         * Initialize the object.  Note that if a class' create static function is used to create an object, this will be called automatically.
          *
          *    var obj = new AFrame.SomeObject();
          *    obj.init( { name: 'value' } );
@@ -1216,25 +1244,23 @@ AFrame.AObject = (function(){
 AFrame.DataContainer = ( function() {
     "use strict";
 
-    var DataContainer = function( data ) {
-        if( data instanceof DataContainer ) {
-            return data;
-        }
-        else if( data ) {
-            var dataContainer = data.__dataContainer;
-            if( !dataContainer ) {
-                dataContainer = AFrame.create( DataContainer, {
-                    data: data
-                } );
-            }
-            return dataContainer;
-        }
-        DataContainer.sc.constructor.call( this, data );
+    var DataContainer = AFrame.AObject.extend( {
+		constructor:function( data ) {
+			if( data instanceof DataContainer ) {
+				return data;
+			}
+			else if( data ) {
+				var dataContainer = data.__dataContainer;
+				if( !dataContainer ) {
+					dataContainer = DataContainer.create( {
+						data: data
+					} );
+				}
+				return dataContainer;
+			}
+			DataContainer.sc.constructor.call( this, data );
 
-    };
-
-
-    AFrame.extend( DataContainer, AFrame.AObject, AFrame.EnumerableMixin, {
+		},
         /**
         * Initialize the data container.
         * @method init
@@ -1411,7 +1437,8 @@ AFrame.DataContainer = ( function() {
                 }
             }
         }
-    } );
+    },
+ 	AFrame.EnumerableMixin );
 
     return DataContainer;
 }() );
@@ -1427,8 +1454,8 @@ AFrame.DataContainer = ( function() {
 */
 AFrame.Plugin = ( function() {
     "use strict";
-    
-    var Plugin = AFrame.Class( AFrame.AObject, {
+
+    var Plugin = AFrame.AObject.extend( {
         importconfig: [ 'plugged' ],
         events: {
             'onTeardown plugged': 'teardown',
@@ -1443,12 +1470,12 @@ AFrame.Plugin = ( function() {
         getPlugged: function() {
             return this.plugged;
         },
-        
+
         teardown: function() {
             AFrame.remove( this, 'plugged' );
             Plugin.sc.teardown.call( this );
         },
-        
+
         /**
         * Override to do some specialized handling when a plugged object is initialized.
         * @method onPluggedInit
@@ -1460,67 +1487,74 @@ AFrame.Plugin = ( function() {
 
     return Plugin;
 }() );
-/**
-* Common functions to all arrays
-* @class AFrame.ArrayCommonFuncsMixin
-* @static
-*/
-AFrame.ArrayCommonFuncsMixin = {
+AFrame.ArrayCommonFuncsMixin = (function() {
+	"use strict";
+
 	/**
-	* Get the current count of items.  Should be overridden.
-    *
-    *    // list is an AFrame.List
-    *    var count = list.getCount();
-    *
-	* @method getCount
-	* @return {number} current count
-	* @throw 'operation not supported' if not overridden properly.
+	* Common functions to all arrays
+	* @class AFrame.ArrayCommonFuncsMixin
+	* @static
 	*/
-	getCount: function() { /* Should be overridden */ 
-		throw 'operation not supported';
-	},
-	
-	/**
-	 * @private
-	 * Given an tentative index, get the index the item would be inserted at
-	 * @method getActualInsertIndex
-	 * @param {number} index - index to check for
-	 */
-	getActualInsertIndex: function( index ) {
-		var len = this.getCount();
+	var Mixin = {
+		/**
+		* Get the current count of items.  Should be overridden.
+		*
+		*    // list is an AFrame.List
+		*    var count = list.getCount();
+		*
+		* @method getCount
+		* @return {number} current count
+		* @throw 'operation not supported' if not overridden properly.
+		*/
+		getCount: function() { /* Should be overridden */
+			throw 'operation not supported';
+		},
 
-		if( 'undefined' == typeof( index ) ) {
-			index = len;
+		/**
+		 * @private
+		 * Given an tentative index, get the index the item would be inserted at
+		 * @method getActualInsertIndex
+		 * @param {number} index - index to check for
+		 */
+		getActualInsertIndex: function( index ) {
+			var len = this.getCount();
+
+			if( 'undefined' == typeof( index ) ) {
+				index = len;
+			}
+			else if( index < 0 ) {
+				index = len + ( index + 1 );
+			}
+
+			index = Math.max( 0, index );
+			index = Math.min( len, index );
+
+			return index;
+		},
+
+		/**
+		 * @private
+		 * Given an tentative index, get the item's real index.
+		 * @method getActualIndex
+		 * @param {number} index - index to check for
+		 */
+		getActualIndex: function( index ) {
+			var len = this.getCount();
+
+			if( index < 0 ) {
+				index = len + index;
+			}
+
+			index = Math.min( len - 1, index );
+			index = Math.max( 0, index );
+
+			return index;
 		}
-		else if( index < 0 ) {
-			index = len + ( index + 1 );
-		}
-		
-		index = Math.max( 0, index );
-		index = Math.min( len, index );
-		
-		return index;
-	},
+	};
 
-	/**
-	 * @private
-	 * Given an tentative index, get the item's real index.
-	 * @method getActualIndex
-	 * @param {number} index - index to check for
-	 */
-	getActualIndex: function( index ) {
-		var len = this.getCount();
-
-		if( index < 0 ) {
-			index = len + index;
-		}
-
-		index = Math.min( len - 1, index );
-		index = Math.max( 0, index );
-		
-		return index;
-	}
-};/**
+	return Mixin;
+}());
+/**
 * A hash collection.  Items stored in the hash can be accessed/removed by a key.  The item's key
 * is first searched for on the item's cid field, if the item has no cid field, a cid will be assigned
 * to it.  The CID used is returned from the insert function.
@@ -1529,7 +1563,7 @@ AFrame.ArrayCommonFuncsMixin = {
 * by index.
 *
 *    Create the hash
-*    var collection = AFrame.create( AFrame.CollectionHash );
+*    var collection = AFrame.CollectionHash.create();
 *
 *    // First item is inserted with a cid
 *    var cid = collection.insert( { cid: 'cid1',
@@ -1559,23 +1593,23 @@ AFrame.ArrayCommonFuncsMixin = {
 */
 AFrame.CollectionHash = ( function() {
     "use strict";
-    
-    var CollectionHash = AFrame.Class( AFrame.AObject, AFrame.EnumerableMixin, {
+
+    var CollectionHash = AFrame.AObject.extend( AFrame.EnumerableMixin, {
         init: function( config ) {
             this.hash = {};
-            
+
             CollectionHash.sc.init.call( this, config );
         },
-        
+
         teardown: function() {
             for( var cid in this.hash ) {
                 AFrame.remove( this.hash, cid );
             }
             AFrame.remove( this, 'hash' );
-            
+
             CollectionHash.sc.teardown.call( this );
         },
-        
+
         /**
         * Get an item from the hash.
         *
@@ -1590,7 +1624,7 @@ AFrame.CollectionHash = ( function() {
         get: function( cid ) {
             return this.hash[ cid ];
         },
-        
+
         /**
         * Remove an item from the store.
         *
@@ -1607,7 +1641,7 @@ AFrame.CollectionHash = ( function() {
         */
         remove: function( cid, options ) {
             var item = this.get( cid );
-            
+
             if( item ) {
                 /**
                 * Triggered before remove happens.  If listeners call preventDefault on the
@@ -1623,7 +1657,7 @@ AFrame.CollectionHash = ( function() {
                     type: 'onBeforeRemove',
                     force: options && options.force
                 } );
-                
+
                 if( this.shouldDoAction( options, event ) ) {
                     AFrame.remove( this.hash, cid );
                     /**
@@ -1639,20 +1673,20 @@ AFrame.CollectionHash = ( function() {
                         type: 'onRemove',
                         force: options && options.force
                     } );
-                    
+
                     return item;
                 }
             }
-            
+
         },
-        
+
         /**
         * Insert an item into the hash.  CID is gotten first from the item's cid field.  If this doesn't exist,
-        * it is then assigned.  Items with duplicate cids are not allowed, this will cause a 'duplicate cid' 
+        * it is then assigned.  Items with duplicate cids are not allowed, this will cause a 'duplicate cid'
         * exception to be thrown.  If the item being inserted is an Object and does not already have a cid, the
         * item's cid will be placed on the object under the cid field.
         *
-        * When onBeforeInsert is triggered, if the event has had preventDefault called, 
+        * When onBeforeInsert is triggered, if the event has had preventDefault called,
         *   the insert will be cancelled
         *
         *    // First item is inserted with a cid
@@ -1682,8 +1716,8 @@ AFrame.CollectionHash = ( function() {
             if( 'undefined' != typeof( this.get( cid ) ) ) {
                 throw 'duplicate cid';
             }
-            
-            
+
+
             /**
              * Triggered before insertion happens.  If listeners call preventDefault on the event,
              *  item will not be inserted
@@ -1698,16 +1732,16 @@ AFrame.CollectionHash = ( function() {
                 type: 'onBeforeInsert',
                 force: options && options.force
             } );
-            
+
             if( this.shouldDoAction( options, event ) ) {
-            
+
                 // store the CID on the item.
                 if( item instanceof Object ) {
                     item.cid = cid;
                 }
-                
+
                 this.hash[ cid ] = item;
-                
+
                 /**
                  * Triggered after insertion happens.
                  * @event onInsert
@@ -1720,17 +1754,17 @@ AFrame.CollectionHash = ( function() {
                     cid: cid,
                     type: 'onInsert',
                     force: options && options.force
-                } );                
-                
+                } );
+
                 return cid;
             }
 
         },
-        
+
         shouldDoAction: function( options, event ) {
             return ( options && options.force ) || !( event && event.isDefaultPrevented() );
         },
-        
+
         /**
         * Clear the hash
         *
@@ -1744,7 +1778,7 @@ AFrame.CollectionHash = ( function() {
                 this.remove( cid );
             }
         },
-        
+
         /**
         * Iterate over the collection, calling a function once for each item in the collection.
         *
@@ -1754,7 +1788,7 @@ AFrame.CollectionHash = ( function() {
         *    } );
         *
         * @method forEach
-        * @param {function} callback - callback to call for each item.  Will be called with two parameters, 
+        * @param {function} callback - callback to call for each item.  Will be called with two parameters,
         *   the first is the item, the second the identifier (id type depends on type of collection).
         * @param {object} context - optional context to call callback in.
         */
@@ -1770,14 +1804,14 @@ AFrame.CollectionHash = ( function() {
     return CollectionHash;
 } )();
 /**
-* An array collection.  Unlike the [CollectionHash](AFrame.CollectionHash.html), the CollectionArray can be accessed via 
+* An array collection.  Unlike the [CollectionHash](AFrame.CollectionHash.html), the CollectionArray can be accessed via
 * either a key or an index.  When accessed via a key, the item's CID will be used.  If an item has a cid field when
 * inserted, this cid will be used, otherwise a cid will be assigned.
-* 
+*
 * This raises the same events as AFrame.CollectionHash, but every event will have one additional parameter, index.
 *
 *    Create the array
-*    var collection = AFrame.create( AFrame.CollectionArray );
+*    var collection = AFrame.CollectionArray.create();
 *
 *    // First item is inserted with a cid, inserted at the end of the array.
 *    var aframeCID = collection.insert( { cid: 'cid1',
@@ -1825,25 +1859,25 @@ AFrame.CollectionHash = ( function() {
 */
 AFrame.CollectionArray = ( function() {
     "use strict";
-    
-    var CollectionArray = AFrame.Class( AFrame.CollectionHash, AFrame.ArrayCommonFuncsMixin, {
+
+    var CollectionArray = AFrame.CollectionHash.extend( AFrame.ArrayCommonFuncsMixin, {
         init: function( config ) {
             this.itemCIDs = [];
 
             CollectionArray.sc.init.call( this, config );
         },
-        
+
         teardown: function() {
             this.itemCIDs.forEach( function( id, index ) {
                 this.itemCIDs[ index ] = null;
             }, this );
             AFrame.remove( this, 'itemCIDs' );
-            
+
             CollectionArray.sc.teardown.apply( this );
         },
-        
+
         /**
-        * Insert an item into the array.  
+        * Insert an item into the array.
         *
         *    // First item is inserted with a cid, inserted at the end of the array.
         *    var aframeCID = collection.insert( { cid: 'cid1',
@@ -1875,13 +1909,13 @@ AFrame.CollectionArray = ( function() {
         insert: function( item, index ) {
             index = 'number' == typeof( index ) ? index : -1;
             this.currentIndex = this.getActualInsertIndex( index );
-            
+
             var cid = CollectionArray.sc.insert.call( this, item );
             this.itemCIDs.splice( this.currentIndex, 0, cid );
-            
+
             return cid;
         },
-        
+
         /**
         * Get an item from the array.
         *
@@ -1908,8 +1942,8 @@ AFrame.CollectionArray = ( function() {
             }
             return retval;
         },
-        
-        /** 
+
+        /**
         * Remove an item from the array
         *
         *    var googleItem = collection.remove( googleCID );
@@ -1932,17 +1966,17 @@ AFrame.CollectionArray = ( function() {
                 cid = this.getCID( index );
             }
 
-            
+
             var retval;
             if( index > -1 ) {
                 this.itemCIDs.splice( index, 1 );
                 this.currentIndex = index;
                 retval = CollectionArray.sc.remove.call( this, cid );
             }
-            
+
             return retval;
         },
-        
+
         /**
         * Clear the array
         *
@@ -1953,10 +1987,10 @@ AFrame.CollectionArray = ( function() {
         */
         clear: function() {
             CollectionArray.sc.clear.call( this );
-            
+
             this.itemCIDs = [];
         },
-        
+
         /**
         * Get the current count of items
         *
@@ -1969,7 +2003,7 @@ AFrame.CollectionArray = ( function() {
         getCount: function() {
             return this.itemCIDs.length;
         },
-        
+
         /**
         * Get an array representation of the CollectionArray
         *
@@ -1984,7 +2018,7 @@ AFrame.CollectionArray = ( function() {
             this.itemCIDs.forEach( function( cid, index ) {
                 array[ index ] = this.hash.get( cid );
             } );
-            
+
             return array;
         },
 
@@ -1997,7 +2031,7 @@ AFrame.CollectionArray = ( function() {
 
             return event;
         },
-        
+
         /**
          * Given an index or cid, get the cid.
          * @method getCID
@@ -2006,12 +2040,12 @@ AFrame.CollectionArray = ( function() {
          */
         getCID: function( index ) {
             var cid = index;
-            
+
             if( 'number' == typeof( index ) ) {
                 index = this.getActualIndex( index );
                 cid = this.itemCIDs[ index ];
             }
-            
+
             return cid;
         },
 
@@ -2025,10 +2059,10 @@ AFrame.CollectionArray = ( function() {
             if( 'string' == typeof( index ) ) {
                 index = this.itemCIDs.indexOf( index );
             }
-            
+
             return index;
         },
-        
+
         forEach: function( callback, context ) {
             for( var item, index = 0, cid; cid = this.itemCIDs[ index ]; ++index ) {
                 item = this.get( cid );
@@ -2037,15 +2071,16 @@ AFrame.CollectionArray = ( function() {
         }
     } );
     return CollectionArray;
-} )();/**
+} )();
+/**
  * A plugin to a collection to give the collection db ops.  This is part of what is usually called an Adapter
- *  when referring to collections with a hookup to a database.  The CollectionPluginPersistence is not the actual 
- *  Adapter but binds a collection to an Adapter.  The CollectionPluginPersistence adds load, add, save, del 
- *  functions to the collection, all four functions are assumed to operate asynchronously.  
+ *  when referring to collections with a hookup to a database.  The CollectionPluginPersistence is not the actual
+ *  Adapter but binds a collection to an Adapter.  The CollectionPluginPersistence adds load, add, save, del
+ *  functions to the collection, all four functions are assumed to operate asynchronously.
  *  When configuring the plugin, 4 parameters can be specified, each are optional.
  *  The four paramters are addCallback, saveCallback, loadCallback, and deleteCallback.  When the callbacks are called, they
  *  will be called with two parameters, item, options.  item is the item currently being operated on. options is
- *  options data that will contain at least two fields, collection and onComplete. onComplte should be called by the 
+ *  options data that will contain at least two fields, collection and onComplete. onComplte should be called by the
  *  adapter when the adapter function
  *  has completed.
  *
@@ -2076,21 +2111,21 @@ AFrame.CollectionArray = ( function() {
  *         },
  *         del: function( item, options ) {
  *              // functionality here to do the delete
- *              
+ *
  *              if( options.onComplete ) {
  *                  options.onComplete();
  *              }
  *         },
- *         save: function( item, options ) {   
+ *         save: function( item, options ) {
  *              // functionality here to do the save
- *              
+ *
  *              if( options.onComplete ) {
  *                  options.onComplete();
  *              }
  *         }
  *     };
  *
- *     var collection = AFrame.create( AFrame.CollectionArray, {
+ *     var collection = AFrame.CollectionArray.create( {
  *          plugins: [ [ AFrame.CollectionPluginPersistence, {
  *                  // specify each of the four adapter functions
  *                  loadCallback: dbAdapter.load,
@@ -2100,14 +2135,14 @@ AFrame.CollectionArray = ( function() {
  *              }
  *          ] ]
  *     } );
- *     
+ *
  *     // Loads the initial items
  *     collection.load( {
  *          onComplete: function( items, options ) {
  *              alert( 'Collection is loaded' );
  *          }
  *     } );
- *      
+ *
  *     // Adds an item to the collection.  Note, a cid is not given back
  *     // because this operation is asynchronous and a cid will not be
  *     // assigned until the persistence operation completes.  A CID
@@ -2142,8 +2177,8 @@ AFrame.CollectionArray = ( function() {
  */
 AFrame.CollectionPluginPersistence = ( function() {
     "use strict";
-    
-    var Plugin = AFrame.Class( AFrame.Plugin, {
+
+    var Plugin = AFrame.Plugin.extend( {
         init: function( config ) {
             /**
              * function to call to do add.  Will be called with two parameters, data, and options.
@@ -2151,30 +2186,30 @@ AFrame.CollectionPluginPersistence = ( function() {
              * @type function (optional)
              */
             this.addCallback = config.addCallback || noPersistenceOp;
-            
+
             /**
              * function to call to do save.  Will be called with two parameters, data, and options.
              * @config saveCallback
              * @type function (optional)
              */
             this.saveCallback = config.saveCallback || noPersistenceOp;
-            
+
             /**
              * function to call to do load.  Will be called with one parameter, options.
              * @config loadCallback
              * @type function (optional)
              */
             this.loadCallback = config.loadCallback || noPersistenceOp;
-            
+
             /**
              * function to call to do delete.  Will be called with two parameters, data, and options.
              * @config deleteCallback
              * @type function (optional)
              */
             this.deleteCallback = config.deleteCallback || noPersistenceOp;
-            
+
             Plugin.sc.init.call( this, config );
-            
+
             var plugged = this.getPlugged();
             plugged.add = this.add.bind( this );
             plugged.load = this.load.bind( this );
@@ -2187,7 +2222,7 @@ AFrame.CollectionPluginPersistence = ( function() {
          * Add an item to the collection.  The item will be inserted into the collection once the addCallback
          *  is complete.  Because of this, no cid is returned from the add function, but one will be placed into
          *  the options item passed to the onComplete callback.
-         *      
+         *
          *     // Adds an item to the collection.  Note, a cid is not given back
          *     // because this operation is asynchronous and a cid will not be
          *     // assigned until the persistence operation completes.  A CID
@@ -2201,13 +2236,13 @@ AFrame.CollectionPluginPersistence = ( function() {
          *              alert( 'add complete, cid: ' + options.cid );
          *          }
          *     } );
-         *     
+         *
          * @method add
          * @param {object} item - item to add
-         * @param {object} options - options information.  
+         * @param {object} options - options information.
          * @param {function} options.onComplete (optional) - callback to call when complete
          *	Will be called with two parameters, the item, and options information.
-         * @param {function} options.insertAt (optional) - data to be passed as second argument to the collection's 
+         * @param {function} options.insertAt (optional) - data to be passed as second argument to the collection's
          *  insert function.  Useful when using CollectionArrays to specify the index
          * @param {boolean} options.force (optional) - If set to true, an add will be forced even if
          *  onBeforeAdd has its preventDefault called.
@@ -2215,7 +2250,7 @@ AFrame.CollectionPluginPersistence = ( function() {
         add: function( item, options ) {
             options = getOptions( this, options );
             var callback = options.onComplete;
-            
+
             var plugged = this.getPlugged();
             /**
             * Triggered on the collection before an add is sent to persistence.  If the event has preventDefault called,
@@ -2226,20 +2261,20 @@ AFrame.CollectionPluginPersistence = ( function() {
             * @param {boolean} event.force - whether the add is being forced.
             */
             var event = plugged.triggerEvent( getEvent( 'onBeforeAdd', item, options ) );
-            
+
             if( plugged.shouldDoAction( options, event ) ) {
                 options.onComplete = function( overriddenItem ) {
-                    // For the insert item, use the item given by the db access layer, if they pass one back.  If 
+                    // For the insert item, use the item given by the db access layer, if they pass one back.  If
                     //  no override is given, use the original item.
                     item = overriddenItem || item;
                     var cid = plugged.insert( item, options.insertAt );
                     options.cid = cid;
                     options.onComplete = callback;
-                    
+
                     callback && callback( item, options );
-                    
+
                     /**
-                    * Triggered on the collection after an item is sent to persistence and is added to the Collection.  
+                    * Triggered on the collection after an item is sent to persistence and is added to the Collection.
                     * @event onAdd
                     * @param {AFrame.Event} event - event object
                     * @param {variant} event.item - the item being added
@@ -2248,12 +2283,12 @@ AFrame.CollectionPluginPersistence = ( function() {
                     */
                     plugged.triggerEvent( getEvent( 'onAdd', item, options ) );
                 };
-                
+
                 this.addCallback( item, options );
             }
         },
-        
-        
+
+
 
         /**
          * load the collection
@@ -2264,9 +2299,9 @@ AFrame.CollectionPluginPersistence = ( function() {
          *              alert( 'Collection is loaded' );
          *          }
          *     } );
-         *      
+         *
          * @method load
-         * @param {object} options - options information.  
+         * @param {object} options - options information.
          * @param {function} options.onComplete (optional) - the callback will be called when operation is complete.
          *	Callback will be called with two parameters, the items, and options information.
          */
@@ -2298,10 +2333,10 @@ AFrame.CollectionPluginPersistence = ( function() {
                     force: options && options.force
                 } );
                 options.onComplete = onComplete.bind( this, callback, options );
-                
+
                 this.loadCallback( options );
             }
-            
+
             function onComplete( callback, options, items ) {
                 if( items ) {
                     items.forEach( function( item, index ) {
@@ -2310,7 +2345,7 @@ AFrame.CollectionPluginPersistence = ( function() {
                 }
                 options.onComplete = callback;
                 callback && callback( items, options );
-                
+
                 /**
                 * Triggered on the collection whenever a load has completed
                 * @event onLoad
@@ -2324,7 +2359,7 @@ AFrame.CollectionPluginPersistence = ( function() {
                     force: options && options.force
                 } );
             }
-            
+
         },
 
         /**
@@ -2346,7 +2381,7 @@ AFrame.CollectionPluginPersistence = ( function() {
         del: function( itemID, options ) {
             var plugged = this.getPlugged();
             var item = plugged.get( itemID );
-            
+
             if( item ) {
                 /**
                 * Triggered on the collection before a delete is sent to persistence.  If the event has preventDefault called,
@@ -2357,21 +2392,21 @@ AFrame.CollectionPluginPersistence = ( function() {
                 * @param {boolean} event.force - whether the delete is being forced.
                 */
                 var event = plugged.triggerEvent( getEvent( 'onBeforeDelete', item, options ) );
-            
+
                 if( plugged.shouldDoAction( options, event ) ) {
                     options = getOptions( this, options );
                     var callback = options.onComplete;
-                    
+
                     options.onComplete = function() {
                         plugged.remove( itemID, options );
                         options.onComplete = callback;
                         callback && callback( item, options );
                     };
-                    
+
                     this.deleteCallback( item, options );
-                    
+
                     /**
-                    * Triggered on the collection after an item is deleted from persistence and is removed from the Collection.  
+                    * Triggered on the collection after an item is deleted from persistence and is removed from the Collection.
                     * @event onDelete
                     * @param {AFrame.Event} event - event object
                     * @param {variant} event.item - the item being deleted
@@ -2380,7 +2415,7 @@ AFrame.CollectionPluginPersistence = ( function() {
                     */
                     plugged.triggerEvent( getEvent( 'onDelete', item, options ) );
                 }
-                
+
             }
         },
 
@@ -2418,16 +2453,16 @@ AFrame.CollectionPluginPersistence = ( function() {
 
                     options = getOptions( this, options );
                     var callback = options.onComplete;
-                    
+
                     options.onComplete = function() {
                         options.onComplete = callback;
                         callback && callback( item, options );
                     }.bind( this );
-                    
+
                     this.saveCallback( item, options );
 
                     /**
-                    * Triggered on the collection after an item is saved to persistence.  
+                    * Triggered on the collection after an item is saved to persistence.
                     * @event onSave
                     * @param {AFrame.Event} event - event object
                     * @param {variant} event.item - the item being saved
@@ -2439,7 +2474,7 @@ AFrame.CollectionPluginPersistence = ( function() {
             }
         }
     } );
-    
+
     /**
     * Get the persistence options
     * @method getOptions
@@ -2450,7 +2485,7 @@ AFrame.CollectionPluginPersistence = ( function() {
         options.collection = context.getPlugged();
         return options;
     }
-    
+
     /**
     * Get an event object.  Used when triggering the on[Add|Delete|Save|Load]* events
     * @method getEvent
@@ -2461,18 +2496,18 @@ AFrame.CollectionPluginPersistence = ( function() {
             type: type,
             item: item
         };
-        
+
         if( item.cid ) {
             event.cid = item.cid;
         }
-        
+
         if( options && options.force ) {
             event.force = true;
         }
-        
+
         return event;
     }
-    
+
     /**
     * A NoOp type function that just calls the onComplete function, used for persistence functions
     *   where no callback is specified.
@@ -2483,9 +2518,10 @@ AFrame.CollectionPluginPersistence = ( function() {
         var callback = options.onComplete;
         callback && callback( data, options );
     }
-    
+
     return Plugin;
-} )();/**
+} )();
+/**
 * A plugin to a Collection that automates the creation of models.  If all items
 *   in a collection share a [Schema](AFrame.Schema.html), instead of creating
 *   a model for each insert, the data can be inserted directly and a model will
@@ -2502,7 +2538,7 @@ AFrame.CollectionPluginPersistence = ( function() {
 *    };
 *
 *    // create the collection.
-*    this.collection = AFrame.create( AFrame.CollectionArray, {
+*    this.collection = AFrame.CollectionArray.create( {
 *        plugins: [ [ AFrame.CollectionPluginModel, {
 *            schema: schemaConfig
 *        } ] ]
@@ -2525,7 +2561,7 @@ AFrame.CollectionPluginPersistence = ( function() {
 *
 *    // example of an overridden model factory function.
 *    var modelFactory = function( data, schema ) {
-*       return AFrame.create( SpecializedMode, {
+*       return SpecializedMode.create( {
 *           data: data,
 *           schema: schema
 *       } );
@@ -2538,7 +2574,7 @@ AFrame.CollectionPluginPersistence = ( function() {
 AFrame.CollectionPluginModel = ( function() {
     "use strict";
 
-    var Plugin = AFrame.Class( AFrame.Plugin, {
+    var Plugin = AFrame.Plugin.extend( {
         importconfig: [ 'schema' ],
 
         init: function( config ) {
@@ -2564,11 +2600,11 @@ AFrame.CollectionPluginModel = ( function() {
             item = this.modelFactory( item );
         }
 
-        decorated.call( this.getPlugged(), item, insertAt );
+        return decorated.call( this.getPlugged(), item, insertAt );
     }
 
     function createModel( data ) {
-		var model = AFrame.create( this.defaultModelConstructor, {
+		var model = this.defaultModelConstructor.create( {
 			schema: this.schema,
 			data: data
 		} );
@@ -2578,20 +2614,20 @@ AFrame.CollectionPluginModel = ( function() {
     return Plugin;
 }() );
 /**
- * A basic data schema, useful for defining a data structure, validating data, and preparing data to 
+ * A basic data schema, useful for defining a data structure, validating data, and preparing data to
  * be loaded from or saved to a persistence store.  Schema's define the data structure and can
  * be nested to create complex data structures.  Schemas perform serialization duties in getAppData and
  * serializeItems.  Finally, Schemas define ways to perform data validation.
- * 
- * When loading data from persistence, if the data is run through the getAppData function, 
+ *
+ * When loading data from persistence, if the data is run through the getAppData function,
  * it will make an object with only the fields
  * defined in the schema, and any missing fields will get default values.  If a fixup function is defined
  * for that row, the field's value will be run through the fixup function.  When saving data to persistence,
  * running data through the serializeItems will create an object with only the fields specified in the schema.  If
- * a row has 'save: false' defined, the row will not be added to the form data object. If a row has a cleanup 
+ * a row has 'save: false' defined, the row will not be added to the form data object. If a row has a cleanup
  * function defined, the corresponding data value will be run through the cleanup function.
  *
- * Generic serialization functions can be set for a type using the AFrame.Schema.addDeserializer and 
+ * Generic serialization functions can be set for a type using the AFrame.Schema.addDeserializer and
  * AFrame.Schema.addSerializer.  These are useful for doing conversions where the data persistence
  * layer saves data in a different format than the internal application representation.  A useful
  * example of this is ISO8601 date<->Javascript Date.  Already added types are 'number', 'integer',
@@ -2614,7 +2650,7 @@ AFrame.CollectionPluginModel = ( function() {
  *                    required: true
  *               } },
  *        create_date: { type: 'iso8601' },
- *        downloads: { type: 'integer', fixup: downloadsFixup, 
+ *        downloads: { type: 'integer', fixup: downloadsFixup,
  *                         cleanup: downloadsCleanup }
  *    };
  *
@@ -2650,30 +2686,31 @@ AFrame.CollectionPluginModel = ( function() {
  */
 AFrame.Schema = (function() {
     "use strict";
-    
+
     var SCHEMA_ID_KEY = '__SchemaID';
-    
-    var Schema = function( config ) {
-        if( config ) {
-            if( !config[ SCHEMA_ID_KEY ] ) {
-                config[ SCHEMA_ID_KEY ] = AFrame.getUniqueID();
-                Schema.addSchemaConfig( config[ SCHEMA_ID_KEY ], config );
-            }
-            
-            return Schema.getSchema( config[ SCHEMA_ID_KEY ] );
-        }
-        else {
-            Schema.sc.constructor.call( this );
-        }
-    };
-    AFrame.extend( Schema, AFrame.AObject, {
+
+    var Schema = AFrame.AObject.extend( {
+    	constructor: function( config ) {
+			if( config ) {
+				if( !config[ SCHEMA_ID_KEY ] ) {
+					config[ SCHEMA_ID_KEY ] = AFrame.getUniqueID();
+					Schema.addSchemaConfig( config[ SCHEMA_ID_KEY ], config );
+				}
+
+				return Schema.getSchema( config[ SCHEMA_ID_KEY ] );
+			}
+			else {
+				Schema.sc.constructor.call( this );
+			}
+		},
+
         init: function( config ) {
             this.schema = config.schema;
-            
+
             if( !config.schema ) {
                 throw 'Schema.js: Schema requires a schema configuration object';
             }
-            
+
             Schema.sc.init.call( this, config );
         },
 
@@ -2693,7 +2730,7 @@ AFrame.Schema = (function() {
             this.forEach( function( schemaRow, key ) {
                 defaultObject[ key ] = this.getDefaultValue( key );
             }, this );
-            
+
             return defaultObject;
         },
 
@@ -2720,10 +2757,10 @@ AFrame.Schema = (function() {
             }
             return defValue;
         },
-        
+
         /**
-         * Fix a data object for use in the application.  Creates a new object using the specified data 
-         * as a template for values.  If a value is not specified but a default value is specified in the 
+         * Fix a data object for use in the application.  Creates a new object using the specified data
+         * as a template for values.  If a value is not specified but a default value is specified in the
          * schema, the default value is used for that item.  Items are finally run through an optionally defined
          * fixup function.  If defined, the fixup function should return cleaned data.  If the fixup function
          * does not return data, the field will be undefined.
@@ -2740,12 +2777,12 @@ AFrame.Schema = (function() {
 
             this.forEach( function( schemaRow, key ) {
                 var value = dataToFix[ key ];
-                
+
                 // no value, use default
                 if( !AFrame.defined( value ) ) {
                     value = this.getDefaultValue( key );
                 }
-                
+
                 if( schemaRow.has_many ) {
                     value && value.forEach && value.forEach( function( current, index ) {
                         value[ index ] = this.getAppDataValue( current, schemaRow, dataToFix, fixedData );
@@ -2754,10 +2791,10 @@ AFrame.Schema = (function() {
                 else {
                     value = this.getAppDataValue( value, schemaRow, dataToFix, fixedData );
                 }
-                
+
                 fixedData[ key ] = value;
             }, this );
-            
+
             return fixedData;
         },
 
@@ -2776,7 +2813,7 @@ AFrame.Schema = (function() {
                     value = convert( value );
                 }
             }
-            
+
             // apply the fixup function if defined.
             var fixup = schemaRow.fixup;
             if( AFrame.func( fixup ) ) {
@@ -2786,14 +2823,14 @@ AFrame.Schema = (function() {
                     fixed: fixedData
                 } );
             }
-            
+
             return value;
         },
-        
+
         /**
          * Get an object suitable to send to persistence.  This is based roughly on converting
          *	the data to a [FormData](https://developer.mozilla.org/en/XMLHttpRequest/FormData) "like" object - see [MDC](https://developer.mozilla.org/en/XMLHttpRequest/FormData)
-         *	All items in the schema that do not have save parameter set to false and have values defined in dataToSerialize 
+         *	All items in the schema that do not have save parameter set to false and have values defined in dataToSerialize
          *	will have values returned.
          *
          *     // appData is data from the application ready to send to the DB, needs serialized.
@@ -2805,7 +2842,7 @@ AFrame.Schema = (function() {
          */
         serializeItems: function( dataToSerialize ) {
             var cleanedData = {};
-            
+
             this.forEach( function( schemaRow, key ) {
                 if( schemaRow.save !== false ) {
                     var value = dataToSerialize[ key ];
@@ -2818,14 +2855,14 @@ AFrame.Schema = (function() {
                     else {
                         value = this.getSerializedValue( value, schemaRow, dataToSerialize, cleanedData );
                     }
-                    
+
                     cleanedData[ key ] = value;
                 }
             }, this );
-            
+
             return cleanedData;
         },
-        
+
         getSerializedValue: function( value, schemaRow, dataToSerialize, cleanedData ) {
             // apply the cleanup function if defined.
             var cleanup = schemaRow.cleanup;
@@ -2854,10 +2891,10 @@ AFrame.Schema = (function() {
                     }
                 }
             }
-            
+
             return value;
         },
-        
+
 
         /**
          * An iterator.  Iterates over every row in the schema.
@@ -2874,7 +2911,7 @@ AFrame.Schema = (function() {
                 }
             }
         },
-        
+
         /**
         * Check to see if a row is labeled with "has many"
         * @method rowHasMany
@@ -2884,14 +2921,14 @@ AFrame.Schema = (function() {
         rowHasMany: function( rowName ) {
             return !!( this.schema[ rowName ] && this.schema[ rowName ].has_many );
         },
-        
+
         /**
         * Validate a set of data against the schema
         *
         *    // validate, but ignore fields defined in the schema that are missing from data.
         *    var validity = schema.validate( data, true );
         *    // validity is true if all data is valid
-        *    // validity is an an object with each field in data, 
+        *    // validity is an an object with each field in data,
         *    // for each field there is an [AFrame.FieldValidityState](AFrame.FieldValidityState.html)
         *
         * @method validate
@@ -2899,18 +2936,18 @@ AFrame.Schema = (function() {
         * @param {boolean} ignoreMissing (optional) - if set to true, fields missing from data are not validated.  Defaults to false.
         *   Note, even if set to true, and a field in data has an undefined value, the field will be validated against the
         *   the undefined value.
-        * @return {variant} true if all fields are valid, an object with each field in data, for each field there 
+        * @return {variant} true if all fields are valid, an object with each field in data, for each field there
         *   is an [AFrame.FieldValidityState](AFrame.FieldValidityState.html)
         */
         validate: function( data, ignoreMissing ) {
             var statii = {};
             var areErrors = false;
-            
+
             this.forEach( function( row, key ) {
                 var rowCriteria = row.validate || {};
                 var criteriaCopy = AFrame.mixin( { type: row.type }, rowCriteria );
                 var field = data[ key ];
-                
+
                 // Check hasOwnProperty so that if a field is defined in data, but has an undefined value,
                 //  even if ignoreMissing is set to true, we validate against it.
                 if( !ignoreMissing || data.hasOwnProperty( key ) ) {
@@ -2926,14 +2963,14 @@ AFrame.Schema = (function() {
                     }
                 }
             }, this );
-            
+
             return areErrors ? statii : true;
         },
-        
+
         validateData: function( data, criteria ) {
             return AFrame.DataValidation.validate( {
                 data: data,
-                criteria: criteria 
+                criteria: criteria
             } );
         }
     } );
@@ -2942,7 +2979,7 @@ AFrame.Schema = (function() {
         serializers: {},
         schemaConfigs: {},
         schemaCache: {},
-        
+
         /**
          * Add a universal function that fixes data in [getAppData](#method_getAppData). This is used to convert
          * data from a version the backend sends to one that is used internally.
@@ -2953,10 +2990,10 @@ AFrame.Schema = (function() {
         addDeserializer: function( type, callback ) {
             Schema.deserializers[ type ] = callback;
         },
-        
+
         /**
          * Add a universal function that gets data ready to save to persistence.  This is used
-         * to convert data from an internal representation of a piece of data to a 
+         * to convert data from an internal representation of a piece of data to a
          * representation the backend is expecting.
          * @method Schema.addSerializer
          * @param {string} type - type of field.
@@ -2965,7 +3002,7 @@ AFrame.Schema = (function() {
         addSerializer: function( type, callback ) {
             Schema.serializers[ type ] = callback;
         },
-        
+
         /**
         * Add a schema config
         * @method Schema.addSchemaConfig
@@ -2975,7 +3012,7 @@ AFrame.Schema = (function() {
         addSchemaConfig: function( type, config ) {
             Schema.schemaConfigs[ type ] = config;
         },
-        
+
         /**
         * Get a schema
         * @method Schema.getSchema
@@ -2984,11 +3021,11 @@ AFrame.Schema = (function() {
         */
         getSchema: function( type ) {
             if( !Schema.schemaCache[ type ] && Schema.schemaConfigs[ type ] ) {
-                Schema.schemaCache[ type ] = AFrame.create( Schema, {
+                Schema.schemaCache[ type ] = Schema.create( {
                     schema: Schema.schemaConfigs[ type ]
                 } );
             }
-            
+
             return Schema.schemaCache[ type ];
         }
     } );
@@ -3039,9 +3076,9 @@ AFrame.Schema = (function() {
     Schema.addSerializer( 'iso8601', function( date ) {
         return date.toISOString();
     } );
-    
+
     return Schema;
-    
+
 }() );
 /**
 * Performs dataToValidate validation, attempts to follow the [HTML5 spec](http://www.whatwg.org/specs/web-apps/current-work/multipage/association-of-controls-and-forms.html#the-constraint-validation-api).
@@ -3136,7 +3173,7 @@ AFrame.DataValidation = ( function() {
         validate: function( options ) {
             var dataToValidate = options.data;
             var allCriteria = options.criteria;
-            var fieldValidityState = options.fieldValidityState || AFrame.FieldValidityState.getInstance();
+            var fieldValidityState = options.fieldValidityState || AFrame.FieldValidityState.create();
             var type = allCriteria.type || 'text';
 
             for( var key in allCriteria ) {
@@ -3280,12 +3317,12 @@ AFrame.DataValidation = ( function() {
 *    };
 *
 *    // Create A Model Class
-*    var ModelClass = AFrame.Class( AFrame.Model, {
+*    var ModelClass = AFrame.Model.extend( {
 *        schema: noteSchemaConfig
 *    } );
 *
 *    // Create an instance of ModelClass
-*    var model = AFrame.create( ModelClass, {
+*    var model = ModelClass.create( {
 *        data: {
 *           id: '1',
 *           title: 'Get some milk',
@@ -3315,7 +3352,7 @@ AFrame.DataValidation = ( function() {
 * AFrame.Model and associating it with a schemaConfig.
 *
 *    // Manually create a model
-*    var model = AFrame.create( AFrame.Model, {
+*    var model = AFrame.Model.create( {
 *        schema: noteSchemaConfig,
 *        data: {
 *            // data here
@@ -3340,7 +3377,7 @@ AFrame.DataValidation = ( function() {
 AFrame.Model = ( function() {
     "use strict";
 
-    var Model = AFrame.Class( AFrame.DataContainer, {
+    var Model = AFrame.DataContainer.extend( {
         init: function( config ) {
             this.schema = getSchema( this.schema || config.schema );
 
@@ -3500,7 +3537,7 @@ AFrame.Model = ( function() {
 */
 AFrame.Event = (function() {
     "use strict";
-    
+
     var Event = AFrame.Class( {
         /**
         * initialize the event.  All items in configuration will be added to event.  If timestamp
@@ -3512,18 +3549,18 @@ AFrame.Event = (function() {
             for( var key in config ) {
                 this[ key ] = config[ key ];
             }
-            
+
             if( !this.type ) {
                 throw 'Event type undefined';
             }
-            
+
             if( this.target ) {
                 this.setOriginalTarget = true;
             }
-            
+
             this.timestamp = new Date();
         },
-        
+
         /**
         * Check if preventDefault has been called.
         *
@@ -3536,7 +3573,7 @@ AFrame.Event = (function() {
         isDefaultPrevented: function() {
             return !!this.defaultPrevented;
         },
-        
+
         /**
         * Cancel the default action of the event.  Note, this does nothing on its own,
         *   any object that passes an Event object must check isDefaultPrevented to see
@@ -3550,7 +3587,7 @@ AFrame.Event = (function() {
         preventDefault: function() {
             this.defaultPrevented = true;
         },
-        
+
         /**
         * Proxy an event.  If this is the first time the event is proxied, causes
         *   originalTarget to be set to the original target, and updates target to
@@ -3566,41 +3603,43 @@ AFrame.Event = (function() {
                 this.originalTarget = this.target;
                 this.setOriginalTarget = false;
             }
-            
+
             this.target = proxy;
         }
     } );
-    
+
     /**
     * A factory method to create an event.
     *
     *    // returns an event with event.type == 'eventType'
-    *    var event = Event.createEvent( 'eventType' );
+    *    var event = AFrame.Event.create( 'eventType' );
     *
     *    // returns an event with event.type == 'eventType', extraField == 'extraValue'
-    *    var event = Event.createEvent( {
+    *    var event = AFrame.Event.create( {
     *        type: 'eventType',
     *        extraField: 'extraValue'
     *    } );
     *
-    * @method Event.createEvent
-    * @param {object||string} config - if an object, object is used as Event config, 
+    * @method AFrame.Event.create
+    * @param {object||string} config - if an object, object is used as Event config,
     *   if a string, the string signifies the type of event
     * @return {AFrame.Event} event with type
     */
-    Event.createEvent = function( config ) {
+    var origCreate = Event.create;
+
+    Event.create = function( config ) {
         if( AFrame.string( config ) ) {
             config = { type: config };
         }
-        var event = AFrame.create( AFrame.Event, config );
-        return event;
+        return origCreate( config );
     };
-    
+
     return Event;
-})();/**
-* An object that keeps track of a field's validity, mirrors the 
+})();
+/**
+* An object that keeps track of a field's validity, mirrors the
 * [HTML5](http://www.whatwg.org/specs/web-apps/current-work/multipage/association-of-controls-and-forms.html#the-constraint-validation-api) spec.
-* 
+*
 * @class AFrame.FieldValidityState
 * @constructor
 */
@@ -3611,11 +3650,11 @@ AFrame.FieldValidityState = function( config ) {
 };
 /**
 * Get an instance of the FieldValidityState object
-* @method AFrame.FieldValidityState.getInstance
+* @method AFrame.FieldValidityState.create
 * @param {object} config - object with a list of fields to set on the validity object
 * @returns {AFrame.FieldValidityState}
 */
-AFrame.FieldValidityState.getInstance = function( config ) {
+AFrame.FieldValidityState.create = function( config ) {
 	return new AFrame.FieldValidityState( config || {} );
 };
 AFrame.FieldValidityState.prototype = {
@@ -3679,7 +3718,7 @@ AFrame.FieldValidityState.prototype = {
 	* @type {string}
 	*/
 	validationMessage: '',
-	
+
 	/**
 	* Set an error on the state
 	* @method setError
@@ -3689,7 +3728,7 @@ AFrame.FieldValidityState.prototype = {
 		this[ errorType ] = true;
 		this.valid = false;
 	},
-	
+
 	/**
 	* Set the custom error message
 	* @method setCustomValidity
