@@ -41,6 +41,20 @@
 			test.strictEqual( sessionGet, session, 'session can be looked up by data object' );
 
 			test.done();
+		},
+
+		'case of session ids does not matter' : function( test ) {
+			var session = sessions.createSession();
+
+			session.set( 'invite_code_1', session.get( 'invite_code_1' ).toUpperCase() );
+			session.set( 'invite_code_2', session.get( 'invite_code_2' ).toUpperCase() );
+			session.set( 'invite_code_3', session.get( 'invite_code_3' ).toUpperCase() );
+
+			var sessionGet = sessions.getSessionByData( session.getDataObject() );
+
+			test.strictEqual( sessionGet, session, 'session can be looked up by data object' );
+
+			test.done();
 		}
 	});
 

@@ -42,7 +42,7 @@
 	}
 
 	function getSessionID( data ) {
-		return '' + data.invite_code_1 + data.invite_code_2 + data.invite_code_3;
+		return '' + data.invite_code_1.toLowerCase() + data.invite_code_2.toLowerCase() + data.invite_code_3.toLowerCase();
 	}
 
 	module.exports = Sessions;
