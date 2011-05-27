@@ -3,11 +3,12 @@ TWTU.Map = ( function() {
 
 	var maps = google.maps;
 
-	var Map = AFrame.Class( AFrame.Display, {
+	var Map = AFrame.Display.extend( {
 		init: function( config ) {
 			Map.sc.init.call( this, config );
 
-			this.markers = {};
+			this.markers = AFrame.CollectionArray.create();
+
 			this.currMarkerID = 0;
 
 			var options = {
@@ -32,7 +33,10 @@ TWTU.Map = ( function() {
 				title: name
 			} );
 
-			return storeMarker.call( this, marker );
+			var id = storeMarker.call( this, marker );
+			updateMapBounds.call( this );
+
+			return id;
 		},
 
 		/**
@@ -42,7 +46,7 @@ TWTU.Map = ( function() {
 		* @param {coords} position - updated position
 		*/
 		moveMarker: function( id, position ) {
-			var marker = this.markers[ id ];
+			var marker = this.markers.get( id );
 			if( marker ) {
 				var currPosition = toGLatLng( position );
 				marker.setPosition( currPosition );
@@ -53,6 +57,22 @@ TWTU.Map = ( function() {
 	function toGLatLng( position ) {
 		var gLatLng = new google.maps.LatLng( position.latitude, position.longitude );
 		return gLatLng;
+	}
+
+	function updateMapBounds() {
+		var markers = this.markers, count = markers.getCount();
+
+		if( count >= 2 ) {
+			var marker0 = markers.get( 0 ),
+				marker1 = markers.get( 1 ),
+				gLatLngBound = new google.maps.LatLngBounds( marker0, marker1 );
+
+			for( var index = 2, marker; index <= count, marker = markers.get( index ); ++index ) {
+				gLatLngBound.extend( marker );
+			}
+
+			this.map.fitBounds( gLatLngBound );
+		}
 	}
 
 	/**
@@ -66,7 +86,7 @@ TWTU.Map = ( function() {
 		var id = this.currMarkerID;
 		this.currMarkerID++;
 
-		this.markers[ id ] = marker;
+		this.markers.insert( marker, id );
 		return id;
 	}
 

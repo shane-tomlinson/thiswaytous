@@ -1,9 +1,14 @@
-(function() {
-	var positionChanged = false;
+google = (function() {
+	"use strict";
 
-	google = {
+	var positionChanged = false, fitBoundsCalled = false;
+
+	var google = {
 		maps: {
 			Map: function() {
+				this.fitBounds = function() {
+					fitBoundsCalled = true;
+				};
 			},
 			Marker: function( config ) {
 				var currentPosition = config.position;
@@ -18,6 +23,9 @@
 				};
 			},
 			LatLng: function() {},
+			LatLngBounds: function() {
+				this.extend = function() {};
+			},
 			MapTypeId: {
 				ROADMAP: 0
 			},
@@ -26,10 +34,15 @@
 				return positionChanged;
 			},
 
+			areBoundsFitted: function() {
+				return fitBoundsCalled;
+			},
+
 			clearChanges: function() {
 				positionChanged = false;
+				fitBoundsCalled = false;
 			}
 		}
 	};
-
+	return google;
 }() );

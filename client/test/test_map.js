@@ -47,4 +47,19 @@
 
 		ok( google.maps.isPositionChanged(), 'position of added marker has changed' );
 	} );
+
+	test( 'adding additional markers causes the map viewport to move', function() {
+		map.addMarker( 'Marker 1', {
+			latitude: 0,
+			longitude: 0
+		} );
+
+		map.addMarker( 'marker 2', {
+			latitude: 0,
+			longitude: 0
+		} );
+
+		ok( google.maps.areBoundsFitted(), 'bounds have been fitted' );
+
+	} );
 }() );
