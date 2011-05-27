@@ -24,7 +24,7 @@
 			return session;
 		},
 
-		getSession: function( data ) {
+		getSessionByData: function( data ) {
 			return this.get( getSessionID( data ) );
 		}
 	} );
