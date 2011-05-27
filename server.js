@@ -1,6 +1,7 @@
 var sys = require( 'sys' ), http = require( 'http' ), fs = require( 'fs' ),
 	AFrame = require( './server/aframe-current-node' ), Sessions = require( './server/sessions' ),
-	Session = require( './server/session' ), sessions = AFrame.create( Sessions ), sessionID = 0;
+	sessions = Sessions.create(), Session = require( './server/session' ),
+	Users = require('./server/users'), sessionID = 0;
 
 var express = require( 'express' );
 
@@ -36,7 +37,7 @@ function joinUpdateUser( req, res ) {
 	var user = JSON.parse( body.user );
 	var sessionData = JSON.parse( body.session );
 
-	var session = sessions.getSession( sessionData );
+	var session = sessions.getSessionByData( sessionData );
 
 	if( session ) {
 		session.addUpdateUser( user );
