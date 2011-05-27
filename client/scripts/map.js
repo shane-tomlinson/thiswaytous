@@ -50,6 +50,8 @@ TWTU.Map = ( function() {
 			if( marker ) {
 				var currPosition = toGLatLng( position );
 				marker.setPosition( currPosition );
+
+				updateMapBounds();
 			}
 		}
 	} );
@@ -65,10 +67,10 @@ TWTU.Map = ( function() {
 		if( count >= 2 ) {
 			var marker0 = markers.get( 0 ),
 				marker1 = markers.get( 1 ),
-				gLatLngBound = new google.maps.LatLngBounds( marker0, marker1 );
+				gLatLngBound = new google.maps.LatLngBounds( marker0.position, marker1.position );
 
 			for( var index = 2, marker; index <= count, marker = markers.get( index ); ++index ) {
-				gLatLngBound.extend( marker );
+				gLatLngBound.extend( marker.position );
 			}
 
 			this.map.fitBounds( gLatLngBound );
