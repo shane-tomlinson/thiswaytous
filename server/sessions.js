@@ -2,6 +2,7 @@
 	"use strict";
 
 	var Session = require( './session' ),
+		Users = require( './users' ),
 		AFrame = require( './aframe-current-node' ),
 		currSession = 0;
 
@@ -14,7 +15,8 @@
 
 			var session = AFrame.create( Session, {
 				data: sessionData,
-				cid: getSessionID( sessionData )
+				cid: getSessionID( sessionData ),
+				users: Users.create()
 			} );
 
 			this.insert( session );

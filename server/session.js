@@ -2,7 +2,6 @@
 	"use strict";
 
 	var AFrame = require( './aframe-current-node' );
-	var Users = require( './users' );
 
 	var schema = {
 		id: { type: 'id' },
@@ -10,18 +9,12 @@
 		start_date: { type: 'iso8601' },
 		invite_code_1: { type: 'string' },
 		invite_code_2: { type: 'string' },
-		invite_code_3: { type: 'string' }/*,
-		users: { type: userSchema, has_many: true }
-		*/
+		invite_code_3: { type: 'string' }
 	};
 
 	var Session = AFrame.Model.extend( {
+		importconfig: [ 'users' ],
 		schema: schema,
-		init: function( config ) {
-			this.users = Users.create();
-			Session.sc.init.call( this, config );
-		},
-
 		addUpdateUser: function( userData ) {
 			var func = this.getUser( userData.id ) ? updateUser : addUser;
 

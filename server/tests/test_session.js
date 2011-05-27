@@ -4,15 +4,16 @@
 	var testCase = require('nodeunit').testCase,
 		assert = require('../assert-extras'),
 		Session = require('../session'),
+		Users = require('../users'),
 		AFrame = require('../aframe-current-node');
 
 	var session, userInfo;
 
 	module.exports = testCase({
 		setUp: function( callback ) {
-			debugger;
-
-			session = Session.create();
+			session = Session.create( {
+				users: Users.create()
+			} );
 			userInfo = {
 				name: 'Shane',
 				lat: 0,
