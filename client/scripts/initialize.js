@@ -32,26 +32,23 @@
 	}
 
 	function createCurrentUser() {
-		currentUser = AFrame.create( TWTU.CurrentUser );
+		currentUser = TWTU.CurrentUser.create();
 	}
 
 	function createSession() {
-		session = AFrame.create( TWTU.Session, {
+		session = TWTU.Session.create( {
 			currentUser: currentUser
 		} );
 	}
 
 	function createUsers() {
-		users = AFrame.create( TWTU.Users, {
-			session: session,
-			plugins: [ [ AFrame.CollectionPluginModel, {
-				schema: TWTU.User
-			} ] ]
+		users = TWTU.Users.create( {
+			session: session
 		} );
 	}
 
 	function createInviteCodeForm() {
-		var form = AFrame.create( AFrame.DataForm, {
+		var form = AFrame.DataForm.create( {
 			target: '#invitecode',
 			dataSource: session
 		} );
@@ -69,7 +66,7 @@
 			var id = $( element ).attr( 'id' );
 			var constr = constructors[ id ] || constructors[ 'default' ];
 
-			var page = AFrame.create( constr, {
+			var page = constr.create( {
 				target: element,
 				session: session,
 				user: currentUser
@@ -80,12 +77,12 @@
 	}
 
 	function createMapSetPosition( position ) {
-		map = AFrame.create( TWTU.Map, {
+		map = TWTU.Map.create( {
 			target: $( '#map' ),
 			position: position.coords
 		} );
 
-		var markers = AFrame.create( TWTU.UserMapMarkers, {
+		var markers = TWTU.UserMapMarkers.create( {
 			users: users,
 			map: map
 		} );

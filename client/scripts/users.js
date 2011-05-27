@@ -8,11 +8,15 @@ Function.prototype.curry = function() {
 
 TWTU.Users = (function() {
 	"use strict";
+
 	var Users = AFrame.Class( AFrame.CollectionHash, {
 		importconfig: [ 'session' ],
 		events: {
 			'requestComplete session': onSessionUpdate
-		}
+		},
+		plugins: [ [ AFrame.CollectionPluginModel, {
+			schema: TWTU.User
+		} ] ]
 	} );
 
 	function onSessionUpdate( event, data ) {
@@ -32,17 +36,18 @@ TWTU.Users = (function() {
 	}
 
 	function insertUpdateUsers( users ) {
-		var me=this;
-		users.forEach( function( user, index ) {
-			var existingUser = me.search( searchForItemWithID.curry( user.id ) );
+		users.forEach( insertUpdateUser, this );
+	}
 
-			if( existingUser ) {
-				existingUser.set( user );
-			}
-			else {
-				me.insert( user );
-			}
-		} );
+	function insertUpdateUser( user, index ) {
+		var me = this, existingUser = me.search( searchForItemWithID.curry( user.id ) );
+
+		if( existingUser ) {
+			existingUser.set( user );
+		}
+		else {
+			me.insert( user );
+		}
 	}
 
 	function searchForItemWithID( idToFind, item ) {

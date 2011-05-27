@@ -7,14 +7,14 @@
 		setup: function() {
 			map = new MapStub();
 
-			users = AFrame.create( AFrame.CollectionArray );
+			users = AFrame.CollectionArray.create();
 
-			userMapMarkers = AFrame.create( TWTU.UserMapMarkers, {
+			userMapMarkers = TWTU.UserMapMarkers.create( {
 				map: map,
 				users: users
 			} );
 
-			user = AFrame.create( AFrame.DataContainer, {
+			user = AFrame.DataContainer.create( {
 				data: {
 					name: 'Shane',
 					lat: 0,
