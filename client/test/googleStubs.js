@@ -1,7 +1,7 @@
 google = (function() {
 	"use strict";
 
-	var positionChanged = false, fitBoundsCalled = false;
+	var positionChanged = false, fitBoundsCalled = false, markerRemoved = false;
 
 	var google = {
 		maps: {
@@ -21,6 +21,12 @@ google = (function() {
 						currentPosition = position;
 					}
 				};
+
+				this.setMap = function( map ) {
+					if( map === null ) {
+						markerRemoved = true;
+					}
+				}
 			},
 			LatLng: function() {},
 			LatLngBounds: function() {
@@ -38,9 +44,14 @@ google = (function() {
 				return fitBoundsCalled;
 			},
 
+			isMarkerRemoved: function() {
+				return markerRemoved;
+			},
+
 			clearChanges: function() {
 				positionChanged = false;
 				fitBoundsCalled = false;
+				markerRemoved = false;
 			}
 		}
 	};

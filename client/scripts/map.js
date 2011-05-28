@@ -53,6 +53,18 @@ TWTU.Map = ( function() {
 
 				updateMapBounds.call( this );
 			}
+		},
+
+		/**
+		* Remove a marker
+		* @method removeMarker
+		* @param {id} id - id of the marker to remove
+		*/
+		removeMarker: function( id ) {
+			var marker = this.markers.get( id );
+			if( marker ) {
+				marker.setMap( null );
+			}
 		}
 	} );
 

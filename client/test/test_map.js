@@ -83,4 +83,15 @@
 		ok( google.maps.areBoundsFitted(), 'bounds have been fitted' );
 	} );
 
+	test( 'removeMarker works', function() {
+		var id = map.addMarker( 'Marker 1', {
+			latitude: 0,
+			longitude: 0
+		} );
+
+		map.removeMarker( id );
+
+		ok( google.maps.isMarkerRemoved(), 'marker has been removed' );
+	} );
+
 }() );
