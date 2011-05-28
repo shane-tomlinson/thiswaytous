@@ -79,7 +79,8 @@
 	function createMapSetPosition( position ) {
 		map = TWTU.Map.create( {
 			target: $( '#map' ),
-			position: position.coords
+			position: position.coords,
+			plugins: [ TWTU.MapPluginBounds, TWTU.MapPluginUserInfoWindow ]
 		} );
 
 		var markers = TWTU.UserMapMarkers.create( {

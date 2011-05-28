@@ -39,6 +39,11 @@ google = (function() {
 					};
 				}
 			},
+
+			event: {
+				addListener: function() {}
+			},
+
 			LatLng: function() {},
 			LatLngBounds: function() {
 				this.extend = function() {};
