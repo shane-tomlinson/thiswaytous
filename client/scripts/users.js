@@ -1,10 +1,3 @@
-Function.prototype.curry = function() {
-    var fn = this, args = Array.prototype.slice.call(arguments);
-    return function() {
-      return fn.apply(this, args.concat(
-        Array.prototype.slice.call(arguments)));
-    };
-};
 
 TWTU.Users = (function() {
 	"use strict";
@@ -40,7 +33,7 @@ TWTU.Users = (function() {
 	}
 
 	function insertUpdateUser( user, index ) {
-		var me = this, existingUser = me.search( searchForItemWithID.curry( user.id ) );
+		var me = this, existingUser = me.search( searchForItemWithID.bind( null, user.id ) );
 
 		if( existingUser ) {
 			existingUser.set( user );
