@@ -77,15 +77,43 @@ TWTU.Map = ( function() {
 		var markers = this.markers, count = markers.getCount();
 
 		if( count >= 2 ) {
-			var marker0 = markers.get( 0 ),
-				marker1 = markers.get( 1 ),
-				gLatLngBound = new google.maps.LatLngBounds( marker0.position, marker1.position );
+			var pos0 = markers.get( 0 ).getPosition(),
+				pos1 = markers.get( 1 ).getPosition(),
+				poses = getNESW( pos0, pos1 ),
+				gLatLngBound = new google.maps.LatLngBounds( poses.sw, poses.ne );
 
 			for( var index = 2, marker; index <= count, marker = markers.get( index ); ++index ) {
-				gLatLngBound.extend( marker.position );
+				gLatLngBound.extend( marker.getPosition() );
 			}
 
 			this.map.fitBounds( gLatLngBound );
+		}
+
+		function getNESW( pos0, pos1 ) {
+			var east, west, north, south;
+
+			if( pos0.lng() > pos1.lng() ) {
+				east = pos0;
+				west = pos1;
+			}
+			else {
+				east = pos1;
+				west = pos0;
+			}
+
+			if( pos0.lat() > pos1.lat() ) {
+				north = pos0;
+				south = pos1;
+			}
+			else {
+				north = pos1;
+				south = pos0;
+			}
+
+			var ne = new google.maps.LatLng( north.lat(), east.lng() );
+			var sw = new google.maps.LatLng( south.lat(), west.lng() );
+
+			return { ne: ne, sw: sw };
 		}
 	}
 

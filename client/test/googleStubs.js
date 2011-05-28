@@ -27,6 +27,17 @@ google = (function() {
 						markerRemoved = true;
 					}
 				}
+
+				this.getPosition = function() {
+					return new function() {
+						this.lat = function() {
+							return 0;
+						}
+						this.lng = function() {
+							return 0;
+						}
+					};
+				}
 			},
 			LatLng: function() {},
 			LatLngBounds: function() {
