@@ -55,6 +55,13 @@
 		ok( map.isMarkerMoved(), 'Marker has been moved' );
 	} );
 
+	test( 'when removing a user, map is updated', function() {
+		var id = users.insert( user );
+
+		users.remove( id );
+		ok( map.isMarkerRemoved(), 'Marker has been removed' );
+	} );
+
 	function MapStub() {
 		var markerAdded, markerRemoved, markerMoved;
 
