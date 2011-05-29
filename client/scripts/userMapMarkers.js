@@ -17,8 +17,7 @@ TWTU.UserMapMarkers = (function() {
 
 	function onUserAdd( event ) {
 		var user = event.item,
-			markerID = this.map.addMarker( user.get( 'name' ),
-				getUserPosition( user ) );
+			markerID = this.map.addMarker( getUserInfo( user ) );
 
 		this.markers[ user.getCID() ] = markerID;
 
@@ -37,12 +36,13 @@ TWTU.UserMapMarkers = (function() {
 		var user = event.target, markerID = getMarkerIDForUser.call( this, user );
 		if( AFrame.defined( markerID ) ) {
 			console.log( 'user moved: ' + user.get( 'name' ) );
-			this.map.moveMarker( markerID, getUserPosition( user ) );
+			this.map.moveMarker( markerID, getUserInfo( user ) );
 		}
 	}
 
-	function getUserPosition( user ) {
+	function getUserInfo( user ) {
 		return {
+			name: user.get( 'name' ),
 			latitude: user.get( 'lat' ),
 			longitude: user.get( 'lon' )
 		}
