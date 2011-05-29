@@ -1,13 +1,25 @@
 google = (function() {
 	"use strict";
 
-	var positionChanged = false, fitBoundsCalled = false, markerRemoved = false;
+	var positionChanged = false,
+		fitBoundsCalled = false,
+		markerRemoved = false,
+		panToCalled = false,
+		panToBoundsCalled = false;
 
 	var google = {
 		maps: {
 			Map: function() {
 				this.fitBounds = function() {
 					fitBoundsCalled = true;
+				};
+
+				this.panTo = function() {
+					panToCalled = true;
+				};
+
+				this.panToBounds = function() {
+					panToBoundsCalled = true;
 				};
 			},
 			Marker: function( config ) {
@@ -64,10 +76,20 @@ google = (function() {
 				return markerRemoved;
 			},
 
+			isCentered: function() {
+				return panToCalled;
+			},
+
+			isViewPortSet: function() {
+				return panToBoundsCalled;
+			},
+
 			clearChanges: function() {
-				positionChanged = false;
-				fitBoundsCalled = false;
-				markerRemoved = false;
+				positionChanged =
+				fitBoundsCalled =
+				markerRemoved =
+				panToCalled =
+				panToBoundsCalled = false;
 			}
 		}
 	};
