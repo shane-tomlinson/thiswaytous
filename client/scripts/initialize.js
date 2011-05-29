@@ -3,7 +3,7 @@
 
 	"use strict";
 
-	var map, userPosition = AFrame.create( TWTU.UserPosition ), markerID,
+	var map, userPosition, markerID,
 		pages = {}, session, currentUser, users;
 
 	initialize();
@@ -15,8 +15,8 @@
 		createUsers();
 		createInviteCodeForm();
 		createPages();
+		createUserPosition();
 		showUserInfo();
-		userPosition.getPosition( createMapSetPosition );
 	}
 
 	function attachButtons() {
@@ -76,13 +76,19 @@
 		} );
 	}
 
-	function createMapSetPosition( position ) {
+	function createUserPosition() {
+		userPosition = AFrame.create( TWTU.UserPosition );
+		userPosition.bindEvent( 'positionchange', createMapSetPosition );
+		userPosition.getPosition();
+	}
+
+	function createMapSetPosition( event, position ) {
 		var insert = !map;
 		if( insert ) {
 			map = TWTU.Map.create( {
 				target: $( '#map' ),
-				position: position.coords,
-				plugins: [ TWTU.MapPluginBounds, TWTU.MapPluginUserInfoWindow ]
+				position: position,
+				plugins: [ TWTU.MapPluginBounds/*, TWTU.MapPluginUserInfoWindow*/ ]
 			} );
 
 			var markers = TWTU.UserMapMarkers.create( {
@@ -101,10 +107,8 @@
 	}
 
 	function updateCurrentUserCoords( position ) {
-		var coords = position.coords;
-
-		currentUser.set( 'lat', coords.latitude );
-		currentUser.set( 'lon', coords.longitude );
+		currentUser.set( 'lat', position.latitude );
+		currentUser.set( 'lon', position.longitude );
 
 		session.update();
 	}
