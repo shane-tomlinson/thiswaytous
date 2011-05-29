@@ -77,27 +77,27 @@
 	}
 
 	function createMapSetPosition( position ) {
-		map = TWTU.Map.create( {
-			target: $( '#map' ),
-			position: position.coords,
-			plugins: [ TWTU.MapPluginBounds, TWTU.MapPluginUserInfoWindow ]
-		} );
+		var insert = !map;
+		if( insert ) {
+			map = TWTU.Map.create( {
+				target: $( '#map' ),
+				position: position.coords,
+				plugins: [ TWTU.MapPluginBounds, TWTU.MapPluginUserInfoWindow ]
+			} );
 
-		var markers = TWTU.UserMapMarkers.create( {
-			users: users,
-			map: map
-		} );
+			var markers = TWTU.UserMapMarkers.create( {
+				users: users,
+				map: map
+			} );
+		}
 
 		updateCurrentUserCoords( position );
 
-		// do this after we have created the map/marker so the initial user
-		//	gets inserted
-		users.insert( currentUser );
-		startPositionUpdate();
-	}
-
-	function startPositionUpdate() {
-		userPosition.intervalUpdate( updateCurrentUserCoords );
+		if( insert ) {
+			// do this after we have created the map/marker so the initial user
+			//	gets inserted
+			users.insert( currentUser );
+		}
 	}
 
 	function updateCurrentUserCoords( position ) {

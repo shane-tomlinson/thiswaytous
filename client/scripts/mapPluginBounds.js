@@ -13,10 +13,7 @@ TWTU.MapPluginBounds = (function() {
 		var plugged = this.getPlugged(), markers = plugged.markers, count = markers.getCount();
 
 		if( count >= 2 ) {
-			var pos0 = markers.get( 0 ).getPosition(),
-				pos1 = markers.get( 1 ).getPosition(),
-				poses = getNESW( pos0, pos1 ),
-				gLatLngBound = new maps.LatLngBounds( poses.sw, poses.ne );
+			var gLatLngBound = getInitialBounds( markers );
 
 			for( var index = 2, marker; index <= count, marker = markers.get( index ); ++index ) {
 				gLatLngBound.extend( marker.getPosition() );
@@ -25,6 +22,14 @@ TWTU.MapPluginBounds = (function() {
 			plugged.getMap().fitBounds( gLatLngBound );
 		}
 
+	}
+
+	function getInitialBounds( markers ) {
+		var pos0 = markers.get( 0 ).getPosition(),
+			pos1 = markers.get( 1 ).getPosition(),
+			poses = getNESW( pos0, pos1 ),
+			gLatLngBound = new maps.LatLngBounds( poses.sw, poses.ne );
+		return gLatLngBound;
 	}
 
 	function getNESW( pos0, pos1 ) {

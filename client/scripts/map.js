@@ -52,7 +52,7 @@ TWTU.Map = ( function() {
 				var currPosition = toGLatLng( position );
 				marker.setPosition( currPosition );
 
-				updateMapBounds.call( this );
+// 				updateMapBounds.call( this );
 			}
 		},
 

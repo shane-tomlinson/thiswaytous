@@ -1,14 +1,9 @@
 TWTU.UserPosition = (function() {
-	var UserPosition = AFrame.Class( AFrame.AObject, {
-		intervalUpdate: function( success ) {
-			this.getPosition( success );
-			setInterval( this.getPosition.bind( this, success ), 10000 );
-		},
-		
+	var UserPosition = AFrame.AObject.extend( {
 		getPosition: function( success ) {
 			var geo = navigator.geolocation;
 			if( geo ) {
-				geo.getCurrentPosition( success,
+				geo.watchPosition( success,
 				function( error ) {
 					switch( error ) {
 						case error.TIMEOUT:
@@ -22,12 +17,15 @@ TWTU.UserPosition = (function() {
 							break;
 						case error.UNKNOWN_ERROR:
 							alert( 'Unknown error' );
-							break;                
+							break;
 					}
-				} );
-			}			
+				},
+				{
+					enableHighAccuracy: true
+				});
+			}
 		}
 	} );
-	
+
 	return UserPosition;
 }() );
