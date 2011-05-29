@@ -26,16 +26,15 @@ TWTU.Map = ( function() {
 		* @param {coords} position - marker position
 		* @return {id} id of marker - used to move/remove the marker.
 		*/
-		addMarker: function( name, position ) {
+		addMarker: function( markerInfo ) {
 			var marker = new maps.Marker( {
-				position: toGLatLng( position ),
+				position: toGLatLng( markerInfo ),
 				map: this.map,
-				title: name
+				title: markerInfo.name
 			} );
 
 			var id = storeMarker.call( this, marker );
-
-			this.triggerEvent( 'onMarkerAdd', name, marker );
+			this.triggerEvent( 'markeradd', marker );
 
 			return id;
 		},
@@ -52,7 +51,7 @@ TWTU.Map = ( function() {
 				var currPosition = toGLatLng( position );
 				marker.setPosition( currPosition );
 
-// 				updateMapBounds.call( this );
+				this.triggerEvent( 'markermove', marker );
 			}
 		},
 
@@ -65,11 +64,46 @@ TWTU.Map = ( function() {
 			var marker = this.markers.get( id );
 			if( marker ) {
 				marker.setMap( null );
+				this.triggerEvent( 'markerremove', marker );
 			}
 		},
 
-		getMap: function() {
-			return this.map;
+		/**
+		* Iterate through each marker, the callback will be called
+		* with an object with two fields, latitude and longitude, as well
+		* as an index.
+		* @method forEachMarker
+		* @param {function} callback - callback to call
+		* @param {object} context (optional) - context to call callback in.
+		*/
+		forEachMarker: function( callback, context ) {
+			this.markers.forEach( function( marker, index ) {
+				var position = marker.getPosition();
+				callback.call( context, {
+					latitude: position.lat(),
+					longitude: position.lng()
+				}, index );
+			}, context );
+		},
+
+		/**
+		* Set the center of the map
+		* @method setCenter
+		* @param {location} position - center of map
+		*/
+		setCenter: function( position ) {
+			var gLatLng = toGLatLng( position );
+			this.map.panTo( gLatLng );
+		},
+
+		/**
+		* Set the map's viewport
+		* @method setViewport
+		* @param {object} viewport - an object with ne and sw
+		*/
+		setViewport: function( viewport ) {
+			var bounds = new maps.LatLngBounds( viewport.sw, viewport.ne );
+			this.map.panToBounds( bounds );
 		}
 	} );
 

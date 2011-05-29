@@ -26,16 +26,23 @@
 	} );
 
 	test( 'addMarker creates a new marker', function() {
-		var id = map.addMarker( 'Test User', {
+		map.bindEvent( 'markeradd', Events.eventHandler );
+
+		var id = map.addMarker( {
+			name: 'Test User',
 			latitude: 0,
 			longitude: 0
 		} );
 
 		equal( 'number', typeof id, 'addMarker returns an id' );
+		ok( Events.isTriggered( 'markeradd' ), 'markeradd was triggered' );
 	} );
 
 	test( 'moveMarker moves a marker if latitude or longitude are different', function() {
-		var id = map.addMarker( 'Test User', {
+		map.bindEvent( 'markermove', Events.eventHandler );
+
+		var id = map.addMarker( {
+			name: 'Test User',
 			latitude: 0,
 			longitude: 0
 		} );
@@ -46,45 +53,13 @@
 		} );
 
 		ok( google.maps.isPositionChanged(), 'position of added marker has changed' );
-	} );
-
-	test( 'adding additional markers causes the map viewport to move', function() {
-		map.addMarker( 'Marker 1', {
-			latitude: 0,
-			longitude: 0
-		} );
-
-		map.addMarker( 'marker 2', {
-			latitude: 0,
-			longitude: 0
-		} );
-
-		ok( google.maps.areBoundsFitted(), 'bounds have been fitted' );
-
-	} );
-
-	test( 'moveMarker with 2 or more users causes the viewport to move', function() {
-		map.addMarker( 'Marker 1', {
-			latitude: 0,
-			longitude: 0
-		} );
-
-		var id = map.addMarker( 'marker 2', {
-			latitude: 0,
-			longitude: 0
-		} );
-
-		google.maps.clearChanges();
-
-		var marker = map.moveMarker( id, {
-			latitude: 0,
-			longitude: 1
-		} );
-		ok( google.maps.areBoundsFitted(), 'bounds have been fitted' );
+		ok( Events.isTriggered( 'markermove' ), 'markermove was triggered' );
 	} );
 
 	test( 'removeMarker works', function() {
-		var id = map.addMarker( 'Marker 1', {
+		map.bindEvent( 'markerremove', Events.eventHandler );
+		var id = map.addMarker( {
+			name: 'Marker 1',
 			latitude: 0,
 			longitude: 0
 		} );
@@ -92,6 +67,52 @@
 		map.removeMarker( id );
 
 		ok( google.maps.isMarkerRemoved(), 'marker has been removed' );
+		ok( Events.isTriggered( 'markerremove' ), 'markerremove was triggered' );
+	} );
+
+	test( 'forEachMarker works', function() {
+		map.addMarker( {
+			name: 'Marker 1',
+			latitude: 0,
+			longitude: 0
+		} );
+
+		map.addMarker( {
+			name: 'Marker 2',
+			latitude: 0,
+			longitude: 0
+		} );
+
+		var maxIndex;
+		map.forEachMarker( function( marker, index ) {
+			maxIndex = index;
+		} );
+
+		equals( maxIndex, 1, 'forEachMarker called twice' );
+	} );
+
+	test( 'setCenter works', function() {
+		map.setCenter( {
+			latitude: 0,
+			longitude: 0
+		} );
+
+		ok( google.maps.isCentered(), 'map has been centered' );
+	} );
+
+	test( 'setViewport works', function() {
+		map.setViewport( {
+			ne: {
+				latitude: 0,
+				longitude: 0
+			},
+			sw: {
+				latitude: 0,
+				longitude: 0
+			}
+		} );
+
+		ok( google.maps.isViewPortSet(), 'map has been centered' );
 	} );
 
 }() );
