@@ -77,7 +77,6 @@ TWTU.Map = ( function() {
 		*/
 		forEachMarker: function( callback, context ) {
 			this.markers.forEach( function( marker, index ) {
-				var position = marker.getPosition();
 				callback.call( context, toPublicMarker( marker ), index );
 			}, context );
 		},
