@@ -49,7 +49,11 @@ google = (function() {
 							return 0;
 						}
 					};
-				}
+				};
+
+				this.getTitle = function() {
+					return '';
+				};
 			},
 
 			event: {
