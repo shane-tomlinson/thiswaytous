@@ -34,7 +34,7 @@ TWTU.Map = ( function() {
 			} );
 
 			var id = storeMarker.call( this, marker );
-			this.triggerEvent( 'markeradd', marker );
+			this.triggerEvent( 'markeradd', toPublicMarker( marker ) );
 
 			return id;
 		},
@@ -50,8 +50,7 @@ TWTU.Map = ( function() {
 			if( marker ) {
 				var currPosition = toGLatLng( position );
 				marker.setPosition( currPosition );
-
-				this.triggerEvent( 'markermove', marker );
+				this.triggerEvent( 'markermove', toPublicMarker( marker ) );
 			}
 		},
 
@@ -64,7 +63,7 @@ TWTU.Map = ( function() {
 			var marker = this.markers.get( id );
 			if( marker ) {
 				marker.setMap( null );
-				this.triggerEvent( 'markerremove', marker );
+				this.triggerEvent( 'markerremove', toPublicMarker( marker ) );
 			}
 		},
 
@@ -79,10 +78,7 @@ TWTU.Map = ( function() {
 		forEachMarker: function( callback, context ) {
 			this.markers.forEach( function( marker, index ) {
 				var position = marker.getPosition();
-				callback.call( context, {
-					latitude: position.lat(),
-					longitude: position.lng()
-				}, index );
+				callback.call( context, toPublicMarker( marker ), index );
 			}, context );
 		},
 
@@ -110,6 +106,16 @@ TWTU.Map = ( function() {
 	function toGLatLng( position ) {
 		var gLatLng = new maps.LatLng( position.latitude, position.longitude );
 		return gLatLng;
+	}
+
+	function toPublicMarker( gMarker ) {
+		var pos = gMarker.getPosition();
+
+		return {
+			name: gMarker.getTitle(),
+			latitude: pos.lat(),
+			longitude: pos.lng()
+		}
 	}
 
 	/**

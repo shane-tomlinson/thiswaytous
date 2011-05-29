@@ -36,6 +36,14 @@
 
 		equal( 'number', typeof id, 'addMarker returns an id' );
 		ok( Events.isTriggered( 'markeradd' ), 'markeradd was triggered' );
+
+		var args = Events.getArguments( 'markeradd' );
+
+		var marker = args[1];
+
+		ok( marker.hasOwnProperty( 'name' ), 'marker has name' );
+		ok( marker.hasOwnProperty( 'latitude' ), 'marker has latitude' );
+		ok( marker.hasOwnProperty( 'longitude' ), 'marker has longitude' );
 	} );
 
 	test( 'moveMarker moves a marker if latitude or longitude are different', function() {
