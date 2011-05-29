@@ -5,58 +5,61 @@ TWTU.MapPluginBounds = (function() {
 
 	var Plugin = AFrame.Plugin.extend( {
 		events: {
-			'onMarkerAdd plugged': onMarkerAdd
+			'markeradd plugged': onMarkerAdd
 		}
 	} );
 
 	function onMarkerAdd() {
-		var plugged = this.getPlugged(), markers = plugged.markers, count = markers.getCount();
+		var plugged = this.getPlugged(), bounds = {}, maxIndex;
 
-		if( count >= 2 ) {
-			var gLatLngBound = getInitialBounds( markers );
-
-			for( var index = 2, marker; index <= count, marker = markers.get( index ); ++index ) {
-				gLatLngBound.extend( marker.getPosition() );
+		plugged.forEachMarker( function( marker, index ) {
+			if( index === 0 ) {
+				setBounds( bounds, marker );
+			}
+			else {
+				expandBounds( bounds, marker );
 			}
 
-			plugged.getMap().fitBounds( gLatLngBound );
-		}
+			maxIndex = index;
 
+			if( maxIndex === 0 ) {
+				plugged.setCenter( bounds.ne );
+			}
+			else {
+				plugged.setViewport( bounds );
+			}
+		} );
 	}
 
-	function getInitialBounds( markers ) {
-		var pos0 = markers.get( 0 ).getPosition(),
-			pos1 = markers.get( 1 ).getPosition(),
-			poses = getNESW( pos0, pos1 ),
-			gLatLngBound = new maps.LatLngBounds( poses.sw, poses.ne );
-		return gLatLngBound;
+	function setBounds( bounds, marker ) {
+		bounds.ne = {
+			latitude: marker.latitude,
+			longitude: marker.longitude
+		};
+
+		bounds.sw = {
+			latitude: marker.latitude,
+			longitude: marker.longitude
+		};
 	}
 
-	function getNESW( pos0, pos1 ) {
-		var east, west, north, south;
-
-		if( pos0.lng() > pos1.lng() ) {
-			east = pos0;
-			west = pos1;
-		}
-		else {
-			east = pos1;
-			west = pos0;
+	function expandBounds( bounds, marker ) {
+		if( marker.latitude > bounds.ne.latitude ) {
+			bounds.ne.latitude = marker.latitude;
 		}
 
-		if( pos0.lat() > pos1.lat() ) {
-			north = pos0;
-			south = pos1;
-		}
-		else {
-			north = pos1;
-			south = pos0;
+		if( marker.latitude < bounds.sw.latitude ) {
+			bounds.sw.latitude = marker.latitude;
 		}
 
-		var ne = new maps.LatLng( north.lat(), east.lng() );
-		var sw = new maps.LatLng( south.lat(), west.lng() );
+		if( marker.longitude > bounds.ne.longitude ) {
+			marker.ne.longitude = marker.longitude;
+		}
 
-		return { ne: ne, sw: sw };
+		if( marker.longitude < bounds.sw.longitude ) {
+			marker.sw.longitude = marker.longitude;
+		}
+
 	}
 
 	return Plugin;
