@@ -1,28 +1,18 @@
 TWTU.UserPosition = (function() {
+	"use strict";
+
 	var UserPosition = AFrame.AObject.extend( {
-		getPosition: function( success ) {
-			var geo = navigator.geolocation;
+		getPosition: function() {
+			var geo = navigator.geolocation, me=this;
+
 			if( geo ) {
-				geo.watchPosition( success,
-				function( error ) {
-					switch( error ) {
-						case error.TIMEOUT:
-							alert( 'Timeout' );
-							break;
-						case error.POSITION_UNAVAILABLE:
-							alert( 'Position unavailable' );
-							break;
-						case error.PERMISSION_DENIED:
-							alert( 'Permission denied' );
-							break;
-						case error.UNKNOWN_ERROR:
-							alert( 'Unknown error' );
-							break;
-					}
+				geo.watchPosition( function( results ) {
+					me.triggerEvent( 'positionchange', results.coords );
 				},
+				me.triggerEvent.bind( me, 'positionerror' ),
 				{
 					enableHighAccuracy: true
-				});
+				} );
 			}
 		}
 	} );
