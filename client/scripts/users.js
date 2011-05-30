@@ -2,7 +2,7 @@
 TWTU.Users = (function() {
 	"use strict";
 
-	var Users = AFrame.Class( AFrame.CollectionHash, {
+	var Users = AFrame.Class( AFrame.CollectionArray, {
 		importconfig: [ 'session' ],
 		events: {
 			'requestComplete session': onSessionUpdate
