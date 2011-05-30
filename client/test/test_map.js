@@ -26,8 +26,6 @@
 	} );
 
 	test( 'addMarker creates a new marker', function() {
-		map.bindEvent( 'markeradd', Events.eventHandler );
-
 		var id = map.addMarker( {
 			name: 'Test User',
 			latitude: 0,
@@ -35,20 +33,9 @@
 		} );
 
 		equal( 'number', typeof id, 'addMarker returns an id' );
-		ok( Events.isTriggered( 'markeradd' ), 'markeradd was triggered' );
-
-		var args = Events.getArguments( 'markeradd' );
-
-		var marker = args[1];
-
-		ok( marker.hasOwnProperty( 'name' ), 'marker has name' );
-		ok( marker.hasOwnProperty( 'latitude' ), 'marker has latitude' );
-		ok( marker.hasOwnProperty( 'longitude' ), 'marker has longitude' );
 	} );
 
 	test( 'moveMarker moves a marker if latitude or longitude are different', function() {
-		map.bindEvent( 'markermove', Events.eventHandler );
-
 		var id = map.addMarker( {
 			name: 'Test User',
 			latitude: 0,
@@ -61,11 +48,9 @@
 		} );
 
 		ok( google.maps.isPositionChanged(), 'position of added marker has changed' );
-		ok( Events.isTriggered( 'markermove' ), 'markermove was triggered' );
 	} );
 
 	test( 'removeMarker works', function() {
-		map.bindEvent( 'markerremove', Events.eventHandler );
 		var id = map.addMarker( {
 			name: 'Marker 1',
 			latitude: 0,
@@ -75,28 +60,6 @@
 		map.removeMarker( id );
 
 		ok( google.maps.isMarkerRemoved(), 'marker has been removed' );
-		ok( Events.isTriggered( 'markerremove' ), 'markerremove was triggered' );
-	} );
-
-	test( 'forEachMarker works', function() {
-		map.addMarker( {
-			name: 'Marker 1',
-			latitude: 0,
-			longitude: 0
-		} );
-
-		map.addMarker( {
-			name: 'Marker 2',
-			latitude: 0,
-			longitude: 0
-		} );
-
-		var maxIndex;
-		map.forEachMarker( function( marker, index ) {
-			maxIndex = index;
-		} );
-
-		equals( maxIndex, 1, 'forEachMarker called twice' );
 	} );
 
 	test( 'setCenter works', function() {

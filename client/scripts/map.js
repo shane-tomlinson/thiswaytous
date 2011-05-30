@@ -34,7 +34,6 @@ TWTU.Map = ( function() {
 			} );
 
 			var id = storeMarker.call( this, marker );
-			this.triggerEvent( 'markeradd', toPublicMarker( marker ) );
 
 			return id;
 		},
@@ -50,7 +49,6 @@ TWTU.Map = ( function() {
 			if( marker ) {
 				var currPosition = toGLatLng( position );
 				marker.setPosition( currPosition );
-				this.triggerEvent( 'markermove', toPublicMarker( marker ) );
 			}
 		},
 
@@ -63,22 +61,7 @@ TWTU.Map = ( function() {
 			var marker = this.markers.get( id );
 			if( marker ) {
 				marker.setMap( null );
-				this.triggerEvent( 'markerremove', toPublicMarker( marker ) );
 			}
-		},
-
-		/**
-		* Iterate through each marker, the callback will be called
-		* with an object with two fields, latitude and longitude, as well
-		* as an index.
-		* @method forEachMarker
-		* @param {function} callback - callback to call
-		* @param {object} context (optional) - context to call callback in.
-		*/
-		forEachMarker: function( callback, context ) {
-			this.markers.forEach( function( marker, index ) {
-				callback.call( context, toPublicMarker( marker ), index );
-			}, context );
 		},
 
 		/**
@@ -105,16 +88,6 @@ TWTU.Map = ( function() {
 	function toGLatLng( position ) {
 		var gLatLng = new maps.LatLng( position.latitude, position.longitude );
 		return gLatLng;
-	}
-
-	function toPublicMarker( gMarker ) {
-		var pos = gMarker.getPosition();
-
-		return {
-			name: gMarker.getTitle(),
-			latitude: pos.lat(),
-			longitude: pos.lng()
-		}
 	}
 
 	/**
