@@ -7,6 +7,13 @@
 				coords: {}
 			} );
 		},
+		watchPositionSuccessAsync = function( success, error, options ) {
+			setTimeout( function() {
+				success( {
+					coords: {}
+				} );
+			}, 0 );
+		},
 		watchPositionError = function( success, error, options ) {
 			error();
 		};
@@ -15,6 +22,8 @@
 	module( 'TWTU.UserPosition', {
 		setup: function() {
 			userPosition = TWTU.UserPosition.create();
+			userPosition.clearCache();
+
 			watchPosition = navigator.geolocation.watchPosition;
 			Events.reset();
 		},
@@ -24,10 +33,6 @@
 				navigator.geolocation.watchPosition = watchPosition;
 			}
 		}
-	} );
-
-	test( 'userPosition created', function() {
-		ok( userPosition instanceof TWTU.UserPosition, 'created' );
 	} );
 
 	test( 'watchPosition is called, success func triggers positionchange', function() {
@@ -44,6 +49,17 @@
 		userPosition.getPosition();
 
 		ok( Events.isTriggered( 'positionerror' ), 'positionerror triggered' );
+	} );
+
+	test( 'user\'s position is cached and loaded immediately if available', function() {
+		navigator.geolocation.watchPosition = watchPositionSuccessAsync;
+		userPosition = TWTU.UserPosition.create();
+		userPosition.bindEvent( 'positionchange', Events.eventHandler );
+		userPosition.getPosition();
+
+		// with an async handler, if the position is already known from previous tests, it
+		// should be saved and positionchange should be immediately called.
+		ok( Events.isTriggered( 'positionchange' ), 'positionchange triggered' );
 	} );
 
 }() );
