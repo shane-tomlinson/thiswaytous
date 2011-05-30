@@ -85,7 +85,7 @@ google = (function() {
 			},
 
 			isViewPortSet: function() {
-				return panToBoundsCalled;
+				return panToBoundsCalled || fitBoundsCalled;
 			},
 
 			clearChanges: function() {
