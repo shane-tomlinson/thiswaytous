@@ -21,14 +21,14 @@ TWTU.MapPluginBounds = (function() {
 			}
 
 			maxIndex = index;
-
-			if( maxIndex === 0 ) {
-				plugged.setCenter( bounds.ne );
-			}
-			else {
-				plugged.setViewport( bounds );
-			}
 		} );
+
+		if( maxIndex === 0 ) {
+			plugged.setCenter( bounds.ne );
+		}
+		else {
+			plugged.setViewport( bounds );
+		}
 	}
 
 	function setBounds( bounds, marker ) {
@@ -53,11 +53,11 @@ TWTU.MapPluginBounds = (function() {
 		}
 
 		if( marker.longitude > bounds.ne.longitude ) {
-			marker.ne.longitude = marker.longitude;
+			bounds.ne.longitude = marker.longitude;
 		}
 
 		if( marker.longitude < bounds.sw.longitude ) {
-			marker.sw.longitude = marker.longitude;
+			bounds.sw.longitude = marker.longitude;
 		}
 
 	}
