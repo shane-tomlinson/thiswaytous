@@ -4,15 +4,24 @@ TWTU.MapPluginBounds = (function() {
 	var maps = google.maps;
 
 	var Plugin = AFrame.Plugin.extend( {
+		importconfig: [ 'users' ],
 		events: {
-			'markeradd plugged': onMarkerAdd
+			'onInsert users': onMarkerAdd,
+			'onRemove users': updateBounds
 		}
 	} );
 
-	function onMarkerAdd() {
-		var plugged = this.getPlugged(), bounds = {}, maxIndex;
+	function onMarkerAdd( event ) {
+		var user = event.item, me = this;
+		user.bindEvent( 'onSet', updateBounds, me );
 
-		plugged.forEachMarker( function( marker, index ) {
+		updateBounds.call( me );
+	}
+
+	function updateBounds() {
+		var plugged = this.getPlugged(), users = this.users, bounds = {}, maxIndex;
+
+		users.forEach( function( marker, index ) {
 			if( index === 0 ) {
 				setBounds( bounds, marker );
 			}
@@ -32,32 +41,36 @@ TWTU.MapPluginBounds = (function() {
 	}
 
 	function setBounds( bounds, marker ) {
+		var lat = marker.get( 'lat' ), lon = marker.get( 'lon' );
+
 		bounds.ne = {
-			latitude: marker.latitude,
-			longitude: marker.longitude
+			latitude: lat,
+			longitude: lon
 		};
 
 		bounds.sw = {
-			latitude: marker.latitude,
-			longitude: marker.longitude
+			latitude: lat,
+			longitude: lon
 		};
 	}
 
 	function expandBounds( bounds, marker ) {
-		if( marker.latitude > bounds.ne.latitude ) {
-			bounds.ne.latitude = marker.latitude;
+		var lat = marker.get( 'lat' ), lon = marker.get( 'lon' );
+
+		if( lat > bounds.ne.latitude ) {
+			bounds.ne.latitude = lat;
 		}
 
-		if( marker.latitude < bounds.sw.latitude ) {
-			bounds.sw.latitude = marker.latitude;
+		if( lat < bounds.sw.latitude ) {
+			bounds.sw.latitude = lat;
 		}
 
-		if( marker.longitude > bounds.ne.longitude ) {
-			bounds.ne.longitude = marker.longitude;
+		if( lon > bounds.ne.longitude ) {
+			bounds.ne.longitude = lon;
 		}
 
-		if( marker.longitude < bounds.sw.longitude ) {
-			bounds.sw.longitude = marker.longitude;
+		if( lon < bounds.sw.longitude ) {
+			bounds.sw.longitude = lon;
 		}
 
 	}

@@ -1,7 +1,7 @@
 (function() {
 	"use strict";
 
-	var plugin, map;
+	var plugin, map, users;
 
 	var Map = AFrame.AObject.extend( {
 		init: function( config ) {
@@ -10,29 +10,33 @@
 			Map.sc.init.call( this, config );
 		},
 
-		addMarker: function( marker ) {
-			this.markers.push( marker );
-
-			this.triggerEvent( 'markeradd', marker );
-		},
-
-		forEachMarker: function( callback, context ) {
-			this.markers.forEach( callback, context );
-		},
-
 		setCenter: function() {
 			this.centered = true;
 		},
 
 		setViewport: function() {
 			this.fitted = true;
+		},
+
+		reset: function() {
+			this.centered = this.fitted = false;
 		}
 	} );
 
 	module( "TWTU.MapPluginBounds", {
 		setup: function() {
 			map = Map.create();
+			users = AFrame.CollectionArray.create( {
+				plugins: [ [ AFrame.CollectionPluginModel, {
+					schema: {
+						lat: '',
+						lon: ''
+					}
+				} ] ]
+			} );
+
 			plugin = TWTU.MapPluginBounds.create( {
+				users: users,
 				plugged: map
 			} );
 		},
@@ -47,24 +51,60 @@
 
 
 	test( 'adding one marker causes a setCenter', function() {
-		map.addMarker( {
-			latitude: 0,
-			longitude: 0
+		users.insert( {
+			lat: 0,
+			lon: 0
 		} );
 
 		ok( map.centered, 'map is centered' );
 	} );
 
 	test( 'moveMarker with 2 or more users causes the viewport to be fitted', function() {
-		map.addMarker( {
-			latitude: 0,
-			longitude: 0
+		users.insert( {
+			lat: 0,
+			lon: 0
 		} );
 
-		map.addMarker( {
-			latitude: 0,
-			longitude: 0
+		users.insert( {
+			lat: 0,
+			lon: 0
 		} );
+
+		ok( map.fitted, 'bounds have been fitted' );
+	} );
+
+	test( 'removeMarker causes viewport to be centered', function() {
+		users.insert( {
+			lat: 0,
+			lon: 0
+		} );
+
+		var cid = users.insert( {
+			lat: 0,
+			lon: 0
+		} );
+		map.reset();
+
+		users.remove( cid );
+
+		ok( map.centered, 'map is centered' );
+	} );
+
+	test( 'updating a marker causes viewport to be updated', function() {
+		users.insert( {
+			lat: 0,
+			lon: 0
+		} );
+
+		var cid = users.insert( {
+			lat: 0,
+			lon: 0
+		} );
+
+		map.reset();
+
+		var user = users.get( cid );
+		user.set( 'lat', 1 );
 
 		ok( map.fitted, 'bounds have been fitted' );
 	} );
