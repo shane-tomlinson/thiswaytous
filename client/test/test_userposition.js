@@ -4,13 +4,19 @@
 	var userPosition, watchPosition,
 		watchPositionSuccess = function( success, error, options ) {
 			success( {
-				coords: {}
+				coords: {
+					latitude: 0,
+					longitude: 0
+				}
 			} );
 		},
 		watchPositionSuccessAsync = function( success, error, options ) {
 			setTimeout( function() {
 				success( {
-					coords: {}
+					coords: {
+						latitude: 0,
+						longitude: 0
+					}
 				} );
 			}, 0 );
 		},
@@ -52,8 +58,12 @@
 	} );
 
 	test( 'user\'s position is cached and loaded immediately if available', function() {
+		navigator.geolocation.watchPosition = watchPositionSuccess;
+		// prime the cache
+		userPosition.getPosition();
+
+		Events.reset();
 		navigator.geolocation.watchPosition = watchPositionSuccessAsync;
-		userPosition = TWTU.UserPosition.create();
 		userPosition.bindEvent( 'positionchange', Events.eventHandler );
 		userPosition.getPosition();
 
