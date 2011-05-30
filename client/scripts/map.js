@@ -97,8 +97,8 @@ TWTU.Map = ( function() {
 		* @param {object} viewport - an object with ne and sw
 		*/
 		setViewport: function( viewport ) {
-			var bounds = new maps.LatLngBounds( viewport.sw, viewport.ne );
-			this.map.panToBounds( bounds );
+			var bounds = new maps.LatLngBounds( toGLatLng( viewport.sw ), toGLatLng( viewport.ne ) );
+			this.map.fitBounds( bounds );
 		}
 	} );
 
