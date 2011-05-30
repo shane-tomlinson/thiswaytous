@@ -70,10 +70,11 @@ TWTU.Session = (function() {
 
 	function request( service, data, success, failure ) {
 		var me=this;
+		resetTimeout.call( me );
 		TWTU.Network.ajax( {
 			url: urlBase + services[ service ],
 			success: function( resp ) {
-				importData.call( me, resp );
+				me.set( resp );
 
 				if( success ) {
 					success( resp )
@@ -87,10 +88,12 @@ TWTU.Session = (function() {
 		} );
 	}
 
-	function importData( data ) {
-		for( var key in data ) {
-			this.set( key, data[ key ] );
+	function resetTimeout() {
+		var me=this;
+		if( me.timeoutID ) {
+			clearTimeout( me.timeoutID );
 		}
+		me.timeoutID = setTimeout( me.update.bind( me ), 20000 );
 	}
 
 	return Session;
