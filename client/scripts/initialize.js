@@ -89,7 +89,9 @@
 			map = TWTU.Map.create( {
 				target: $( '#map' ),
 				position: position,
-				plugins: [ TWTU.MapPluginBounds/*, TWTU.MapPluginUserInfoWindow*/ ]
+				plugins: [ [ TWTU.MapPluginBounds, {
+					users: users
+				} ]/*, TWTU.MapPluginUserInfoWindow*/ ]
 			} );
 
 			var markers = TWTU.UserMapMarkers.create( {
