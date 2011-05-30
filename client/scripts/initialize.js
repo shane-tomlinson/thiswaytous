@@ -83,8 +83,9 @@
 	}
 
 	function createMapSetPosition( event, position ) {
-		var insert = !map;
-		if( insert ) {
+		updateCurrentUserCoords( position );
+
+		if( !map ) {
 			map = TWTU.Map.create( {
 				target: $( '#map' ),
 				position: position,
@@ -95,11 +96,7 @@
 				users: users,
 				map: map
 			} );
-		}
 
-		updateCurrentUserCoords( position );
-
-		if( insert ) {
 			// do this after we have created the map/marker so the initial user
 			//	gets inserted
 			users.insert( currentUser );
