@@ -20,4 +20,23 @@
 		ok( users instanceof TWTU.Users, 'instance created' );
 	} );
 
+	test( 'requestComplete adds users', function() {
+		users.bindEvent( 'updatestart', Events.eventHandler );
+		users.bindEvent( 'updatecomplete', Events.eventHandler );
+
+		session.triggerEvent( 'requestComplete', {
+			users: [ {
+				id: 0,
+				name: 'shane'
+			} ]
+		} );
+
+		var user = users.get( 0 );
+
+		strictEqual( 0, user.get( 'id' ), 'user was inserted from requestComplete' );
+
+		ok( Events.isTriggered( 'updatestart' ), 'updatestart triggered' );
+		ok( Events.isTriggered( 'updatecomplete' ), 'updatecomplete triggered' );
+	} );
+
 }() );

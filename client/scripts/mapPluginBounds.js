@@ -6,17 +6,9 @@ TWTU.MapPluginBounds = (function() {
 	var Plugin = AFrame.Plugin.extend( {
 		importconfig: [ 'users' ],
 		events: {
-			'onInsert users': onMarkerAdd,
-			'onRemove users': updateBounds
+			'updatecomplete users': updateBounds
 		}
 	} );
-
-	function onMarkerAdd( event ) {
-		var user = event.item, me = this;
-		user.bindEvent( 'onSet', updateBounds, me );
-
-		updateBounds.call( me );
-	}
 
 	function updateBounds() {
 		var plugged = this.getPlugged(), users = this.users, bounds = {}, maxIndex;

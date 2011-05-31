@@ -13,12 +13,17 @@ TWTU.Users = (function() {
 	} );
 
 	function onSessionUpdate( event, data ) {
-		updateCurrentUserID.call( this, data.user_id );
+		var me=this;
+		updateCurrentUserID.call( me, data.user_id );
 
+		me.triggerEvent( 'updatestart' );
+		
 		var users = data && data.users
 		if( users ) {
-			insertUpdateUsers.call( this, users );
+			insertUpdateUsers.call( me, users );
 		}
+
+		me.triggerEvent( 'updatecomplete' );
 	}
 
 	function updateCurrentUserID( userID ) {
