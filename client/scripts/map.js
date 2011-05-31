@@ -14,7 +14,8 @@ TWTU.Map = ( function() {
 			var options = {
 				zoom: 15,
 				center: toGLatLng( config.position ),
-				mapTypeId: maps.MapTypeId.ROADMAP
+				mapTypeId: maps.MapTypeId.ROADMAP,
+				maxZoom: 18
 			};
 			this.map = new maps.Map( this.getDOMElement(), options );
 		},
