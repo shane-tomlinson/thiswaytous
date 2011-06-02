@@ -17,8 +17,8 @@
 
 		<footer>
 			<ul>
-				<li><a class="button" href="#/invite">Invite Friend</a></li>
-				<li><a class="button" href="#/enterCode">Enter Code</a></li>
+				<li><a class="button" href="#/page/invite">Invite Friend</a></li>
+				<li><a class="button" href="#/page/enterCode">Enter Code</a></li>
 			</ul>
 		</footer>
 

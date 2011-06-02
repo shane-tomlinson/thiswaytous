@@ -6,53 +6,47 @@ TWTU.Controller = function( session, pages, currentUser ) {
 	var router = TWTU.Router.create( {
 			routes: {
 				get: {
-					'/invite': showInvite,
-					'/enterCode': showPage.bind( null, 'enterCode' ),
-					'/route/:id': showRoute,
-					'/userInfo': showPage.bind( null, 'userInfo' ),
-					'/': showRoot
+					'/page/invite': handleInvite,
+					'/page/:id': handlePage,
+					'/route/:id': handleRoute,
+					'/': handleRoot
 				},
 				post: {
-					'/setName': setName,
-					'/join': joinRoute
+					'/setName': handleSetName,
+					'/join': handleJoinRoute
 				}
 			},
 			defaultRoute: '/'
 		} );
 
-	function showInvite() {
+	function handleInvite() {
 		session.start();
-		showPage( 'invite' );
+		displayPage( 'invite' );
 	}
 
-	function setName() {
+	function handleSetName() {
 		router.redirect( '/' );
 	}
 
-	function joinRoute( params ) {
+	function handleJoinRoute( params ) {
 		var code = session.get( 'invite_code_1' ) + '-' + session.get( 'invite_code_2' ) + '-' + session.get( 'invite_code_3' );
 		router.redirect( '/route/' + code );
 	}
 
-	function showPage( pageName ) {
-		hideCurrentPage();
-		var page = pageName && pages[ pageName ];
-		if( page ) {
-			page.show();
-			currentPage = page;
-		}
+	function handlePage( params ) {
+		displayPage( params.id );
 	}
 
-	function showRoot() {
+	function handleRoot() {
 		hideCurrentPage();
 		
 		if( !currentUser.hasData() ) {
-			router.pushState( '/userInfo' );
+			router.pushState( '/page/userInfo' );
 		}
 	}
 
-	function showRoute( params ) {
-		showRoot();
+	function handleRoute( params ) {
+		handleRoot();
 		
 		var code = params.id && params.id.split( '-' );
 		if( code && code.length == 3 ) {
@@ -60,6 +54,15 @@ TWTU.Controller = function( session, pages, currentUser ) {
 			session.set( 'invite_code_2', code[1] );
 			session.set( 'invite_code_3', code[2] );
 			session.join();
+		}
+	}
+
+	function displayPage( pageName ) {
+		hideCurrentPage();
+		var page = pageName && pages[ pageName ];
+		if( page ) {
+			page.show();
+			currentPage = page;
 		}
 	}
 
