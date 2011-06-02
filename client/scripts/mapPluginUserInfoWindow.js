@@ -5,20 +5,20 @@ TWTU.MapPluginUserInfoWindow = ( function() {
 
 	var Plugin = AFrame.Plugin.extend( {
 		events: {
-			'onMarkerAdd plugged' : onMarkerAdd
+			'markeradd plugged' : onMarkerAdd
 		}
 	} );
 
-	function onMarkerAdd( event, name, marker ) {
-		gEvent.addListener( marker, 'click', openUserInfoWindow.bind( this, name, marker ) );
+	function onMarkerAdd( event, marker ) {
+		gEvent.addListener( marker, 'click', openUserInfoWindow.bind( this, marker ) );
 	}
 
-	function openUserInfoWindow( user, marker ) {
+	function openUserInfoWindow( marker ) {
 		if( !userInfoWindow ) {
 			userInfoWindow = new maps.InfoWindow();
 		}
 
-		userInfoWindow.setContent( user );
+		userInfoWindow.setContent( marker.title );
 		userInfoWindow.open( this.getPlugged().getMap(), marker );
 	}
 

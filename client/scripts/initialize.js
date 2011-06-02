@@ -1,35 +1,29 @@
 
-(function() {
+$(function() {
 
 	"use strict";
 
 	var map, userPosition, markerID,
-		pages = {}, session, currentUser, users;
+		pages = {}, session, currentUser, users,
+		currentPage, state, router;
 
 	initialize();
 
 	function initialize() {
-		attachButtons();
 		createCurrentUser();
 		createSession();
 		createUsers();
 		createInviteCodeForm();
 		createPages();
+		createController();
 		createUserPosition();
-		showUserInfo();
+
 	}
 
-	function attachButtons() {
-		$( '#main a.button' ).click( function( event ) {
-			var target = $( event.currentTarget );
-			var href = target.attr( 'href' ).replace( '#', '' );
-
-			var page = href && pages[ href ];
-			if( page ) {
-				page.show();
-			}
-		} );
+	function createController() {
+		var controller = TWTU.Controller( session, pages, currentUser );
 	}
+
 
 	function createCurrentUser() {
 		currentUser = TWTU.CurrentUser.create();
@@ -56,24 +50,53 @@
 
 	function createPages() {
 		var constructors = {
-			invite: TWTU.InvitePage,
-			enterCode: TWTU.JoinPage,
-			userInfo: TWTU.UserInfoPage,
-			'default': TWTU.Page
+			enterCode: enterCode,
+			userInfo: userInfo,
+			'default': defaultPage
 		};
+
 
 		$( '.page' ).each( function( index, element ) {
 			var id = $( element ).attr( 'id' );
 			var constr = constructors[ id ] || constructors[ 'default' ];
 
-			var page = constr.create( {
-				target: element,
-				session: session,
-				user: currentUser
-			} );
+			var page = constr( element );
 
 			pages[ id ] = page;
 		} );
+
+		function enterCode( target ) {
+			var form = AFrame.DataForm.create( {
+				target: '#enterCodeForm',
+				dataSource: session
+			} );
+
+			var page = TWTU.FormPage.create({
+				form: form,
+				target: target
+			});
+			return page;
+		}
+
+		function userInfo( target ) {
+			var form = AFrame.DataForm.create( {
+				target: target,
+				dataSource: currentUser
+			} );
+
+			var page = TWTU.FormPage.create({
+				form: form,
+				target: target
+			});
+			return page;
+		}
+
+		function defaultPage( target ) {
+			var page = TWTU.Page.create( {
+				target: target
+			} );
+			return page;
+		}
 	}
 
 	function createUserPosition() {
@@ -112,12 +135,7 @@
 		session.update();
 	}
 
-	function showUserInfo() {
-		if( !currentUser.hasData() ) {
-			var page = pages[ 'userInfo' ];
-			page.show();
-		}
-	}
 
-}() );
+
+} );
 

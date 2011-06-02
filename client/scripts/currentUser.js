@@ -18,7 +18,7 @@ TWTU.CurrentUser = (function() {
 		},
 
 		hasData: function() {
-			return this.haveData;
+			return !!this.get( 'name' );
 		}
 	} );
 
@@ -38,7 +38,6 @@ TWTU.CurrentUser = (function() {
 
 			if( store ) {
 				data = JSON.parse( store );
-				this.haveData = !!data.name;
 			}
 		}
 

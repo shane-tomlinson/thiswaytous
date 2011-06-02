@@ -2,20 +2,19 @@ TWTU.Page = (function() {
 	"use strict";
 
 	var Page = AFrame.Class( AFrame.Display, {
+		importconfig: [ 'router' ],
 		domevents: {
 			'click .submit': 'onSubmit',
 			'click .cancel': 'onCancel'
 		},
 
 		onSubmit: function( event ) {
-			event.preventDefault();
-
 			this.hide();
 		},
 
 		onCancel: function( event ) {
 			event.preventDefault();
-
+			history.back();
 			this.hide();
 		},
 

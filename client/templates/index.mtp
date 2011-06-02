@@ -9,7 +9,7 @@
 <body>
 	<section id="main">
 		<div id="map">
-			<img src="client/images/ajax-loader.gif" width=32 height=32 />
+			<img src="/client/scripts/client/images/ajax-loader.gif" width=32 height=32 />
 			<p>
 				Determining location...
 			</p>
@@ -17,8 +17,8 @@
 
 		<footer>
 			<ul>
-				<li><a class="button" href="#invite">Invite Friend</a></li>
-				<li><a class="button" href="#enterCode">Enter Code</a></li>
+				<li><a class="button" href="#/invite">Invite Friend</a></li>
+				<li><a class="button" href="#/enterCode">Enter Code</a></li>
 			</ul>
 		</footer>
 
@@ -32,8 +32,7 @@
 
 		<footer>
 			<ul>
-				<li><button class="submit">OK</button></li>
-				<li><button class="cancel">Cancel</button></li>
+				<li><a href="#/setName" class="button submit">OK</a></li>
 			</ul>
 		</footer>
 	</section>
@@ -50,8 +49,8 @@
 
 		<footer>
 			<ul>
-				<li><button class="submit">OK</button></li>
-				<li><button class="cancel">Cancel</button></li>
+				<li><a href="#/join" class="button submit">OK</a></li>
+				<li><a href="#/" class="button cancel">Cancel</a></li>
 			</ul>
 		</footer>
 	</section>
@@ -66,37 +65,34 @@
 		</ul>
 		<footer>
 			<ul>
-				<li><button class="submit">OK</button></li>
-				<li><button class="cancel">Cancel</button></li>
+				<li><a href="#/join" class="button submit">OK</a></li>
 			</ul>
 		</footer>
 	</section>
 
 	<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true"></script>
-	<script src="client/scripts/ext/LAB.min.js"></script>
-	<script>
-		$LAB.setOptions( {
-			AlwaysPreserveOrder: true,
-			BasePath: 'client/scripts/'
-		} ).script( "ext/jquery-1.5.2.min.js" )
-			.script( "ext/aframe-current-jquery.js" )
-			.script( "thiswaytous.js" )
-			.script( "userposition.js" )
-			.script( "map.js" )
-			.script( "mapPluginUserInfoWindow.js" )
-			.script( "mapPluginBounds.js" )
-			.script( "page.js" )
-			.script( "user.js" )
-			.script( "currentUser.js" )
-			.script( "users.js" )
-			.script( "session.js" )
-			.script( "invitePage.js" )
-			.script( "joinPage.js" )
-			.script( "network.js" )
-			.script( "userInfoPage.js" )
-			.script( "userMapMarkers.js" )
-			.script( "initialize.js" );
-	</script>
+
+	<script type="text/javascript" src="/client/scripts/ext/jquery-1.5.2.min.js"></script>
+	<script type="text/javascript" src="/client/scripts/ext/aframe-current-jquery.js"></script>
+	<script type="text/javascript" src="/client/scripts/ext/routes.js"></script>
+
+	<script type="text/javascript" src="/client/scripts/thiswaytous.js"></script>
+	<script type="text/javascript" src="/client/scripts/userposition.js"></script>
+	<script type="text/javascript" src="/client/scripts/map.js"></script>
+	<script type="text/javascript" src="/client/scripts/mapPluginUserInfoWindow.js"></script>
+	<script type="text/javascript" src="/client/scripts/mapPluginBounds.js"></script>
+	<script type="text/javascript" src="/client/scripts/page.js"></script>
+	<script type="text/javascript" src="/client/scripts/user.js"></script>
+	<script type="text/javascript" src="/client/scripts/currentUser.js"></script>
+	<script type="text/javascript" src="/client/scripts/users.js"></script>
+	<script type="text/javascript" src="/client/scripts/session.js"></script>
+	<script type="text/javascript" src="/client/scripts/formPage.js"></script>
+	<script type="text/javascript" src="/client/scripts/network.js"></script>
+	<script type="text/javascript" src="/client/scripts/userMapMarkers.js"></script>
+	<script type="text/javascript" src="/client/scripts/router.js"></script>
+	<script type="text/javascript" src="/client/scripts/controller.js"></script>
+
+	<script type="text/javascript" src="/client/scripts/initialize.js"></script>
 
 </body>
 </html>
