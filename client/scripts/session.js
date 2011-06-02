@@ -57,6 +57,10 @@ TWTU.Session = (function() {
 
 				} );
 			}
+		},
+
+		isInSession: function() {
+			return this.connected;
 		}
 	} );
 

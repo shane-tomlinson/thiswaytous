@@ -12,23 +12,39 @@ TWTU.Controller = function( session, pages, currentUser ) {
 					'/': handleRoot
 				},
 				post: {
-					'/setName': handleSetName,
-					'/join': handleJoinRoute
+					'/user': handleUser,
+					'/session/join': handleJoinSession,
+					'/session/:id': handleSessionInvite
 				}
-			},
-			defaultRoute: '/'
+			}
 		} );
 
 	function handleInvite() {
-		session.start();
+		if( session.isInSession() ) {
+			router.redirect( '/page/alreadyInSession' );
+		}
+		else {
+			router.redirect( '/session/new' );
+		}
+	}
+
+	function handleSessionInvite( params ) {
+		showInvitePage( params.id === 'new' );
+	}
+
+	function showInvitePage( newSession ) {
+		if( newSession ) {
+			session.start();
+		}
+
 		displayPage( 'invite' );
 	}
 
-	function handleSetName() {
+	function handleUser() {
 		router.redirect( '/' );
 	}
 
-	function handleJoinRoute( params ) {
+	function handleJoinSession( params ) {
 		var code = session.get( 'invite_code_1' ) + '-' + session.get( 'invite_code_2' ) + '-' + session.get( 'invite_code_3' );
 		router.redirect( '/route/' + code );
 	}
