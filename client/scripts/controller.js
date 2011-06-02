@@ -38,7 +38,7 @@ TWTU.Controller = function( session, pages, currentUser ) {
 		}
 
 		displayPage( 'invite' );
-	}
+	} 
 
 	function handleUser() {
 		router.redirect( '/' );
