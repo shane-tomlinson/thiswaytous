@@ -30,7 +30,7 @@
 		setup: function() {
 			map = Map.create();
 			map.reset();
-			
+
 			users = AFrame.CollectionArray.create( {
 				plugins: [ [ AFrame.CollectionPluginModel, {
 					schema: {
@@ -61,7 +61,6 @@
 			lon: 0
 		} );
 
-		users.triggerEvent( 'updatecomplete' );
 		ok( map.centered, 'map is centered' );
 	} );
 
@@ -76,7 +75,6 @@
 			lon: 0
 		} );
 
-		users.triggerEvent( 'updatecomplete' );
 		ok( map.fitted, 'bounds have been fitted' );
 	} );
 
@@ -94,7 +92,6 @@
 
 		users.remove( cid );
 
-		users.triggerEvent( 'updatecomplete' );
 		ok( map.centered, 'map is centered' );
 	} );
 
@@ -113,10 +110,33 @@
 
 		var user = users.get( cid );
 		user.set( 'lat', 1 );
+		user.set( 'lon', 1 );
 
 		users.triggerEvent( 'updatecomplete' );
 		ok( map.fitted, 'bounds have been fitted' );
-		ok( 1, map.fittedCount, 'setViewport was alled once' );
+		equal( 1, map.fittedCount, 'setViewport was called once' );
+	} );
+
+	test( 'multiple marker operations after session update cause one setViewport', function() {
+		users.triggerEvent( 'updatestart' );
+
+		users.insert( {
+			lat: 0,
+			lon: 0
+		} );
+
+		users.insert( {
+			lat: 0,
+			lon: 0
+		} );
+
+		users.insert( {
+			lat: 0,
+			lon: 0
+		} );
+
+		users.triggerEvent( 'updatecomplete' );
+		equal( 1, map.fittedCount, 'setViewport was called once' );
 	} );
 
 

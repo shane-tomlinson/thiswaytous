@@ -6,30 +6,46 @@ TWTU.MapPluginBounds = (function() {
 	var Plugin = AFrame.Plugin.extend( {
 		importconfig: [ 'users' ],
 		events: {
-			'updatecomplete users': updateBounds
+			'updatestart users': onUpdateStart,
+			'updatecomplete users': onUpdateComplete,
+			'onInsert users': updateBounds,
+			'onRemove users': updateBounds
 		}
 	} );
 
+	function onUpdateStart() {
+		this.bulkUpdate = true;
+	}
+
+	function onUpdateComplete() {
+		this.bulkUpdate = false;
+		updateBounds.call( this );
+	}
+
 	function updateBounds() {
-		var plugged = this.getPlugged(), users = this.users, bounds = {}, maxIndex;
+		if( this.bulkUpdate ) {
+			return;
+		}
 
-		users.forEach( function( marker, index ) {
-			if( index === 0 ) {
-				setBounds( bounds, marker );
-			}
-			else {
-				expandBounds( bounds, marker );
-			}
+		var me=this, users = me.users;
+		me.bounds = {};
+		me.maxIndex = 0;
 
-			maxIndex = index;
-		} );
+		users.forEach( updateBoundsForUser.bind( me ) );
 
-		if( maxIndex === 0 ) {
-			plugged.setCenter( bounds.ne );
+		updateViewport.call( me );
+	}
+
+	function updateBoundsForUser( marker, index ) {
+		var me=this, bounds = me.bounds;
+		if( index === 0 ) {
+			setBounds( bounds, marker );
 		}
 		else {
-			plugged.setViewport( bounds );
+			expandBounds( bounds, marker );
 		}
+
+		me.maxIndex = index;
 	}
 
 	function setBounds( bounds, marker ) {
@@ -65,6 +81,16 @@ TWTU.MapPluginBounds = (function() {
 			bounds.sw.longitude = lon;
 		}
 
+	}
+
+	function updateViewport() {
+		var me=this, bounds = me.bounds, plugged = me.getPlugged();
+		if( me.maxIndex === 0 ) {
+			plugged.setCenter( bounds.ne );
+		}
+		else {
+			plugged.setViewport( bounds );
+		}
 	}
 
 	return Plugin;

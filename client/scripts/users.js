@@ -17,10 +17,10 @@ TWTU.Users = (function() {
 		updateCurrentUserID.call( me, data.user_id );
 
 		me.triggerEvent( 'updatestart' );
-		
+
 		var users = data && data.users
 		if( users ) {
-			insertUpdateUsers.call( me, users );
+			users.forEach( insertUpdateUser, this );
 		}
 
 		me.triggerEvent( 'updatecomplete' );
@@ -31,10 +31,6 @@ TWTU.Users = (function() {
 		if( tempUser ) {
 			tempUser.set( 'id', userID );
 		}
-	}
-
-	function insertUpdateUsers( users ) {
-		users.forEach( insertUpdateUser, this );
 	}
 
 	function insertUpdateUser( user, index ) {
