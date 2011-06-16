@@ -22,13 +22,14 @@ google = (function() {
 					panToBoundsCalled = true;
 				};
 			},
+
 			Marker: function( config ) {
 				var currentPosition = config.position;
 				positionChanged = true;
 
 				this.setPosition = function( position ) {
-					if( position.latitude != currentPosition.latitude ||
-						position.longitude != currentPosition.longitude ) {
+					if( position.latitude !== currentPosition.latitude ||
+						position.longitude !== currentPosition.longitude ) {
 						positionChanged = true;
 						currentPosition = position;
 					}
@@ -38,17 +39,17 @@ google = (function() {
 					if( map === null ) {
 						markerRemoved = true;
 					}
-				}
+				};
 
 				this.getPosition = function() {
-					return new function() {
+					return new(function() {
 						this.lat = function() {
 							return 0;
-						}
+						};
 						this.lng = function() {
 							return 0;
-						}
-					};
+						};
+					});
 				};
 
 				this.getTitle = function() {
@@ -56,8 +57,16 @@ google = (function() {
 				};
 			},
 
-			event: {
-				addListener: function() {}
+            event: {
+				addListener: function( map, event, callback ) {
+					this.callback = callback;
+				},
+
+				triggerEvent: function() {
+					if( this.callback ) {
+						this.callback();
+					}
+				}
 			},
 
 			LatLng: function() {},
