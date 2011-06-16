@@ -10,7 +10,6 @@ TWTU.Router = ( function() {
 			var router = new routes();
 			addRoutes.call( router, me, 'get', allroutes.get );
 			addRoutes.call( router, me, 'post', allroutes.post );
-
 		},
 
 		pushState: function( url ) {

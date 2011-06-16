@@ -5,7 +5,7 @@ $(function() {
 
 	var map, userPosition, markerID,
 		pages = {}, session, currentUser, users,
-		currentPage, state, router;
+		currentPage;
 
 	initialize();
 
