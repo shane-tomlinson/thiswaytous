@@ -111,4 +111,5 @@
 
 		equal( true, Events.isTriggered( 'viewportchange' ), 'viewportchange triggered' );
 	} );
+
 }() );

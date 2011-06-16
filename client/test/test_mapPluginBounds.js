@@ -46,7 +46,7 @@
 			} );
 		},
 		teardown: function() {
-			map.teardown();
+        		map.teardown();
 			map = null;
 
 			plugin.teardown();
@@ -96,6 +96,8 @@
 	} );
 
 	test( 'updating a marker causes viewport to be updated', function() {
+		users.triggerEvent( 'updatestart' );
+
 		users.insert( {
 			lat: 0,
 			lon: 0
@@ -139,6 +141,32 @@
 		equal( 1, map.fittedCount, 'setViewport was called once' );
 	} );
 
+        test( 'viewportchange will keep bounds from updating', function() {
+	    users.insert( { lat: 0, lon: 0 } );
+
+	    map.triggerEvent( 'viewportchange' );
+            map.reset();
+
+            // this has no update nor delete, so we assume only updates
+	    users.triggerEvent( 'updatecomplete' );
+            equal( map.fittedCount, 0, 'setViewport not called after viewportchange' );
+        } );
+
+	test( 'when a user is added after bounds updated, update map', function() {
+	    users.insert( { lat: 0, lon: 0 } );
+	    users.triggerEvent( 'updatecomplete' );
+
+	    map.reset();
+	    
+	    map.triggerEvent( 'viewportchange' );
+	    map.triggerEvent( 'updatestart' );
+	    users.insert( { lat: 0, lon: 0 } );
+	    users.triggerEvent( 'updatecomplete' );
+	} );
+
+	test( 'adds fitToUsers decorator', function() {
+	    equal( typeof map.fitToUsers, 'function', 'fitToUsers added to map' );
+	} );
 
 
 }() );
