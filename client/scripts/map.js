@@ -5,11 +5,11 @@ TWTU.Map = ( function() {
 
 	var Map = AFrame.Display.extend( {
 		init: function( config ) {
-			Map.sc.init.call( this, config );
+			var me=this;
+			Map.sc.init.call( me, config );
 
-			this.markers = AFrame.CollectionArray.create();
-
-			this.currMarkerID = 0;
+			me.markers = AFrame.CollectionArray.create();
+			me.currMarkerID = 0;
 
 			var options = {
 				zoom: 15,
@@ -17,7 +17,8 @@ TWTU.Map = ( function() {
 				mapTypeId: maps.MapTypeId.ROADMAP,
 				maxZoom: 18
 			};
-			this.map = new maps.Map( this.getDOMElement(), options );
+			var map = me.map = new maps.Map( me.getDOMElement(), options );
+			event.addListener( map, 'dragend', triggerViewportChange.bind( me ) );
 		},
 
 		/**
@@ -73,6 +74,7 @@ TWTU.Map = ( function() {
 		setCenter: function( position ) {
 			var gLatLng = toGLatLng( position );
 			this.map.panTo( gLatLng );
+			triggerViewportChange.call( this );
 		},
 
 		/**
@@ -83,6 +85,7 @@ TWTU.Map = ( function() {
 		setViewport: function( viewport ) {
 			var bounds = new maps.LatLngBounds( toGLatLng( viewport.sw ), toGLatLng( viewport.ne ) );
 			this.map.fitBounds( bounds );
+			triggerViewportChange.call( this );
 		}
 	} );
 
@@ -104,6 +107,10 @@ TWTU.Map = ( function() {
 
 		this.markers.insert( marker, id );
 		return id;
+	}
+
+	function triggerViewportChange() {
+		this.triggerEvent( 'viewportchange' );
 	}
 
 	return Map;

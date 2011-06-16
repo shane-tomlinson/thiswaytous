@@ -14,6 +14,8 @@
 					longitude: 1
 				}
 			} );
+
+			Events.reset();
 		},
 
 		teardown: function() {
@@ -86,4 +88,27 @@
 		ok( google.maps.isViewPortSet(), 'map has been centered' );
 	} );
 
+	test( 'viewportchange event on setViewport', function() {
+		map.bindEvent( 'viewportchange', Events.eventHandler );
+
+		map.setViewport( { sw: {}, ne: {} } );
+
+		equal( true, Events.isTriggered( 'viewportchange' ), 'viewportchange triggered' );
+	} );
+
+	test( 'viewportchange event on setCenter', function() {
+		map.bindEvent( 'viewportchange', Events.eventHandler );
+
+		map.setCenter( {} );
+
+		equal( true, Events.isTriggered( 'viewportchange' ), 'viewportchange triggered' );
+	} );
+
+	test( 'viewportchange event on map drag', function() {
+		map.bindEvent( 'viewportchange', Events.eventHandler );
+
+		google.maps.event.triggerEvent( 'dragend' );
+
+		equal( true, Events.isTriggered( 'viewportchange' ), 'viewportchange triggered' );
+	} );
 }() );
