@@ -452,4 +452,14 @@ section > footer > ul {
   display: none; }
 
 .mapmoved #resetmap {
-  display: inline-block; }
+  display: inline-block;
+  position: absolute;
+  top: 110px;
+  left: 7px;
+  border: 1px solid #777;
+  -moz-border-radius: 500px;
+  -webkit-border-radius: 500px;
+  border-radius: 500px;
+  z-index: 1;
+  background: #fbfbfb;
+  padding: 3px 10px; }

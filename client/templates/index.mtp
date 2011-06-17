@@ -8,6 +8,7 @@
 </head>
 <body>
 	<section id="main">
+        <a id="resetmap" class="button" href="#/resetMap">Reset</a>
 		<div id="map">
 			<img src="/client/scripts/client/images/ajax-loader.gif" width=32 height=32 />
 			<p>
@@ -19,7 +20,6 @@
 			<ul>
 				<li><a class="button" href="#/page/invite">Invite Friend</a></li>
 				<li><a class="button" href="#/page/enterCode">Enter Code</a></li>
-				<li id="resetmap"><a class="button" href="#/resetMap">Reset Map</a></li>
 			</ul>
 		</footer>
 

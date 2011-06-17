@@ -18,7 +18,7 @@ TWTU.MapPluginBounds = (function() {
                 var plugged = this.getPlugged();
                 plugged.fitToUsers = updateBounds.bind( this );
 
-                $( '#resetmap a' ).click( onResetMap.bind( this ) );
+                $( '#resetmap' ).click( onResetMap.bind( this ) );
                 
             }
         } );

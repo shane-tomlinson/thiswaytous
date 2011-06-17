@@ -258,4 +258,12 @@ section > footer > ul {
 
 .mapmoved #resetmap {
     display: inline-block;
+    position: absolute;
+    top: 110px;
+    left: 7px;
+    border: 1px solid #777;
+    @include rounded(500px);
+    z-index: 1;
+    background: #fbfbfb;
+    padding: 3px 10px;
 }
