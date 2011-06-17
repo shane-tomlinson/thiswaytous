@@ -251,3 +251,11 @@ section > footer > ul {
 #userInfo input[type=text] {
 	width: 10em;
 }
+
+#resetmap {
+    display: none;
+}
+
+.mapmoved #resetmap {
+    display: inline-block;
+}
