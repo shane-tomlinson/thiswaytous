@@ -29,14 +29,15 @@ TWTU.Map = ( function() {
 		* @return {id} id of marker - used to move/remove the marker.
 		*/
 		addMarker: function( markerInfo ) {
-			var marker = new maps.Marker( {
+			var me=this, marker = new maps.Marker( {
 				position: toGLatLng( markerInfo ),
-				map: this.map,
+				map: me.map,
 				title: markerInfo.name
 			} );
 
-			var id = storeMarker.call( this, marker );
+			var id = marker.id = storeMarker.call( me, marker );
 
+            me.triggerEvent( 'markeradd', marker );
 			return id;
 		},
 

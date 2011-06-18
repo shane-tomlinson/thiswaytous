@@ -398,7 +398,8 @@ section > footer > ul {
   bottom: 0;
   top: 100%;
   background-color: rgba(51, 51, 51, 0.95);
-  overflow: hidden; }
+  overflow: hidden;
+  z-index: 2; }
   .page input {
     font-size: 2em;
     padding: .5em;

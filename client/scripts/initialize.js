@@ -4,13 +4,14 @@ $(function() {
 	"use strict";
 
 	var map, userPosition, markerID,
-		pages = {}, session, currentUser, users,
-		currentPage;
+		pages = {}, session, currentUser, displayedUser,
+        users, currentPage, controller;
 
 	initialize();
 
 	function initialize() {
 		createCurrentUser();
+        createDisplayedUser();
 		createSession();
 		createUsers();
 		createInviteCodeForm();
@@ -21,13 +22,23 @@ $(function() {
 	}
 
 	function createController() {
-		var controller = TWTU.Controller( session, pages, currentUser );
+		controller = TWTU.Controller( {
+            session: session, 
+            pages: pages, 
+            currentUser: currentUser,
+            displayedUser: displayedUser,
+            users: users
+        } );
 	}
 
 
 	function createCurrentUser() {
 		currentUser = TWTU.CurrentUser.create();
 	}
+
+    function createDisplayedUser() {
+        displayedUser = TWTU.User.create();
+    }
 
 	function createSession() {
 		session = TWTU.Session.create( {
@@ -52,6 +63,7 @@ $(function() {
 		var constructors = {
 			enterCode: enterCode,
 			userInfo: userInfo,
+            displayUser: displayUserPage,
 			'default': defaultPage
 		};
 
@@ -66,30 +78,29 @@ $(function() {
 		} );
 
 		function enterCode( target ) {
-			var form = AFrame.DataForm.create( {
-				target: '#enterCodeForm',
-				dataSource: session
-			} );
-
-			var page = TWTU.FormPage.create({
-				form: form,
-				target: target
-			});
-			return page;
+			return formPage( target, session );
 		}
 
 		function userInfo( target ) {
-			var form = AFrame.DataForm.create( {
-				target: target,
-				dataSource: currentUser
-			} );
-
-			var page = TWTU.FormPage.create({
-				form: form,
-				target: target
-			});
-			return page;
+            return formPage( target, currentUser );
 		}
+
+        function displayUserPage( target ) {
+            return formPage( target, displayedUser );
+        }
+
+        function formPage( target, model ) {
+            var form = AFrame.DataForm.create( {
+                target: target,
+                dataSource: model
+            } );
+
+            var page = TWTU.FormPage.create( {
+                form: form,
+                target: target
+            } );
+            return page;
+        }
 
 		function defaultPage( target ) {
 			var page = TWTU.Page.create( {
@@ -114,7 +125,9 @@ $(function() {
 				position: position,
 				plugins: [ [ TWTU.MapPluginBounds, {
 					users: users
-				} ]/*, TWTU.MapPluginUserInfoWindow*/ ]
+				} ], [ TWTU.MapPluginUserInfoWindow, {
+                    controller: controller
+                } ] ]
 			} );
 
 			var markers = TWTU.UserMapMarkers.create( {

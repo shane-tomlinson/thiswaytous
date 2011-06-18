@@ -28,14 +28,12 @@ TWTU.UserMapMarkers = (function() {
 		var user = event.item, markerID = getMarkerIDForUser.call( this, user );
 		if( markerID ) {
 			this.map.removeMarker( markerID );
-			console.log( 'removed user: ' + user.get( 'name' ) );
 		}
 	}
 
 	function onUserChange( event ) {
 		var user = event.target, markerID = getMarkerIDForUser.call( this, user );
 		if( AFrame.defined( markerID ) ) {
-			console.log( 'user moved: ' + user.get( 'name' ) );
 			this.map.moveMarker( markerID, getUserInfo( user ) );
 		}
 	}

@@ -191,6 +191,7 @@ section > footer > ul {
 	top: 100%;
 	background-color: $main-background;
 	overflow: hidden;
+    z-index: 2;
 
 	input {
 		font-size: 2em;

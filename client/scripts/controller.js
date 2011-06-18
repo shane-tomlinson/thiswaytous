@@ -1,4 +1,10 @@
-TWTU.Controller = function( session, pages, currentUser ) {
+TWTU.Controller = function( config ) {
+    var session = config.session,
+        pages = config.pages,
+        currentUser = config.currentUser,
+        displayedUser = config.displayedUser,
+        users = config.users;
+
 	"use strict";
 
 	var currentPage;
@@ -9,10 +15,11 @@ TWTU.Controller = function( session, pages, currentUser ) {
 					'/page/invite': handleInvite,
 					'/page/:id': handlePage,
 					'/route/:id': handleRoute,
+                    '/user/:id': handleUser,
 					'/': handleRoot
 				},
 				post: {
-					'/user': handleUser,
+					'/user': handleUserPost,
 					'/session/join': handleJoinSession,
 					'/session/:id': handleSessionInvite
 				}
@@ -40,9 +47,21 @@ TWTU.Controller = function( session, pages, currentUser ) {
 		displayPage( 'invite' );
 	} 
 
-	function handleUser() {
-		router.redirect( '/' );
-	}
+    function handleUserPost() {
+        router.redirect( '/' );
+    }
+
+    function handleUser( params ) {
+        var id = params.id;
+        if( id === 'me' ) {
+            displayPage( 'userInfo' );
+        }
+        else {
+            var user = users.get( ~~id );
+            displayedUser.set( user.getDataObject() );
+            displayPage( 'displayUser' );        
+        }
+    }
 
 	function handleJoinSession( params ) {
 		var code = session.get( 'invite_code_1' ) + '-' + session.get( 'invite_code_2' ) + '-' + session.get( 'invite_code_3' );
@@ -57,7 +76,7 @@ TWTU.Controller = function( session, pages, currentUser ) {
 		hideCurrentPage();
 		
 		if( !currentUser.hasData() ) {
-			router.pushState( '/page/userInfo' );
+			router.pushState( '/user/me' );
 		}
 	}
 
@@ -88,4 +107,6 @@ TWTU.Controller = function( session, pages, currentUser ) {
 			currentPage = null;
 		}
 	}
+
+    return router;
 };
