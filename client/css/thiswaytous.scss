@@ -103,7 +103,7 @@ form.inline p {margin-bottom:0;}
 .success a {color:#264409;}
 .info a {color:#205791;}
 
-$main-background: rgba(51,51,51,.95);
+$main-background: #3d3d3d;
 $text-color: #eee;
 
 @mixin rounded( $radius: 5px ) {
@@ -121,6 +121,15 @@ $text-color: #eee;
 
 body {
 	background-color: $main-background;
+}
+
+h1, h2 {
+    font-family: 'Swanky and Moo Moo', arial, serif;
+    color: #fff;
+}
+
+h1 {
+    margin: 0 0 0 10px;
 }
 
 ul, li {
@@ -142,6 +151,7 @@ button, .button {
 #main {
 	width: 100%;
 	margin: 0 auto;
+    position: relative;
 }
 
 #map {

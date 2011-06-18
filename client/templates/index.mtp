@@ -4,9 +4,11 @@
 <head>
 	<title>This Way To.Us</title>
 	<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <link href='http://fonts.googleapis.com/css?family=Swanky+and+Moo+Moo&v1' rel='stylesheet' type='text/css'>
 	<link href="client/css/thiswaytous.css" type="text/css" rel="stylesheet" />
 </head>
 <body>
+    <h1>This Way To.us</h1>
 	<section id="main">
         <a id="resetmap" class="button" href="#/resetMap">Reset</a>
 		<div id="map">
@@ -26,7 +28,7 @@
 	</section>
 
 	<section id="userInfo" class="page">
-		<h2>User Information</h2>
+		<h2>Your Information</h2>
 
 		<label for="enterName">Name:</label>
 		<input type="text" data-field name="name" />
@@ -39,6 +41,7 @@
 	</section>
 
 	<section id="enterCode" class="page">
+        <h2>Join Session</h2>
 		<label for="enterCodeForm">Enter Code:</label>
 		<formset id="enterCodeForm">
 			<ul>
