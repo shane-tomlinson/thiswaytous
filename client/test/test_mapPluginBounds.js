@@ -163,7 +163,7 @@
 	    users.insert( { lat: 0, lon: 0 } );
 	    users.triggerEvent( 'updatecomplete' );
 
-	    equal( map.fittedCount, 1, 'setViewport called again after user added' );
+	    equal( map.fittedCount, 2, 'setViewport called again after user added' );
 	} );
 
 	test( 'adds fitToUsers decorator', function() {
