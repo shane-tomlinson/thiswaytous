@@ -58,8 +58,10 @@ TWTU.Controller = function( config ) {
         }
         else {
             var user = users.get( ~~id );
-            displayedUser.set( user.getDataObject() );
-            displayPage( 'displayUser' );        
+            if( user ) {
+                displayedUser.set( user.getDataObject() );
+                displayPage( 'displayUser' );        
+            }
         }
     }
 
