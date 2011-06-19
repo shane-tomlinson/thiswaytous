@@ -5,11 +5,12 @@ $(function() {
 
 	var map, userPosition, markerID,
 		pages = {}, session, currentUser, displayedUser,
-        users, currentPage, controller;
+        users, currentPage, controller, destination;
 
 	initialize();
 
 	function initialize() {
+        createDestination();
 		createCurrentUser();
         createDisplayedUser();
 		createSession();
@@ -18,7 +19,6 @@ $(function() {
 		createPages();
 		createController();
 		createUserPosition();
-
 	}
 
 	function createController() {
@@ -127,12 +127,15 @@ $(function() {
 					users: users
 				} ], [ TWTU.MapPluginUserInfoWindow, {
                     controller: controller
+                } ], [ TWTU.MapPluginDestination, {
+                    destination: destination 
                 } ] ]
 			} );
 
 			var markers = TWTU.UserMapMarkers.create( {
 				users: users,
-				map: map
+				map: map,
+                destination: destination
 			} );
 
 			// do this after we have created the map/marker so the initial user
@@ -141,10 +144,12 @@ $(function() {
 		}
 	}
 
-	function updateCurrentUserCoords( position ) {
-		currentUser.set( 'lat', position.latitude );
-		currentUser.set( 'lon', position.longitude );
+    function createDestination() {
+        destination = AFrame.DataContainer.create();
+    }
 
+	function updateCurrentUserCoords( position ) {
+		currentUser.set( position );
 		session.update();
 	}
 

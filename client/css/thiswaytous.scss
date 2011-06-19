@@ -119,8 +119,13 @@ $text-color: #eee;
 
 }
 
-body {
+html, body {
 	background-color: $main-background;
+}
+
+body {
+    max-width: 960px;
+    margin: 0 auto;
 }
 
 h1, h2 {
@@ -148,6 +153,11 @@ button, .button {
 	}
 }
 
+#wrapper {
+    max-width: 960px;
+    margin: 0 auto;
+}
+    
 #main {
 	width: 100%;
 	margin: 0 auto;
@@ -263,18 +273,15 @@ section > footer > ul {
 	width: 10em;
 }
 
+#mapcontrols {
+    float: right;
+    margin: -27px 15px 0 0;
+}
+
 #resetmap {
     display: none;
 }
 
 .mapmoved #resetmap {
     display: inline-block;
-    position: absolute;
-    top: 110px;
-    left: 7px;
-    border: 1px solid #777;
-    @include rounded(500px);
-    z-index: 1;
-    background: #fbfbfb;
-    padding: 3px 10px;
 }

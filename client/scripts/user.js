@@ -4,11 +4,11 @@ TWTU.User = ( function() {
 	var schema = {
 		id: 'id',
 		name: 'string',
-		lat: 'number',
-		lon: 'number'
+		latitude: 'number',
+		longitude: 'number'
 	};
 
-	var User = AFrame.Class( AFrame.Model, {
+	var User = AFrame.Model.extend( {
 		schema: schema
 	} );
 

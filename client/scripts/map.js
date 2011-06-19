@@ -19,6 +19,7 @@ TWTU.Map = ( function() {
 			};
 			var map = me.map = new maps.Map( me.getDOMElement(), options );
 			event.addListener( map, 'dragend', triggerViewportChange.bind( me ) );
+			event.addListener( map, 'click', triggerMapClick.bind( me ) );
 		},
 
 		/**
@@ -37,7 +38,7 @@ TWTU.Map = ( function() {
 
 			var id = marker.id = storeMarker.call( me, marker );
 
-            me.triggerEvent( 'markeradd', marker );
+            me.triggerEvent( 'markeradd', marker, markerInfo );
 			return id;
 		},
 
@@ -87,13 +88,28 @@ TWTU.Map = ( function() {
 			var bounds = new maps.LatLngBounds( toGLatLng( viewport.sw ), toGLatLng( viewport.ne ) );
 			this.map.fitBounds( bounds );
 			triggerViewportChange.call( this );
-		}
+		},
+
+        disableDrag: function() {
+
+        },
+
+        enableDrag: function() {
+            
+        }
 	} );
 
 	function toGLatLng( position ) {
 		var gLatLng = new maps.LatLng( position.latitude, position.longitude );
 		return gLatLng;
 	}
+
+    function fromGLatLng( gLatLng ) {
+        return {
+            latitude: gLatLng.lat(),
+            longitude: gLatLng.lng()
+        };
+    }
 
 	/**
 	* Store a marker off
@@ -113,6 +129,10 @@ TWTU.Map = ( function() {
 	function triggerViewportChange() {
 		this.triggerEvent( 'viewportchange' );
 	}
+
+    function triggerMapClick( event ) {
+        this.triggerEvent( 'mapclick', fromGLatLng( event.latLng ) );
+    }
 
 	return Map;
 }() );

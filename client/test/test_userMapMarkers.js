@@ -1,24 +1,26 @@
 ( function() {
 	"use strict";
 
-	var userMapMarkers, users, map, user;
+	var userMapMarkers, users, map, user, destination;
 
 	module( 'TWTU.UserMapMarkers', {
 		setup: function() {
 			map = new MapStub();
 
 			users = AFrame.CollectionArray.create();
+            destination = AFrame.DataContainer.create();
 
 			userMapMarkers = TWTU.UserMapMarkers.create( {
 				map: map,
-				users: users
+				users: users,
+                destination: destination
 			} );
 
 			user = AFrame.DataContainer.create( {
 				data: {
 					name: 'Shane',
-					lat: 0,
-					lon: 1
+					latitude: 0,
+					longitude: 1
 				}
 			} );
 
@@ -51,7 +53,7 @@
 	test( 'when updating latitude of user, map is updated', function() {
 		users.insert( user );
 
-		user.set( 'lat', 1 );
+		user.set( 'latitude', 1 );
 		ok( map.isMarkerMoved(), 'Marker has been moved' );
 	} );
 
@@ -61,6 +63,12 @@
 		users.remove( id );
 		ok( map.isMarkerRemoved(), 'Marker has been removed' );
 	} );
+
+    test( 'when setting the destination\'s lat, lng, moveMarker is called', function() {
+        destination.set( 'latitude', 1 );
+
+        ok( map.isMarkerMoved(), 'Marker has been moved' );
+    } );
 
 	function MapStub() {
 		var markerAdded, markerRemoved, markerMoved;

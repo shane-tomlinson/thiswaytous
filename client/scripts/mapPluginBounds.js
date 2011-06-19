@@ -80,7 +80,7 @@ TWTU.MapPluginBounds = (function() {
         }
 
         function setBounds( bounds, marker ) {
-            var lat = marker.get( 'lat' ), lon = marker.get( 'lon' );
+            var lat = marker.get( 'latitude' ), lon = marker.get( 'longitude' );
 
             bounds.ne = {
                 latitude: lat,
@@ -94,7 +94,7 @@ TWTU.MapPluginBounds = (function() {
         }
 
         function expandBounds( bounds, marker ) {
-            var lat = marker.get( 'lat' ), lon = marker.get( 'lon' );
+            var lat = marker.get( 'latitude' ), lon = marker.get( 'longitude' );
 
             if( lat > bounds.ne.latitude ) {
                 bounds.ne.latitude = lat;

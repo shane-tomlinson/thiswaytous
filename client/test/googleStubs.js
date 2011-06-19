@@ -5,7 +5,8 @@ google = (function() {
 		fitBoundsCalled = false,
 		markerRemoved = false,
 		panToCalled = false,
-		panToBoundsCalled = false;
+		panToBoundsCalled = false,
+        callbacks = {};
 
 	var google = {
 		maps: {
@@ -59,13 +60,11 @@ google = (function() {
 
             event: {
 				addListener: function( map, event, callback ) {
-					this.callback = callback;
+					callbacks[ event ] = callback;
 				},
 
-				triggerEvent: function() {
-					if( this.callback ) {
-						this.callback();
-					}
+				triggerEvent: function( event ) {
+                    callbacks[ event ] && callbacks[ event ]();
 				}
 			},
 
@@ -103,6 +102,7 @@ google = (function() {
 				markerRemoved =
 				panToCalled =
 				panToBoundsCalled = false;
+                callbacks = {};
 			}
 		}
 	};

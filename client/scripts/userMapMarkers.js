@@ -1,8 +1,8 @@
 TWTU.UserMapMarkers = (function() {
 	"use strict";
 
-	var Markers = AFrame.Class( AFrame.AObject, {
-		importconfig: [ 'map', 'users' ],
+	var Markers = AFrame.AObject.extend( {
+		importconfig: [ 'map', 'users', 'destination' ],
 		events: {
 			'onInsert users': onUserAdd,
 			'onRemove users': onUserRemove
@@ -12,16 +12,28 @@ TWTU.UserMapMarkers = (function() {
 			this.markers = {};
 
 			Markers.sc.init.call( this, config );
+            this.destination.bindEvent( 'onSet', onMarkerChange, this );
 		}
 	} );
 
+    function addMarker( marker ) {
+        var me=this;
+        attemptAddMarkerToMap.call( me, marker );
+
+        me.markers[ marker.getCID() ] = marker;
+        marker.bindEvent( 'onSet', onMarkerChange, me );
+    }
+
+    function attemptAddMarkerToMap( marker ) {
+        if( AFrame.defined( marker.get( 'latitude' ) ) ) {
+			var markerID = this.map.addMarker( marker.getDataObject() );
+            marker.set( 'mapID', markerID );
+        }
+    }
+
 	function onUserAdd( event ) {
-		var user = event.item,
-			markerID = this.map.addMarker( getUserInfo( user ) );
-
-		this.markers[ user.getCID() ] = markerID;
-
-		user.bindEvent( 'onSet', onUserChange, this );
+		var user = event.item;
+        addMarker.call( this, user );
 	}
 
 	function onUserRemove( event ) {
@@ -31,23 +43,24 @@ TWTU.UserMapMarkers = (function() {
 		}
 	}
 
-	function onUserChange( event ) {
-		var user = event.target, markerID = getMarkerIDForUser.call( this, user );
-		if( AFrame.defined( markerID ) ) {
-			this.map.moveMarker( markerID, getUserInfo( user ) );
-		}
-	}
+	function onMarkerChange( event ) {
+        if( event.fieldName === 'markerID' ) {
+            return;
+        }
 
-	function getUserInfo( user ) {
-		return {
-			name: user.get( 'name' ),
-			latitude: user.get( 'lat' ),
-			longitude: user.get( 'lon' )
-		}
+		var me = this, 
+            user = event.target, 
+            markerID = getMarkerIDForUser.call( me, user );
+
+		if( AFrame.defined( markerID ) ) {
+			me.map.moveMarker( markerID, user.getDataObject() );
+		} else {
+            attemptAddMarkerToMap.call( me, user );        
+        }
 	}
 
 	function getMarkerIDForUser( user ) {
-		return this.markers[ user.getCID() ];
+		return user.get( 'mapID' );
 	}
 
 	return Markers;
