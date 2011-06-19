@@ -17,7 +17,6 @@ TWTU.MapPluginDestination = (function() {
         event.preventDefault();
 
         var plugged = this.getPlugged();
-        plugged.disableDrag();
         this.placeMarker = true;
     }
 
@@ -25,7 +24,6 @@ TWTU.MapPluginDestination = (function() {
         var me=this, plugged = me.getPlugged();
         if( me.placeMarker ) {
             me.destination.set( latLng );    
-            plugged.enableDrag();
             me.placeMarker = false;
         }
     }

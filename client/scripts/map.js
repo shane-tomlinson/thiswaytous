@@ -30,16 +30,28 @@ TWTU.Map = ( function() {
 		* @return {id} id of marker - used to move/remove the marker.
 		*/
 		addMarker: function( markerInfo ) {
-			var me=this, marker = new maps.Marker( {
-				position: toGLatLng( markerInfo ),
-				map: me.map,
-				title: markerInfo.name
-			} );
+            var me=this, markerConfig = getMarkerConfig();
 
-			var id = marker.id = storeMarker.call( me, marker );
+			var marker = new maps.Marker( markerConfig ),
+			    id = marker.id = storeMarker.call( me, marker );
 
             me.triggerEvent( 'markeradd', marker, markerInfo );
 			return id;
+
+            function getMarkerConfig() {
+                var markerConfig = {
+                    position: toGLatLng( markerInfo ),
+                    map: me.map,
+                    title: markerInfo.name
+                };
+
+                if( markerInfo.icon ) {
+                    markerConfig.icon = markerInfo.icon;
+                    markerConfig.shadow = markerInfo.shadow;
+                }
+
+                return markerConfig;
+            }
 		},
 
 		/**
@@ -88,15 +100,7 @@ TWTU.Map = ( function() {
 			var bounds = new maps.LatLngBounds( toGLatLng( viewport.sw ), toGLatLng( viewport.ne ) );
 			this.map.fitBounds( bounds );
 			triggerViewportChange.call( this );
-		},
-
-        disableDrag: function() {
-
-        },
-
-        enableDrag: function() {
-            
-        }
+		}
 	} );
 
 	function toGLatLng( position ) {

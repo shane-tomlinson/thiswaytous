@@ -9,10 +9,15 @@ TWTU.UserMapMarkers = (function() {
 		},
 
 		init: function( config ) {
-			this.markers = {};
+			var me=this;
+            me.markers = {};
 
-			Markers.sc.init.call( this, config );
-            this.destination.bindEvent( 'onSet', onMarkerChange, this );
+			Markers.sc.init.call( me, config );
+
+            var destination = me.destination;
+            destination.set( 'icon', 'http://maps.google.com/mapfiles/arrow.png' );
+            destination.set( 'shadow', 'http://maps.google.com/mapfiles/arrowshadow.png' );
+            destination.bindEvent( 'onSet', onMarkerChange, me );
 		}
 	} );
 
@@ -25,6 +30,8 @@ TWTU.UserMapMarkers = (function() {
     }
 
     function attemptAddMarkerToMap( marker ) {
+        var me=this;
+
         if( AFrame.defined( marker.get( 'latitude' ) ) ) {
 			var markerID = this.map.addMarker( marker.getDataObject() );
             marker.set( 'mapID', markerID );

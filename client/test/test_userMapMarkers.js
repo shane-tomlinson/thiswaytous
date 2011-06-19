@@ -71,19 +71,19 @@
     } );
 
 	function MapStub() {
-		var markerAdded, markerRemoved, markerMoved;
+		var marker, markerRemoved, markerMoved;
 
 		this.reset = function() {
-			markerAdded = markerRemoved = markerMoved = false;
+			marker = markerRemoved = markerMoved = false;
 		};
 
-		this.addMarker = function( name, position ) {
-			markerAdded = true;
+		this.addMarker = function( data ) {
+			marker = data;
 			return 1;
 		};
 
 		this.isMarkerAdded = function() {
-			return markerAdded;
+			return 'object' === typeof marker;
 		};
 
 		this.removeMarker = function( id ) {
