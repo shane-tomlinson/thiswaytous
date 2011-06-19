@@ -8,9 +8,16 @@
 	<link href="client/css/thiswaytous.css" type="text/css" rel="stylesheet" />
 </head>
 <body>
+    <div id="wrapper">
+
     <h1>This Way To.us</h1>
 	<section id="main">
-        <a id="resetmap" class="button" href="#/resetMap">Reset</a>
+        <p id="mapcontrols">    
+            <a id="resetmap" class="button" href="#/resetMap">Reset</a>
+            <a id="setdestination" class="button" href="#/setDestination">Set 
+            Destination</a>
+        </p>
+
 		<div id="map">
 			<img src="/client/scripts/client/images/ajax-loader.gif" width=32 height=32 />
 			<p>
@@ -94,7 +101,8 @@
             </ul> 
         </footer>
     </section>
-
+    
+    </div>
 	<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true"></script>
 
 	<script type="text/javascript" src="/client/scripts/ext/jquery-1.5.2.min.js"></script>
@@ -106,6 +114,7 @@
 	<script type="text/javascript" src="/client/scripts/map.js"></script>
 	<script type="text/javascript" src="/client/scripts/mapPluginUserInfoWindow.js"></script>
 	<script type="text/javascript" src="/client/scripts/mapPluginBounds.js"></script>
+	<script type="text/javascript" src="/client/scripts/mapPluginDestination.js"></script>
 	<script type="text/javascript" src="/client/scripts/page.js"></script>
 	<script type="text/javascript" src="/client/scripts/user.js"></script>
 	<script type="text/javascript" src="/client/scripts/currentUser.js"></script>
