@@ -125,7 +125,7 @@
 	<script type="text/javascript" src="/client/scripts/userMapMarkers.js"></script>
 	<script type="text/javascript" src="/client/scripts/router.js"></script>
 	<script type="text/javascript" src="/client/scripts/controller.js"></script>
-
+    <script type="text/javascript" src="/client/scripts/markers.js"></script>
 	<script type="text/javascript" src="/client/scripts/initialize.js"></script>
 
 </body>

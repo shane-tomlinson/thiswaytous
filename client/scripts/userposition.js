@@ -15,6 +15,7 @@ TWTU.UserPosition = (function() {
 	} );
 
 	function startWatch() {
+        console.log( 'looking for location' );
 		var geo = navigator.geolocation, me=this;
 		if( geo ) {
 			geo.watchPosition( success.bind( me ), failure.bind( me ),
@@ -35,6 +36,7 @@ TWTU.UserPosition = (function() {
 	}
 
 	function success( results ) {
+        console.log( 'get location success' );
 		var coords = results.coords || results;
 		this.triggerEvent( 'positionchange', coords );
 
@@ -46,6 +48,7 @@ TWTU.UserPosition = (function() {
 	}
 
 	function failure( results ) {
+        console.log( 'get location error' );
 		this.triggerEvent( 'positionerror', results );
 	}
 

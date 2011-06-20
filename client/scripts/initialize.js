@@ -5,7 +5,7 @@ $(function() {
 
 	var map, userPosition, markerID,
 		pages = {}, session, currentUser, displayedUser,
-        users, currentPage, controller, destination;
+        users, destination, markers, currentPage, controller;
 
 	initialize();
 
@@ -15,6 +15,7 @@ $(function() {
         createDisplayedUser();
 		createSession();
 		createUsers();
+        createMarkers();
 		createInviteCodeForm();
 		createPages();
 		createController();
@@ -52,7 +53,14 @@ $(function() {
 		} );
 	}
 
-	function createInviteCodeForm() {
+	function createMarkers() {
+        markers = TWTU.Markers.create( {
+            users: users,
+            destination: destination
+        } );
+    }
+    
+    function createInviteCodeForm() {
 		var form = AFrame.DataForm.create( {
 			target: '#invitecode',
 			dataSource: session
@@ -124,7 +132,7 @@ $(function() {
 				target: $( '#map' ),
 				position: position,
 				plugins: [ [ TWTU.MapPluginBounds, {
-					users: users
+					users: markers
 				} ], [ TWTU.MapPluginUserInfoWindow, {
                     controller: controller
                 } ], [ TWTU.MapPluginDestination, {
@@ -132,10 +140,9 @@ $(function() {
                 } ] ]
 			} );
 
-			var markers = TWTU.UserMapMarkers.create( {
-				users: users,
-				map: map,
-                destination: destination
+			var mapMarkers = TWTU.UserMapMarkers.create( {
+				markers: markers, 
+				map: map
 			} );
 
 			// do this after we have created the map/marker so the initial user
@@ -145,7 +152,12 @@ $(function() {
 	}
 
     function createDestination() {
-        destination = AFrame.DataContainer.create();
+        destination = AFrame.DataContainer.create( {
+            data: {
+                icon: 'http://maps.google.com/mapfiles/arrow.png',
+                shadow: 'http://maps.google.com/mapfiles/arrowshadow.png'
+            }
+        } );
     }
 
 	function updateCurrentUserCoords( position ) {

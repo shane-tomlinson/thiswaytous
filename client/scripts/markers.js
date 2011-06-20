@@ -35,7 +35,9 @@ TWTU.Markers = (function() {
         var me = this, item = event.target;
 
         if( item.get( 'visible' ) ) {
-            Markers.sc.insert.call( me, item );
+            if( !me.get( item.getCID() ) ) {
+                Markers.sc.insert.call( me, item );
+            }
         }
         else {
             Markers.sc.remove.call( me, item.getCID() );

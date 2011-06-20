@@ -60,7 +60,8 @@
         ok( Events.isTriggered( 'onRemove' ), 'onRemove triggered' );
     } );
 
-    test( 'destination is in the list automatically, if "visible" is set to true', function() {
+    test( 'destination is in the list automatically, if "visible"' +
+            ' is set to true', function() {
         var listDestination = markers.get( destination.getCID() );
 
         ok( listDestination, 'destination added to list' );
@@ -71,7 +72,8 @@
 
         destination.set( 'visible', false );
 
-        ok( Events.isTriggered( 'onRemove' ), 'destination removed whenever visible set to false' );
+        ok( Events.isTriggered( 'onRemove' ), 'destination removed' +
+            ' whenever visible set to false' );
     } );
 
     test( 'user is removed/added from list depending on "visible"', function() {
@@ -82,14 +84,29 @@
 
         user.set( 'visible', false );
 
-        ok( Events.isTriggered( 'onRemove' ), 'user is removed whenever visible is set to false' );
+        ok( Events.isTriggered( 'onRemove' ), 'user is removed whenever ' +
+            'visible is set to false' );
 
         Events.reset();
 
         user.set( 'visible', true );
 
-        ok( Events.isTriggered( 'onInsert' ), 'user is inserted whenever visible is set to true' );
+        ok( Events.isTriggered( 'onInsert' ), 'user is inserted whenever ' +
+            'visible is set to true' );
     } );
 
+    test( 'if item already added to markers, then visibility set to true,' +
+            'no re-add.', function() {
+        markers.insert( user );         
+        var failed = false;
+        try {
+            user.set( 'visible', true );
+        } catch( e ) {
+            failed = true;
+        }
+
+        equal( failed, false, 'no re-add attempted' );
+
+    } );
             
 }() );

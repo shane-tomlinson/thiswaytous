@@ -6,13 +6,6 @@ TWTU.UserMapMarkers = (function() {
 		events: {
 			'onInsert markers': onMarkerAdd,
 			'onRemove markers': onMarkerRemove
-		},
-
-		init: function( config ) {
-			var me=this;
-            me.markers = {};
-
-			Markers.sc.init.call( me, config );
 		}
 	} );
 
@@ -21,7 +14,6 @@ TWTU.UserMapMarkers = (function() {
             markerID = me.map.addMarker( marker.getDataObject() );
         marker.set( 'mapID', markerID );
 
-        me.markers[ marker.getCID() ] = marker;
         marker.bindEvent( 'onSet', onMarkerChange, me );
     }
 

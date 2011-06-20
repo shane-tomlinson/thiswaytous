@@ -24,6 +24,7 @@ TWTU.MapPluginDestination = (function() {
         var me=this, plugged = me.getPlugged();
         if( me.placeMarker ) {
             me.destination.set( latLng );    
+            me.destination.set( 'visible', true );
             me.placeMarker = false;
         }
     }
