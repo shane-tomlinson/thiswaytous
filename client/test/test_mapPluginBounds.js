@@ -1,15 +1,9 @@
 (function() {
 	"use strict";
 
-	var plugin, map, users;
+	var plugin, map, markers;
 
 	var Map = AFrame.AObject.extend( {
-		init: function( config ) {
-			this.markers = [];
-
-			Map.sc.init.call( this, config );
-		},
-
 		setCenter: function() {
 			this.centered = true;
 			this.centeredCount++;
@@ -31,17 +25,17 @@
 			map = Map.create();
 			map.reset();
 
-			users = AFrame.CollectionArray.create( {
+			markers = AFrame.CollectionArray.create( {
 				plugins: [ [ AFrame.CollectionPluginModel, {
 					schema: {
-						lat: '',
-						lon: ''
+						latitude: '',
+						longitude: ''
 					}
 				} ] ]
 			} );
 
 			plugin = TWTU.MapPluginBounds.create( {
-				users: users,
+				markers: markers,
 				plugged: map
 			} );
 		},
@@ -56,119 +50,133 @@
 
 
 	test( 'adding one marker causes a setCenter', function() {
-		users.insert( {
-			lat: 0,
-			lon: 0
+		markers.insert( {
+			latitude: 0,
+			longitude: 0
 		} );
 
 		ok( map.centered, 'map is centered' );
 	} );
 
-	test( 'moveMarker with 2 or more users causes the viewport to be fitted', function() {
-		users.insert( {
-			lat: 0,
-			lon: 0
+	test( 'moveMarker with 2 or more markers causes the viewport to be fitted', function() {
+		markers.insert( {
+			latitude: 0,
+			longitude: 0
 		} );
 
-		users.insert( {
-			lat: 0,
-			lon: 0
+		markers.insert( {
+			latitude: 0,
+			longitude: 0
 		} );
 
 		ok( map.fitted, 'bounds have been fitted' );
 	} );
 
 	test( 'removeMarker causes viewport to be centered', function() {
-		users.insert( {
-			lat: 0,
-			lon: 0
+		markers.insert( {
+			latitude: 0,
+			longitude: 0
 		} );
 
-		var cid = users.insert( {
-			lat: 0,
-			lon: 0
+		var cid = markers.insert( {
+			latitude: 0,
+			longitude: 0
 		} );
 		map.reset();
 
-		users.remove( cid );
+		markers.remove( cid );
 
 		ok( map.centered, 'map is centered' );
 	} );
 
 	test( 'updating a marker causes viewport to be updated', function() {
-		users.triggerEvent( 'updatestart' );
+		markers.triggerEvent( 'updatestart' );
 
-		users.insert( {
-			lat: 0,
-			lon: 0
+		markers.insert( {
+			latitude: 0,
+			longitude: 0
 		} );
 
-		var cid = users.insert( {
-			lat: 0,
-			lon: 0
+		var cid = markers.insert( {
+			latitude: 0,
+			longitude: 0
 		} );
 
 		map.reset();
 
-		var user = users.get( cid );
-		user.set( 'lat', 1 );
-		user.set( 'lon', 1 );
+		var user = markers.get( cid );
+		user.set( 'latitude', 1 );
+		user.set( 'longitude', 1 );
 
-		users.triggerEvent( 'updatecomplete' );
+		markers.triggerEvent( 'updatecomplete' );
 		ok( map.fitted, 'bounds have been fitted' );
 		equal( 1, map.fittedCount, 'setViewport was called once' );
 	} );
 
 	test( 'multiple marker operations after session update cause one setViewport', function() {
-		users.triggerEvent( 'updatestart' );
+		markers.triggerEvent( 'updatestart' );
 
-		users.insert( {
-			lat: 0,
-			lon: 0
+		markers.insert( {
+			latitude: 0,
+			longitude: 0
 		} );
 
-		users.insert( {
-			lat: 0,
-			lon: 0
+		markers.insert( {
+			latitude: 0,
+			longitude: 0
 		} );
 
-		users.insert( {
-			lat: 0,
-			lon: 0
+		markers.insert( {
+			latitude: 0,
+			longitude: 0
 		} );
 
-		users.triggerEvent( 'updatecomplete' );
+		markers.triggerEvent( 'updatecomplete' );
 		equal( 1, map.fittedCount, 'setViewport was called once' );
 	} );
 
         test( 'viewportchange will keep bounds from updating', function() {
-	    users.insert( { lat: 0, lon: 0 } );
+	    markers.insert( { latitude: 0, longitude: 0 } );
 
 	    map.triggerEvent( 'viewportchange' );
             map.reset();
 
             // this has no update nor delete, so we assume only updates
-	    users.triggerEvent( 'updatecomplete' );
+	    markers.triggerEvent( 'updatecomplete' );
             equal( map.fittedCount, 0, 'setViewport not called after viewportchange' );
         } );
 
 	test( 'when a user is added after bounds updated, update map', function() {
-	    users.insert( { lat: 0, lon: 0 } );
-	    users.triggerEvent( 'updatecomplete' );
+	    markers.insert( { latitude: 0, longitude: 0 } );
+	    markers.triggerEvent( 'updatecomplete' );
 
 	    map.reset();
 	    
 	    map.triggerEvent( 'viewportchange' );
 	    map.triggerEvent( 'updatestart' );
-	    users.insert( { lat: 0, lon: 0 } );
-	    users.triggerEvent( 'updatecomplete' );
+	    markers.insert( { latitude: 0, longitude: 0 } );
+	    markers.triggerEvent( 'updatecomplete' );
 
 	    equal( map.fittedCount, 2, 'setViewport called again after user added' );
 	} );
 
-	test( 'adds fitToUsers decorator', function() {
-	    equal( typeof map.fitToUsers, 'function', 'fitToUsers added to map' );
+	test( 'adds fitToMarkers decorator', function() {
+	    equal( typeof map.fitToMarkers, 'function', 'fitToMarkers added to map' );
 	} );
 
+    
+    test( 'if onSet marker has type "destination", update immediately', function() {
+        var id = markers.insert( {
+            latitude: 0,
+            longitude: 0,
+            visible: true,
+            type: 'destination'
+        } );
+        map.reset();
 
+        var destination = markers.get( id );
+
+        destination.set( 'latitude', 1 );
+        ok( map.centered, 'the map has been centered from destination' );
+    } );
 }() );

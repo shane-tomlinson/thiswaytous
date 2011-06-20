@@ -1,22 +1,20 @@
 TWTU.MapPluginBounds = (function() {
         "use strict";
 
-        var maps = google.maps;
-
         var Plugin = AFrame.Plugin.extend( {
-            importconfig: [ 'users' ],
+            importconfig: [ 'markers' ],
             events: {
-                    'updatestart users': onUpdateStart,
-                    'updatecomplete users': onUpdateComplete,
-                    'onInsert users': onInsertUser,
-                    'onRemove users': updateBounds,
+                    'updatestart markers': onUpdateStart,
+                    'updatecomplete markers': onUpdateComplete,
+                    'onInsert markers': onInsertMarker,
+                    'onRemove markers': updateBounds,
                     'viewportchange plugged': onViewportUpdate
             },
             init: function( config ) {
                 Plugin.sc.init.call( this, config );
 
                 var plugged = this.getPlugged();
-                plugged.fitToUsers = updateBounds.bind( this );
+                plugged.fitToMarkers = updateBounds.bind( this );
 
                 $( '#resetmap' ).click( onResetMap.bind( this ) );
                 
@@ -35,8 +33,12 @@ TWTU.MapPluginBounds = (function() {
             this.bulkUpdate = true;
         }
 
-        function onInsertUser() {
+        function onInsertMarker( event ) {
             this.viewportUpdate = false;
+            
+            var item = event.item;
+            item.bindEvent( 'onSet', onItemChange, this );
+
             updateBounds.call( this );
         }
 
@@ -51,6 +53,12 @@ TWTU.MapPluginBounds = (function() {
             updateBounds.call( this );    
         }
         
+        function onItemChange( event ) {
+            if( 'destination' === event.target.get( 'type' ) ) {
+                updateBounds.call( this );
+            }
+        }
+
         function updateBounds() {
             if( this.bulkUpdate || this.viewportUpdate ) {
                 return;
@@ -58,16 +66,16 @@ TWTU.MapPluginBounds = (function() {
 
             $( 'body' ).removeClass( 'mapmoved' );
 
-            var me=this, users = me.users;
+            var me=this, markers = me.markers;
             me.bounds = {};
             me.maxIndex = 0;
 
-            users.forEach( updateBoundsForUser.bind( me ) );
+            markers.forEach( updateBoundsForMarker.bind( me ) );
 
             updateViewport.call( me );
         }
 
-        function updateBoundsForUser( marker, index ) {
+        function updateBoundsForMarker( marker, index ) {
             var me=this, bounds = me.bounds;
             if( index === 0 ) {
                 setBounds( bounds, marker );

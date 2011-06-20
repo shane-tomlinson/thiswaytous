@@ -132,7 +132,7 @@ $(function() {
 				target: $( '#map' ),
 				position: position,
 				plugins: [ [ TWTU.MapPluginBounds, {
-					users: markers
+					markers: markers
 				} ], [ TWTU.MapPluginUserInfoWindow, {
                     controller: controller
                 } ], [ TWTU.MapPluginDestination, {
@@ -155,7 +155,8 @@ $(function() {
         destination = AFrame.DataContainer.create( {
             data: {
                 icon: 'http://maps.google.com/mapfiles/arrow.png',
-                shadow: 'http://maps.google.com/mapfiles/arrowshadow.png'
+                shadow: 'http://maps.google.com/mapfiles/arrowshadow.png',
+                type: 'destination'
             }
         } );
     }
