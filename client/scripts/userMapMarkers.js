@@ -2,10 +2,10 @@ TWTU.UserMapMarkers = (function() {
 	"use strict";
 
 	var Markers = AFrame.AObject.extend( {
-		importconfig: [ 'map', 'users', 'destination' ],
+		importconfig: [ 'map', 'markers' ],
 		events: {
-			'onInsert users': onUserAdd,
-			'onRemove users': onUserRemove
+			'onInsert markers': onMarkerAdd,
+			'onRemove markers': onMarkerRemove
 		},
 
 		init: function( config ) {
@@ -13,61 +13,40 @@ TWTU.UserMapMarkers = (function() {
             me.markers = {};
 
 			Markers.sc.init.call( me, config );
-
-            var destination = me.destination;
-            destination.set( 'icon', 'http://maps.google.com/mapfiles/arrow.png' );
-            destination.set( 'shadow', 'http://maps.google.com/mapfiles/arrowshadow.png' );
-            destination.bindEvent( 'onSet', onMarkerChange, me );
 		}
 	} );
 
     function addMarker( marker ) {
-        var me=this;
-        attemptAddMarkerToMap.call( me, marker );
+        var me=this,
+            markerID = me.map.addMarker( marker.getDataObject() );
+        marker.set( 'mapID', markerID );
 
         me.markers[ marker.getCID() ] = marker;
         marker.bindEvent( 'onSet', onMarkerChange, me );
     }
 
-    function attemptAddMarkerToMap( marker ) {
-        var me=this;
-
-        if( AFrame.defined( marker.get( 'latitude' ) ) ) {
-			var markerID = this.map.addMarker( marker.getDataObject() );
-            marker.set( 'mapID', markerID );
-        }
-    }
-
-	function onUserAdd( event ) {
-		var user = event.item;
-        addMarker.call( this, user );
+	function onMarkerAdd( event ) {
+		var marker = event.item;
+        addMarker.call( this, marker );
 	}
 
-	function onUserRemove( event ) {
-		var user = event.item, markerID = getMarkerIDForUser.call( this, user );
+	function onMarkerRemove( event ) {
+		var marker = event.item, markerID = getMapIDForMarker.call( this, marker );
 		if( markerID ) {
 			this.map.removeMarker( markerID );
 		}
 	}
 
 	function onMarkerChange( event ) {
-        if( event.fieldName === 'markerID' ) {
-            return;
-        }
-
 		var me = this, 
-            user = event.target, 
-            markerID = getMarkerIDForUser.call( me, user );
+            marker = event.target, 
+            markerID = getMapIDForMarker.call( me, marker );
 
-		if( AFrame.defined( markerID ) ) {
-			me.map.moveMarker( markerID, user.getDataObject() );
-		} else {
-            attemptAddMarkerToMap.call( me, user );        
-        }
+        me.map.moveMarker( markerID, marker.getDataObject() );
 	}
 
-	function getMarkerIDForUser( user ) {
-		return user.get( 'mapID' );
+	function getMapIDForMarker( marker ) {
+		return marker.get( 'mapID' );
 	}
 
 	return Markers;

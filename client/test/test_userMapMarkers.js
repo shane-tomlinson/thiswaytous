@@ -1,19 +1,17 @@
 ( function() {
 	"use strict";
 
-	var userMapMarkers, users, map, user, destination;
+	var userMapMarkers, markers, map, user;
 
 	module( 'TWTU.UserMapMarkers', {
 		setup: function() {
 			map = new MapStub();
 
-			users = AFrame.CollectionArray.create();
-            destination = AFrame.DataContainer.create();
+			markers = AFrame.CollectionArray.create();
 
 			userMapMarkers = TWTU.UserMapMarkers.create( {
 				map: map,
-				users: users,
-                destination: destination
+				markers: markers
 			} );
 
 			user = AFrame.DataContainer.create( {
@@ -28,7 +26,7 @@
 
 		teardown: function() {
 			userMapMarkers.teardown();
-			users.teardown();
+			markers.teardown();
 			user.teardown();
 		}
 	} );
@@ -37,38 +35,32 @@
 		ok( userMapMarkers instanceof TWTU.UserMapMarkers, 'userMapMarkers created' );
 	} );
 
-	test( 'when adding a user to the users, addMarker is called', function() {
-		users.insert( user );
+	test( 'when adding a user to the markers, addMarker is called', function() {
+		markers.insert( user );
 
 		ok( map.isMarkerAdded(), 'Marker has been added to map' );
 	} );
 
-	test( 'when removing a marker from users, removeMarker is called', function() {
-		users.insert( user );
-		users.remove( 0 );
+	test( 'when removing a marker from markers, removeMarker is called', function() {
+		markers.insert( user );
+		markers.remove( 0 );
 
 		ok( map.isMarkerRemoved(), 'Marker has been removed from map' );
 	} );
 
 	test( 'when updating latitude of user, map is updated', function() {
-		users.insert( user );
+		markers.insert( user );
 
 		user.set( 'latitude', 1 );
 		ok( map.isMarkerMoved(), 'Marker has been moved' );
 	} );
 
 	test( 'when removing a user, map is updated', function() {
-		var id = users.insert( user );
+		var id = markers.insert( user );
 
-		users.remove( id );
+		markers.remove( id );
 		ok( map.isMarkerRemoved(), 'Marker has been removed' );
 	} );
-
-    test( 'when setting the destination\'s lat, lng, moveMarker is called', function() {
-        destination.set( 'latitude', 1 );
-
-        ok( map.isMarkerMoved(), 'Marker has been moved' );
-    } );
 
 	function MapStub() {
 		var marker, markerRemoved, markerMoved;
