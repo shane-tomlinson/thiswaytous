@@ -1,7 +1,12 @@
-var sys = require( 'sys' ), http = require( 'http' ), fs = require( 'fs' ),
-	AFrame = require( './server/aframe-current-node' ), Sessions = require( './server/sessions' ),
-	sessions = Sessions.create(), Session = require( './server/session' ),
-	Users = require('./server/users'), sessionID = 0;
+var sys = require( 'sys' ), 
+    http = require( 'http' ), 
+    fs = require( 'fs' ),
+	AFrame = require( './server/aframe-current-node' ), 
+    Sessions = require( './server/sessions' ),
+	sessions = Sessions.create(), 
+    Session = require( './server/session' ),
+	Users = require('./server/users'), 
+    sessionID = 0;
 
 var express = require( 'express' );
 
@@ -18,10 +23,15 @@ app.get( '/', function( req, res ) {
 } );
 
 app.post( '/session/start', function( req, res ) {
-	console.log( req.body );
+    var body = req.body;
+	console.log( body );
 	var session = sessions.createSession();
+    var user = JSON.parse( body.user );
+    var dest = JSON.parse( body.destination );
 
-	session.addUpdateUser( req.body );
+	session.addUpdateUser( user );
+    session.setDestination( dest );
+    session.set( 'creator_id', user.id );
 
 	writeContentType( res, ContentTypes.json );
 	res.end( session.toString() );
@@ -36,11 +46,13 @@ function joinUpdateUser( req, res ) {
 	var body = req.body;
 	var user = JSON.parse( body.user );
 	var sessionData = JSON.parse( body.session );
+    var dest = body.destination && JSON.parse( body.destination );
 
 	var session = sessions.getSessionByData( sessionData );
 
 	if( session ) {
 		session.addUpdateUser( user );
+        dest && session.setDestination( dest );
 		writeContentType( res, ContentTypes.json );
 		res.end( session.toString() );
 	}

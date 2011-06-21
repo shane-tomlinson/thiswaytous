@@ -43,7 +43,8 @@ $(function() {
 
 	function createSession() {
 		session = TWTU.Session.create( {
-			currentUser: currentUser
+			currentUser: currentUser,
+            destination: destination
 		} );
 	}
 

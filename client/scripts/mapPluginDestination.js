@@ -25,6 +25,7 @@ TWTU.MapPluginDestination = (function() {
         if( me.placeMarker ) {
             me.destination.set( latLng );    
             me.destination.set( 'visible', true );
+            me.destination.set( 'created_by_me', true );
             me.placeMarker = false;
         }
     }

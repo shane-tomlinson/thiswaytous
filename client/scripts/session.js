@@ -10,7 +10,7 @@ TWTU.Session = (function() {
 	};
 
 	var Session = AFrame.Class( AFrame.Model, {
-		importconfig: [ 'currentUser' ],
+		importconfig: [ 'currentUser', 'destination' ],
 		schema: schema,
 		connected: false,
 		start: function() {
@@ -20,7 +20,10 @@ TWTU.Session = (function() {
 			me.set( 'invite_code_2', '' );
 			me.set( 'invite_code_3', '' );
 
-			request.call( me, 'start', this.currentUser.serializeItems(),
+			request.call( me, 'start', {
+                    user: JSON.stringify( me.currentUser.serializeItems() ),
+                    destination: getDestination.call( me )
+                },
 				function( data ) {
 					me.connected = true;
 				},
@@ -37,6 +40,8 @@ TWTU.Session = (function() {
 				},
 				function( data ) {
 					me.connected = true;
+                    
+                    updateDestination.call( me, data.destination );
 				},
 				function( data ) {
 
@@ -49,9 +54,11 @@ TWTU.Session = (function() {
 				var me=this;
 				request.call( me, 'update', {
 						session: JSON.stringify( me.serializeItems() ),
-						user: JSON.stringify( me.currentUser.serializeItems() )
+						user: JSON.stringify( me.currentUser.serializeItems() ),
+                        destination: getDestination.call( me )
 					},
 					function( data ) {
+                        updateDestination.call( me, data.destination );
 					},
 					function( data ) {
 
@@ -99,6 +106,29 @@ TWTU.Session = (function() {
 		}
 		me.timeoutID = setTimeout( me.update.bind( me ), 20000 );
 	}
+
+    function getDestination() {
+        var destination = this.destination,
+            obj = {};
+        // only send the destination if we created it. 
+        if( destination.get( 'created_by_me' ) ) {
+            obj = {
+                latitude: destination.get( 'latitude' ),
+                longitude: destination.get( 'longitude' ),
+                visible: destination.get( 'visible' )
+            };
+        }
+        return JSON.stringify( obj );
+    }
+
+    function updateDestination( dest ) {
+        if( dest ) {
+            this.destination.set( dest );
+            // reset the created_by_me so others have the opportunity
+            // to update it.
+            this.destination.set( 'created_by_me', false );
+        }
+    }
 
 	return Session;
 }() );

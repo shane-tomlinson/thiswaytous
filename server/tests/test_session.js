@@ -7,12 +7,15 @@
 		Users = require('../users'),
 		AFrame = require('../aframe-current-node');
 
-	var session, userInfo;
+	var session, userInfo, destination;
 
 	module.exports = testCase({
 		setUp: function( callback ) {
+            destination = AFrame.DataContainer.create( { data: {
+            } } );
 			session = Session.create( {
-				users: Users.create()
+				users: Users.create(),
+                destination: destination
 			} );
 			userInfo = {
 				name: 'Shane',
@@ -75,9 +78,23 @@
 			var sessionInfo = JSON.parse( string );
 			test.strictEqual( 1, sessionInfo.users && sessionInfo.users.length, 'users are added to the string' );
 
+            test.ok( 'object' === typeof sessionInfo.destination, 'destination added' );
 			console.log( string );
 
 			test.done();
-		}
+		},
+        
+        'session has a destination' : function( test ) {
+            var dest = session.setDestination( {
+                latitude: 1        
+            } );
+            
+            var sessionInfo = JSON.parse( session.toString() );
+            test.strictEqual( 1, sessionInfo.destination.latitude, 'latitude updated' );
+
+            test.done();
+        }
+
+        
 	});
 }());
