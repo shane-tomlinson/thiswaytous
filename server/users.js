@@ -2,16 +2,18 @@
 	"use strict";
 
 	var AFrame = require( './aframe-current-node' );
+    var User = require( './user' );
+/*
 	var userSchema = {
 		id: 'id',
 		name: 'string',
-		lat: 'number',
-		lon: 'number'
+		latitude: 'number',
+		longitude: 'number'
 	};
-
+*/
 	var Users = AFrame.CollectionHash.extend( {
 		plugins: [ [ AFrame.CollectionPluginModel, {
-			schema: userSchema
+			schema: User 
 		}
 		] ],
 		insert: function( model ) {

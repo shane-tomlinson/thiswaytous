@@ -20,10 +20,8 @@ TWTU.Session = (function() {
 			me.set( 'invite_code_2', '' );
 			me.set( 'invite_code_3', '' );
 
-			request.call( me, 'start', {
-                    user: JSON.stringify( me.currentUser.serializeItems() ),
-                    destination: getDestination.call( me )
-                },
+			request.call( me, 'start', 
+                getRequestData.call( me, [ 'destination', 'user' ] ),
 				function( data ) {
 					me.connected = true;
 				},
@@ -34,10 +32,8 @@ TWTU.Session = (function() {
 
 		join: function() {
 			var me=this;
-			request.call( me, 'join', {
-					session: JSON.stringify( me.serializeItems() ),
-					user: JSON.stringify( me.currentUser.serializeItems() )
-				},
+			request.call( me, 'join', 
+                getRequestData.call( me, [ 'session', 'user' ] ),
 				function( data ) {
 					me.connected = true;
                     
@@ -50,13 +46,10 @@ TWTU.Session = (function() {
 		},
 
 		update: function() {
-			if( this.connected ) {
-				var me=this;
-				request.call( me, 'update', {
-						session: JSON.stringify( me.serializeItems() ),
-						user: JSON.stringify( me.currentUser.serializeItems() ),
-                        destination: getDestination.call( me )
-					},
+            var me=this;
+			if( me.connected ) {
+				request.call( me, 'update', 
+                    getRequestData.call( me, [ 'user', 'destination', 'session' ] ),
 					function( data ) {
                         updateDestination.call( me, data.destination );
 					},
@@ -118,7 +111,7 @@ TWTU.Session = (function() {
                 visible: destination.get( 'visible' )
             };
         }
-        return JSON.stringify( obj );
+        return obj;
     }
 
     function updateDestination( dest ) {
@@ -128,6 +121,29 @@ TWTU.Session = (function() {
             // to update it.
             this.destination.set( 'created_by_me', false );
         }
+    }
+
+    function getRequestData( fields ) {
+        var me=this,
+            allData = {
+                session: JSON.stringify( me.serializeItems() ),
+                user: JSON.stringify( me.currentUser.serializeItems() ),
+                destination: getDestination.call( me )
+            };
+
+        var reqData = {};
+        fields.forEach(function( field ) {
+            reqData[ field ] = allData[ field ];
+        } );
+
+        if( reqData.destination && 
+                    'number' === typeof reqData.destination.latitude ) {
+            reqData.destination = JSON.stringify( reqData.destination );
+        } 
+        else {
+            delete reqData.destination;
+        }
+        return reqData;
     }
 
 	return Session;

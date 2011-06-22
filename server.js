@@ -24,13 +24,16 @@ app.get( '/', function( req, res ) {
 
 app.post( '/session/start', function( req, res ) {
     var body = req.body;
-	console.log( body );
 	var session = sessions.createSession();
-    var user = JSON.parse( body.user );
-    var dest = JSON.parse( body.destination );
 
+    var user = JSON.parse( body.user );
 	session.addUpdateUser( user );
-    session.setDestination( dest );
+
+    if( body.destination ) {
+        var dest = JSON.parse( body.destination );
+        session.setDestination( dest );
+    }
+
     session.set( 'creator_id', user.id );
 
 	writeContentType( res, ContentTypes.json );
@@ -44,16 +47,19 @@ app.listen( 8000 );
 
 function joinUpdateUser( req, res ) {
 	var body = req.body;
-	var user = JSON.parse( body.user );
 	var sessionData = JSON.parse( body.session );
-    var dest = body.destination && JSON.parse( body.destination );
-
 	var session = sessions.getSessionByData( sessionData );
 
 	if( session ) {
+	    var user = JSON.parse( body.user );
 		session.addUpdateUser( user );
-        dest && session.setDestination( dest );
-		writeContentType( res, ContentTypes.json );
+
+        if( body.destination ) {
+            var dest = JSON.parse( body.destination );
+            session.setDestination( dest );
+        }
+		
+        writeContentType( res, ContentTypes.json );
 		res.end( session.toString() );
 	}
 	else {

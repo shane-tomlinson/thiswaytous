@@ -32,6 +32,10 @@
 			this.users.remove( id );
 		},
 
+        setDestination: function( dest ) {
+            this.destination = dest;
+        },
+
 		toString: function() {
 			var items = this.serializeItems();
 
@@ -41,6 +45,7 @@
 			} );
 
 			items.users = users;
+            items.destination = this.destination;
 
 			return JSON.stringify( items );
 		}

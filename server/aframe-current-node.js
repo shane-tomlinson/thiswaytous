@@ -1541,12 +1541,15 @@ AFrame.ArrayCommonFuncsMixin = (function() {
 		getActualIndex: function( index ) {
 			var len = this.getCount();
 
+			// check from end
 			if( index < 0 ) {
 				index = len + index;
 			}
 
-			index = Math.min( len - 1, index );
-			index = Math.max( 0, index );
+			// invalid indexes;
+			if( index < 0 || len <= index ) {
+				index = undefined;
+			}
 
 			return index;
 		}
@@ -1632,15 +1635,21 @@ AFrame.CollectionHash = ( function() {
         *    var googleItem = hash.remove( googleCID );
         *    // googleItem will be the google item that was inserted
         *
+        * An Example can be found on <a 
+        * href="http://jsfiddle.net/shane_tomlinson/Jkdy3/" 
+        * target="_blank">JSFiddle</a>
+        *
         * @method remove
-        * @param {id} cid - cid of item to remove
+        * @param {object || cid} item - item or cid of item to remove
         * @param {object} options - options
         * @param {boolean} options.force - force removal, if set to true, onBeforeRemove event has
         *   no effect.
         * @return {variant} item if it exists, undefined otw.
         */
         remove: function( cid, options ) {
-            var item = this.get( cid );
+            var me=this,
+                cid = 'object' === typeof( cid ) ? findHashKey.call( me, cid ) : cid,
+                item = me.get( cid );
 
             if( item ) {
                 /**
@@ -1651,15 +1660,15 @@ AFrame.CollectionHash = ( function() {
                 * @param {CollectionHash} data.collection - collection causing event.
                 * @param {variant} data.item - item removed
                 */
-                var event = this.triggerEvent( {
+                var event = me.triggerEvent( {
                     item: item,
                     cid: cid,
                     type: 'onBeforeRemove',
                     force: options && options.force
                 } );
 
-                if( this.shouldDoAction( options, event ) ) {
-                    AFrame.remove( this.hash, cid );
+                if( me.shouldDoAction( options, event ) ) {
+                    AFrame.remove( me.hash, cid );
                     /**
                     * Triggered after remove happens.
                     * @event onRemove
@@ -1667,7 +1676,7 @@ AFrame.CollectionHash = ( function() {
                     * @param {CollectionHash} data.collection - collection causing event.
                     * @param {variant} data.item - item removed
                     */
-                    this.triggerEvent(  {
+                    me.triggerEvent(  {
                         item: item,
                         cid: cid,
                         type: 'onRemove',
@@ -1711,11 +1720,7 @@ AFrame.CollectionHash = ( function() {
         * @return {id} cid of the item.
         */
         insert: function( item, options ) {
-            var cid = item.cid || AFrame.getUniqueID();
-
-            if( 'undefined' != typeof( this.get( cid ) ) ) {
-                throw 'duplicate cid';
-            }
+            var cid = this.getItemCID( item );
 
 
             /**
@@ -1797,9 +1802,28 @@ AFrame.CollectionHash = ( function() {
             for( var cid in hash ) {
                 callback.call( context, hash[ cid ], cid );
             }
+        },
+
+        getItemCID: function( item ) {
+            var cid = item.cid || AFrame.getUniqueID();
+
+            if( 'undefined' != typeof( this.get( cid ) ) ) {
+                throw 'duplicate cid';
+            }
+
+			return cid;
         }
     } );
     CollectionHash.currID = 0;
+
+    function findHashKey( item ) {
+        var hash = this.hash;
+        for( var key in hash ) {
+            if( item === hash[ key ] ) {
+                return key;
+            }
+        }
+    }
 
     return CollectionHash;
 } )();
@@ -1907,11 +1931,14 @@ AFrame.CollectionArray = ( function() {
         * @return {id} cid of the item
         */
         insert: function( item, index ) {
+            var me=this, cid = me.getItemCID( item );
             index = 'number' == typeof( index ) ? index : -1;
-            this.currentIndex = this.getActualInsertIndex( index );
 
-            var cid = CollectionArray.sc.insert.call( this, item );
-            this.itemCIDs.splice( this.currentIndex, 0, cid );
+            me.currentIndex = me.getActualInsertIndex( index );
+            me.itemCIDs.splice( me.currentIndex, 0, cid );
+
+			item.cid = cid;
+            CollectionArray.sc.insert.call( me, item );
 
             return cid;
         },
