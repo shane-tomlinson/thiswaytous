@@ -19,6 +19,7 @@ TWTU.Map = ( function() {
 			};
 			var map = me.map = new maps.Map( me.getDOMElement(), options );
 			event.addListener( map, 'dragend', triggerViewportChange.bind( me ) );
+			event.addListener( map, 'zoom_changed', triggerViewportChange.bind( me ) );
 			event.addListener( map, 'click', triggerMapClick.bind( me ) );
 		},
 
