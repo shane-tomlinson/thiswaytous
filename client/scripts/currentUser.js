@@ -1,3 +1,4 @@
+/*global TWTU, AFrame */
 TWTU.CurrentUser = (function() {
 	"use strict";
 

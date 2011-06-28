@@ -1,3 +1,4 @@
+/*global TWTU, Crypto */
 TWTU.Controller = function( config ) {
     var session = config.session,
         pages = config.pages,
@@ -54,7 +55,34 @@ TWTU.Controller = function( config ) {
     function handleUser( params ) {
         var id = params.id;
         if( id === 'me' ) {
-            displayPage( 'userInfo' );
+            //displayPage( 'userInfo' );
+            navigator.id.getVerifiedEmail( function( assertion ) {
+                if( assertion ) {
+                    var url = "https://browserid.org/verify?assertion=" +
+                        window.encodeURIComponent( assertion ) +
+                        "&audience=" +
+                        window.encodeURIComponent( window.location.host );
+
+                    $.ajax( {
+                        url: url,
+                        dataType: 'json',
+                        success: function( data, textStatus, jqXHR ) {
+                            currentUser.set( 'name', data.email );
+
+                            var iurl = "http://www.gravatar.com/avatar/" +
+                                Crypto.MD5( $.trim( data.email ).toLowerCase() ) +
+                                "?s=32";
+
+                            currentUser.set( 'icon', iurl );
+                            router.redirect( '/' );
+                        },
+                        error: function( data, textStatus, errorThrown ) {
+
+                        }
+                    } );
+                }
+
+            } );
         }
         else {
             var user = users.get( ~~id );

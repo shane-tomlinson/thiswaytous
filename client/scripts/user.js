@@ -6,7 +6,8 @@ TWTU.User = ( function() {
 		name: { type: 'string' },
 		latitude: { type: 'number' },
 		longitude: { type: 'number' },
-        visible: { type: 'boolean', def: true }
+        visible: { type: 'boolean', def: true },
+        icon: { type: 'string' }
 	};
 
 	var User = AFrame.Model.extend( {

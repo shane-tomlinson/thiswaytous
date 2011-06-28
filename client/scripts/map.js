@@ -17,6 +17,7 @@ TWTU.Map = ( function() {
 				mapTypeId: maps.MapTypeId.ROADMAP,
 				maxZoom: 18
 			};
+
 			var map = me.map = new maps.Map( me.getDOMElement(), options );
 			event.addListener( map, 'dragend', triggerViewportChange.bind( me ) );
 			event.addListener( map, 'zoom_changed', triggerViewportChange.bind( me ) );
@@ -26,8 +27,7 @@ TWTU.Map = ( function() {
 		/**
 		* Add a marker to the map
 		* @method addMarker
-		* @param {string} name - Name to attach to marker
-		* @param {coords} position - marker position
+		* @param {object} markerInfo - The Marker's Info.
 		* @return {id} id of marker - used to move/remove the marker.
 		*/
 		addMarker: function( markerInfo ) {
@@ -59,13 +59,18 @@ TWTU.Map = ( function() {
 		* Move a marker
 		* @method moveMarker
 		* @param {id} id - id of marker to move
-		* @param {coords} position - updated position
+		* @param {object} markerInfo - The Marker Information 
+        * 
 		*/
-		moveMarker: function( id, position ) {
+		moveMarker: function( id, markerInfo ) {
 			var marker = this.markers.get( id );
 			if( marker ) {
-				var currPosition = toGLatLng( position );
+				var currPosition = toGLatLng( markerInfo );
 				marker.setPosition( currPosition );
+
+                if( markerInfo.icon ) {
+                    marker.setIcon( markerInfo.icon );
+                }
 			}
 		},
 

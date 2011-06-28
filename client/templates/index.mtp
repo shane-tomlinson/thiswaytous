@@ -107,6 +107,11 @@
 
 	<script type="text/javascript" src="/client/scripts/ext/jquery-1.5.2.min.js"></script>
 	<script type="text/javascript" src="/client/scripts/ext/aframe-current-jquery.js"></script>
+    <script type="text/javascript" 
+        src="https://browserid.org/include.js"></script>
+    <script type="text/javascript" 
+        src="http://crypto-js.googlecode.com/files/2.2.0-crypto-md5.js"></script>
+
 	<script type="text/javascript" src="/client/scripts/ext/routes.js"></script>
 
 	<script type="text/javascript" src="/client/scripts/thiswaytous.js"></script>
