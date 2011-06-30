@@ -9,9 +9,11 @@ TWTU.MapPluginUserInfoWindow = ( function() {
 	} );
 
     function onMarkerClick( event, markerInfo ) {
-        if( markerInfo.type !== 'destination' ) {
-            this.controller.pushState( '/user/' + markerInfo.id );
+        var url = '/' + markerInfo.type;
+        if( AFrame.defined( markerInfo.id ) ) {
+            url += '/' + markerInfo.id;
         }
+        this.controller.pushState( url );
 	}
 
 	return Plugin;

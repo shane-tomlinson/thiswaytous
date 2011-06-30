@@ -17,6 +17,8 @@ TWTU.Controller = function( config ) {
 					'/page/:id': handlePage,
 					'/route/:id': handleRoute,
                     '/user/:id': handleUser,
+                    '/destination': handleDestination,
+                    '/destination/:id': handleDestination,
 					'/': handleRoot
 				},
 				post: {
@@ -94,6 +96,10 @@ TWTU.Controller = function( config ) {
                 displayPage( 'displayUser' );        
             }
         }
+    }
+
+    function handleDestination( params ) {
+        displayPage( 'destination' );
     }
 
 	function handleJoinSession( params ) {
