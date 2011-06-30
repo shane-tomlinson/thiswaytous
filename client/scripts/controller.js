@@ -85,7 +85,10 @@ TWTU.Controller = function( config ) {
             } );
         }
         else {
-            var user = users.get( ~~id );
+            var user = users.search( function( user, index ) {
+                return user.get( 'id' ) === id;        
+            } );
+
             if( user ) {
                 displayedUser.set( user.getDataObject() );
                 displayPage( 'displayUser' );        

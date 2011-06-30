@@ -35,7 +35,9 @@ TWTU.Map = ( function() {
 
 			var marker = new maps.Marker( markerConfig ),
 			    id = marker.id = storeMarker.call( me, marker );
-
+            
+		    event.addListener( marker, 'click', onMarkerClick.bind( this, markerInfo ) );
+            
             me.triggerEvent( 'markeradd', marker, markerInfo );
 			return id;
 
@@ -142,6 +144,10 @@ TWTU.Map = ( function() {
 
     function triggerMapClick( event ) {
         this.triggerEvent( 'mapclick', fromGLatLng( event.latLng ) );
+    }
+
+    function onMarkerClick( markerInfo, event ) {
+        this.triggerEvent( 'markerclick', markerInfo );
     }
 
 	return Map;

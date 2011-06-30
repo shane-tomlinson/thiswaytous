@@ -1,21 +1,17 @@
 TWTU.MapPluginUserInfoWindow = ( function() {
 	"use strict";
 
-	var maps = google.maps, gEvent = maps.event;
-
 	var Plugin = AFrame.Plugin.extend( {
         importconfig: [ 'controller' ], 
 		events: {
-			'markeradd plugged' : onMarkerAdd
+			'markerclick plugged' : onMarkerClick
 		}
 	} );
 
-	function onMarkerAdd( event, marker ) {
-		gEvent.addListener( marker, 'click', openUserInfoWindow.bind( this, marker ) );
-	}
-
-	function openUserInfoWindow( marker ) {
-        this.controller.pushState( '/user/' + marker.id );
+    function onMarkerClick( event, markerInfo ) {
+        if( markerInfo.type !== 'destination' ) {
+            this.controller.pushState( '/user/' + markerInfo.id );
+        }
 	}
 
 	return Plugin;
