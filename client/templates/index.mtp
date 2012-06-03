@@ -117,33 +117,7 @@
     </div>
 	<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true"></script>
 
-	<script type="text/javascript" src="/client/scripts/ext/jquery-1.5.2.min.js"></script>
-	<script type="text/javascript" src="/client/scripts/ext/aframe-current-jquery.js"></script>
-    <script type="text/javascript" 
-        src="https://browserid.org/include.js"></script>
-    <script type="text/javascript" 
-        src="http://crypto-js.googlecode.com/files/2.2.0-crypto-md5.js"></script>
-
-	<script type="text/javascript" src="/client/scripts/ext/routes.js"></script>
-
-	<script type="text/javascript" src="/client/scripts/thiswaytous.js"></script>
-	<script type="text/javascript" src="/client/scripts/userposition.js"></script>
-	<script type="text/javascript" src="/client/scripts/map.js"></script>
-	<script type="text/javascript" src="/client/scripts/mapPluginUserInfoWindow.js"></script>
-	<script type="text/javascript" src="/client/scripts/mapPluginBounds.js"></script>
-	<script type="text/javascript" src="/client/scripts/mapPluginDestination.js"></script>
-	<script type="text/javascript" src="/client/scripts/page.js"></script>
-	<script type="text/javascript" src="/client/scripts/user.js"></script>
-	<script type="text/javascript" src="/client/scripts/currentUser.js"></script>
-	<script type="text/javascript" src="/client/scripts/users.js"></script>
-	<script type="text/javascript" src="/client/scripts/session.js"></script>
-	<script type="text/javascript" src="/client/scripts/formPage.js"></script>
-	<script type="text/javascript" src="/client/scripts/network.js"></script>
-	<script type="text/javascript" src="/client/scripts/userMapMarkers.js"></script>
-	<script type="text/javascript" src="/client/scripts/router.js"></script>
-	<script type="text/javascript" src="/client/scripts/controller.js"></script>
-  <script type="text/javascript" src="/client/scripts/markers.js"></script>
-	<script type="text/javascript" src="/client/scripts/initialize.js"></script>
+  <script data-main="/client/scripts/main" src="/client/scripts/ext/require-jquery.js"></script>
 
 </body>
 </html>

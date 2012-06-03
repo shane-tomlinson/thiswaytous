@@ -1,5 +1,6 @@
-TWTU.UserPosition = (function() {
+define(["aframe-current-jquery"], function(AFrame) {
 	"use strict";
+
 	var key = 'position';
 
 	var UserPosition = AFrame.AObject.extend( {
@@ -55,4 +56,4 @@ TWTU.UserPosition = (function() {
 
 
 	return UserPosition;
-}() );
+});

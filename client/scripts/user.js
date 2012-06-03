@@ -1,4 +1,4 @@
-TWTU.User = ( function() {
+define(["aframe-current-jquery"], function(AFrame) {
 	"use strict";
 
 	var schema = {
@@ -16,4 +16,4 @@ TWTU.User = ( function() {
 	} );
 
 	return User;
-}() );
+});

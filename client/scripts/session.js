@@ -1,4 +1,4 @@
-TWTU.Session = (function() {
+define(["aframe-current-jquery", "network"], function(AFrame, Network) {
 	"use strict";
 
 	var schema = {
@@ -20,7 +20,7 @@ TWTU.Session = (function() {
 			me.set( 'invite_code_2', '' );
 			me.set( 'invite_code_3', '' );
 
-			request.call( me, 'start', 
+			request.call( me, 'start',
                 getRequestData.call( me, [ 'destination', 'user' ] ),
 				function( data ) {
 					me.connected = true;
@@ -32,11 +32,11 @@ TWTU.Session = (function() {
 
 		join: function() {
 			var me=this;
-			request.call( me, 'join', 
+			request.call( me, 'join',
                 getRequestData.call( me, [ 'session', 'user' ] ),
 				function( data ) {
 					me.connected = true;
-                    
+
                     updateDestination.call( me, data.destination );
 				},
 				function( data ) {
@@ -48,7 +48,7 @@ TWTU.Session = (function() {
 		update: function() {
             var me=this;
 			if( me.connected ) {
-				request.call( me, 'update', 
+				request.call( me, 'update',
                     getRequestData.call( me, [ 'user', 'destination', 'session' ] ),
 					function( data ) {
                         updateDestination.call( me, data.destination );
@@ -75,7 +75,7 @@ TWTU.Session = (function() {
 	function request( service, data, success, failure ) {
 		var me=this;
 		resetTimeout.call( me );
-		TWTU.Network.ajax( {
+		Network.ajax( {
 			url: urlBase + services[ service ],
 			success: function( resp ) {
 				me.set( resp );
@@ -103,7 +103,7 @@ TWTU.Session = (function() {
     function getDestination() {
         var destination = this.destination,
             obj = {};
-        // only send the destination if we created it. 
+        // only send the destination if we created it.
         if( destination.get( 'created_by_me' ) ) {
             obj = {
                 latitude: destination.get( 'latitude' ),
@@ -136,10 +136,10 @@ TWTU.Session = (function() {
             reqData[ field ] = allData[ field ];
         } );
 
-        if( reqData.destination && 
+        if( reqData.destination &&
                     'number' === typeof reqData.destination.latitude ) {
             reqData.destination = JSON.stringify( reqData.destination );
-        } 
+        }
         else {
             delete reqData.destination;
         }
@@ -147,4 +147,4 @@ TWTU.Session = (function() {
     }
 
 	return Session;
-}() );
+});

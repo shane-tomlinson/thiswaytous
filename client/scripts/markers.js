@@ -1,5 +1,5 @@
-TWTU.Markers = (function() {
-    "use strict";
+define(["aframe-current-jquery"], function(AFrame) {
+	"use strict";
 
     var Markers = AFrame.CollectionArray.extend( {
         importconfig: [ 'users', 'destination' ],
@@ -43,6 +43,6 @@ TWTU.Markers = (function() {
             Markers.sc.remove.call( me, item.getCID() );
         }
     }
-    
+
     return Markers;
-}() );
+});
