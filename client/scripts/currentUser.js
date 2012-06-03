@@ -1,11 +1,11 @@
-/*global TWTU, AFrame */
-TWTU.CurrentUser = (function() {
+/*global define */
+define("currentUser", ["aframe-current-jquery", "user"], function(AFrame, User) {
 	"use strict";
 
-	var canStore = 'localStorage' in window && window['localStorage'] !== null;
+	var canStore = 'localStorage' in window && window.localStorage !== null;
 	var localStorage = window.localStorage;
 
-	var User = AFrame.Class( TWTU.User, {
+	var CurrentUser = AFrame.Class( User, {
 		events: {
 			'onSet': save
 		},
@@ -47,5 +47,5 @@ TWTU.CurrentUser = (function() {
 		return data;
 	}
 
-	return User;
-}() );
+	return CurrentUser;
+});

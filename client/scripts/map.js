@@ -1,7 +1,8 @@
-TWTU.Map = ( function() {
+define(["aframe-current-jquery"], function(AFrame) {
 	"use strict";
 
-	var maps = google.maps, event=maps.event;
+	var maps = google.maps,
+      event=maps.event;
 
 	var Map = AFrame.Display.extend( {
 		init: function( config ) {
@@ -35,9 +36,9 @@ TWTU.Map = ( function() {
 
 			var marker = new maps.Marker( markerConfig ),
 			    id = marker.id = storeMarker.call( me, marker );
-            
+
 		    event.addListener( marker, 'click', onMarkerClick.bind( this, markerInfo ) );
-            
+
             me.triggerEvent( 'markeradd', marker, markerInfo );
 			return id;
 
@@ -61,8 +62,8 @@ TWTU.Map = ( function() {
 		* Move a marker
 		* @method moveMarker
 		* @param {id} id - id of marker to move
-		* @param {object} markerInfo - The Marker Information 
-        * 
+		* @param {object} markerInfo - The Marker Information
+        *
 		*/
 		moveMarker: function( id, markerInfo ) {
 			var marker = this.markers.get( id );
@@ -151,4 +152,4 @@ TWTU.Map = ( function() {
     }
 
 	return Map;
-}() );
+});

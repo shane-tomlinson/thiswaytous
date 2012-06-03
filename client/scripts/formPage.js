@@ -1,7 +1,7 @@
-TWTU.FormPage = (function() {
+define(["aframe-current-jquery", "page"], function(AFrame, Page) {
 	"use strict";
 
-	var Page = AFrame.Class( TWTU.Page, {
+	var FormPage = AFrame.Class( Page, {
 		importconfig: [ 'form' ],
 		onSubmit: function( event ) {
 			var me=this;
@@ -14,5 +14,5 @@ TWTU.FormPage = (function() {
 		}
 	} );
 
-	return Page;
-}() );
+	return FormPage;
+});

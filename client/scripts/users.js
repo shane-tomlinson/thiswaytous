@@ -1,6 +1,5 @@
-
-TWTU.Users = (function() {
-	"use strict";
+define(["aframe-current-jquery", "user"], function(AFrame, User) {
+  "use strict";
 
 	var Users = AFrame.Class( AFrame.CollectionArray, {
 		importconfig: [ 'session' ],
@@ -8,7 +7,7 @@ TWTU.Users = (function() {
 			'requestComplete session': onSessionUpdate
 		},
 		plugins: [ [ AFrame.CollectionPluginModel, {
-			schema: TWTU.User
+			schema: User
 		} ] ]
 	} );
 
@@ -50,4 +49,4 @@ TWTU.Users = (function() {
 
 
 	return Users;
-}() );
+});

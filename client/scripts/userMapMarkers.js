@@ -1,4 +1,4 @@
-TWTU.UserMapMarkers = (function() {
+define(["aframe-current-jquery"], function(AFrame) {
 	"use strict";
 
 	var Markers = AFrame.AObject.extend( {
@@ -30,8 +30,8 @@ TWTU.UserMapMarkers = (function() {
 	}
 
 	function onMarkerChange( event ) {
-		var me = this, 
-            marker = event.target, 
+		var me = this,
+            marker = event.target,
             markerID = getMapIDForMarker.call( me, marker );
 
         me.map.moveMarker( markerID, marker.getDataObject() );
@@ -42,4 +42,4 @@ TWTU.UserMapMarkers = (function() {
 	}
 
 	return Markers;
-}() );
+});

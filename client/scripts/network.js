@@ -1,4 +1,4 @@
-TWTU.Network = ( function() {
+define(["jquery"], function($) {
 	"use strict";
 
 	var Network = {
@@ -16,4 +16,4 @@ TWTU.Network = ( function() {
 	};
 
 	return Network;
-}() );
+});

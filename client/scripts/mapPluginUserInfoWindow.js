@@ -1,8 +1,8 @@
-TWTU.MapPluginUserInfoWindow = ( function() {
+define(["aframe-current-jquery"], function(AFrame) {
 	"use strict";
 
 	var Plugin = AFrame.Plugin.extend( {
-        importconfig: [ 'controller' ], 
+        importconfig: [ 'controller' ],
 		events: {
 			'markerclick plugged' : onMarkerClick
 		}
@@ -18,4 +18,4 @@ TWTU.MapPluginUserInfoWindow = ( function() {
 
 	return Plugin;
 
-}() );
+});

@@ -1,4 +1,4 @@
-TWTU.Router = ( function() {
+define(["aframe-current-jquery"], function(AFrame) {
 	"use strict";
 
 	var Router = AFrame.AObject.extend( {
@@ -42,4 +42,4 @@ TWTU.Router = ( function() {
 	}
 
 	return Router;
-}() );
+});

@@ -1,3 +1,4 @@
+define("aframe-current-jquery", ["jquery"], function($) {
 /**
 * Note, this class does not really exist!  It is a placeholder for extensions to system prototypes like Function, Array, Date.  
 * @class SystemExtensions
@@ -858,7 +859,7 @@ AFrame.ObservablesMixin = {
 	}
 };
 /**
-* A collection of functions common to enumerable objects.  When mixing in 
+* A collection of functions common to enumerable objects.  When mixing in
 * this class, the class being mixed into must define a forEach function.
 *
 * @class AFrame.EnumerableMixin
@@ -866,7 +867,7 @@ AFrame.ObservablesMixin = {
 */
 AFrame.EnumerableMixin = ( function() {
     "use strict";
-    
+
     var Mixin = {
         /**
         * Get a set of items in the collection using the search function.  The search function will
@@ -885,16 +886,16 @@ AFrame.EnumerableMixin = ( function() {
         */
         filter: function( search ) {
             var items = [];
-            
+
             this.forEach( function( item, id ) {
                 if( true === search( item, id, this ) ) {
                     items.push( item );
                 }
             }, this );
-            
+
             return items;
         },
-        
+
         /**
         * Search for the first item in the collection that matches the search function.
         *
@@ -922,15 +923,15 @@ AFrame.EnumerableMixin = ( function() {
         */
         getCount: function() {
             var count = 0;
-            
+
             this.forEach( function( item ) {
                 count++;
             } );
-            
+
             return count;
         }
     };
-    
+
     return Mixin;
 
 }() );/**
@@ -4158,11 +4159,11 @@ AFrame.FieldValidityState.prototype = {
 	}
 };
 /**
-* A decorator on a [Field](AFrame.Field.html) that takes care of displaying placeholder text if the browser does not 
+* A decorator on a [Field](AFrame.Field.html) that takes care of displaying placeholder text if the browser does not
 *   natively support this feature.  This class never needs called directly and will be automatically
 *   attached to the [Field](AFrame.Field.html) if the behavior is needed.  For browsers that do
 *   not support placeholder text natively, the decorator will come into play to add it.  The idea
-*   of placeholder text is if the field has no value displayed, but the element has text in its 
+*   of placeholder text is if the field has no value displayed, but the element has text in its
 *   placeholder attribute, the text will be displayed until either a value is entered or the user
 *   places the mouse into the input.  If the user still has not entered text whenever the element
 *   loses focus, the placeholder text is again displayed.  Any element that has its placeholder text
@@ -4180,7 +4181,7 @@ AFrame.FieldPluginPlaceholder = ( function() {
     var Placeholder = {
         init: function() {
             this.decorators = {};
-            
+
             // All functions are called as if they were on the Field.  We are overriding init, bindEvents,
             // set, display, and save.  These functions pertain to our handling of the placeholder text.
             decorate( 'init', decoratorInit );
@@ -4191,24 +4192,24 @@ AFrame.FieldPluginPlaceholder = ( function() {
             decorate( 'display', decoratorDisplay );
         }
     };
-    
+
     function decorate( name, decorator ) {
         var decorated = AFrame.Field.prototype;
-        
+
         Placeholder[ '_' + name ] = decorated[ name ];
         decorated[ name ] = decorator;
     }
 
     function decoratorInit( config ) {
         Placeholder._init.call( this, config );
-        
+
         // display the placeholder text until the value is set.
         this.display( this.getDisplayed() );
     }
-    
+
     function decoratorBindEvents() {
         var target = this.getTarget();
-        
+
         // we care about the focus and blur evnts.
         this.bindDOMEvent( target, 'focus', onFieldFocus );
         this.bindDOMEvent( target, 'blur', onFieldBlur );
@@ -4224,7 +4225,7 @@ AFrame.FieldPluginPlaceholder = ( function() {
             var undefined;
             val = undefined;
         }
-        
+
         return val;
     }
 
@@ -4235,7 +4236,7 @@ AFrame.FieldPluginPlaceholder = ( function() {
         if( val === placeholder ) {
             val = '';
         }
-        
+
         return val;
     }
 
@@ -4243,40 +4244,40 @@ AFrame.FieldPluginPlaceholder = ( function() {
         Placeholder._display.call( this, val );
         updatePlaceholder.call( this );
     }
-    
+
     function decoratorSave() {
         var placeholder = getPlaceholder.call( this );
-        
+
         var placeHolderDisplayed = this.getDisplayed() == placeholder;
-        
+
         if( placeHolderDisplayed ) {
             this.display( '' );
         }
-        
+
         Placeholder._save.call( this );
 
         if( placeHolderDisplayed ) {
             this.display( placeholder );
         }
     }
-    
+
     function onFieldFocus() {
         this.focused = true;
         updatePlaceholder.call( this );
     }
-    
+
     function onFieldBlur() {
         this.focused = false;
         updatePlaceholder.call( this );
     }
-    
+
     function updatePlaceholder() {
         var placeholder = getPlaceholder.call( this );
         var displayed = Placeholder._getDisplayed.call( this );
 
         var target = this.getTarget();
         AFrame.DOM.removeClass( target, 'empty' );
-        
+
         if( this.focused ) {
             if( placeholder == displayed ) {
                 Placeholder._display.call( this, '' );
@@ -4284,15 +4285,15 @@ AFrame.FieldPluginPlaceholder = ( function() {
         }
         else if( '' === Placeholder._getDisplayed.call( this ) ) {
             AFrame.DOM.addClass( target, 'empty' );
-            
+
             Placeholder._display.call( this, getPlaceholder.call( this ) );
         }
     }
-    
+
     function getPlaceholder() {
         var target = this.getTarget();
         return AFrame.DOM.getAttr( target, 'placeholder' ) || '';
-    }    
+    }
 
     if( typeof( document ) !== 'undefined' ) {
         // we only want to initialize the Placeholder if the browser does not support HTML5
@@ -5816,7 +5817,7 @@ AFrame.DOM = ( function() {
         getElements: function( selector ) {
             return jQuery( selector );
         },
-        
+
         /**
         * Get a set of descendent elements that match the selector
         * @method getDescendentElements
@@ -5827,7 +5828,7 @@ AFrame.DOM = ( function() {
         getDescendentElements: function( selector, root ) {
             return jQuery( root ).find( selector );
         },
-        
+
         /**
         * Get a set of descendent elements that match the selector, include the root node if it
         *   matches the selector
@@ -5844,7 +5845,7 @@ AFrame.DOM = ( function() {
             }
             return set;
         },
-        
+
         /**
         * Get the children for an element
         * @method getChildren
@@ -5854,7 +5855,7 @@ AFrame.DOM = ( function() {
         getChildren: function( selector ) {
             return jQuery( selector ).children();
         },
-        
+
         /**
         * Get the nth child element
         * @method getNthChild
@@ -5865,7 +5866,7 @@ AFrame.DOM = ( function() {
         getNthChild: function( selector, index ) {
             return jQuery( selector ).children()[ index ];
         },
-        
+
         /**
         * Iterate over a set of elements
         * @method forEach
@@ -5878,7 +5879,7 @@ AFrame.DOM = ( function() {
                 callback.call( context, element, index );
             } );
         },
-        
+
         /**
         * Remove an element
         * @method removeElement
@@ -5887,7 +5888,7 @@ AFrame.DOM = ( function() {
         removeElement: function( selector ) {
             jQuery( selector ).remove();
         },
-        
+
         /**
         * Bind to an elements DOM Event
         * @method bindEvent
@@ -5898,7 +5899,7 @@ AFrame.DOM = ( function() {
         bindEvent: function( element, eventName, callback ) {
             return jQuery( element ).bind( eventName, callback );
         },
-        
+
         /**
         * Unbind an already bound DOM Event from an element.
         * @method unbindEvent
@@ -5909,7 +5910,7 @@ AFrame.DOM = ( function() {
         unbindEvent: function( element, eventName, callback ) {
             return jQuery( element ).unbind( eventName, callback );
         },
-        
+
         /**
         * Fire a DOM event on an element
         * @method fireEvent
@@ -5919,7 +5920,7 @@ AFrame.DOM = ( function() {
         fireEvent: function( element, type ) {
             return jQuery( element ).trigger( type );
         },
-        
+
         /**
         * Set the inner value of an element, including input elements
         * @method setInner
@@ -5936,7 +5937,7 @@ AFrame.DOM = ( function() {
             }
 
         },
-        
+
         /**
         * Get the inner value of an element, including input elements
         * @method getInner
@@ -5946,7 +5947,7 @@ AFrame.DOM = ( function() {
         getInner: function( element ) {
             var target = jQuery( element );
             var retval = '';
-            
+
             if( isValBased( target ) ) {
                 retval = target.val();
             }
@@ -5955,7 +5956,7 @@ AFrame.DOM = ( function() {
             }
             return retval;
         },
-        
+
         /**
         * Set an element's attribute.
         * @method setAttr
@@ -5966,7 +5967,7 @@ AFrame.DOM = ( function() {
         setAttr: function( element, attrName, value ) {
             jQuery( element ).attr( attrName, value );
         },
-        
+
         /**
         * Get an element's attribute.
         * @method getAttr
@@ -5977,7 +5978,7 @@ AFrame.DOM = ( function() {
         getAttr: function( element, attrName ) {
             return jQuery( element ).attr( attrName );
         },
-        
+
         /**
         * Check if an element has an attribute
         * @method hasAttr
@@ -5989,7 +5990,7 @@ AFrame.DOM = ( function() {
             var val = jQuery( element )[ 0 ].getAttribute( attrName );
             return val !== null;
         },
-        
+
         /**
         * Add a class to an element
         * @method addClass
@@ -5999,7 +6000,7 @@ AFrame.DOM = ( function() {
         addClass: function( element, className ) {
             jQuery( element ).addClass( className );
         },
-        
+
         /**
         * Remove a class from an element
         * @method removeClass
@@ -6009,7 +6010,7 @@ AFrame.DOM = ( function() {
         removeClass: function( element, className ) {
             jQuery( element ).removeClass( className );
         },
-        
+
         /**
         * Check if an element has a class
         * @method hasClass
@@ -6020,7 +6021,7 @@ AFrame.DOM = ( function() {
         hasClass: function( element, className ) {
             return jQuery( element ).hasClass( className );
         },
-        
+
         /**
         * Create an element
         * @method createElement
@@ -6035,7 +6036,7 @@ AFrame.DOM = ( function() {
             }
             return element;
         },
-      
+
         /**
         * Append an element as the last child of another element
         * @method appendTo
@@ -6045,7 +6046,7 @@ AFrame.DOM = ( function() {
         appendTo: function( elementToInsert, elementToAppendTo ) {
             jQuery( elementToInsert ).appendTo( jQuery( elementToAppendTo ) );
         },
-        
+
         /**
         * Insert an element before another element
         * @method insertBefore
@@ -6055,7 +6056,7 @@ AFrame.DOM = ( function() {
         insertBefore: function( elementToInsert, elementToInsertBefore ) {
             jQuery( elementToInsert ).insertBefore( elementToInsertBefore );
         },
-        
+
         /**
         * Insert as the nth child of an element
         * @method insertAsNthChild
@@ -6072,16 +6073,18 @@ AFrame.DOM = ( function() {
                 var insertBefore = children.eq( index );
                 elementToInsert.insertBefore( insertBefore );
             }
-        
+
         }
-        
-        
+
+
     };
-    
+
     function isValBased( target ) {
         return target.is( 'input' ) || target.is( 'textarea' );
     }
-    
+
     return DOM;
-    
+
 }() );
+return AFrame;
+});

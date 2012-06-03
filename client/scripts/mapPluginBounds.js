@@ -1,4 +1,4 @@
-TWTU.MapPluginBounds = (function() {
+define(["aframe-current-jquery"], function(AFrame) {
         "use strict";
 
         var Plugin = AFrame.Plugin.extend( {
@@ -17,7 +17,7 @@ TWTU.MapPluginBounds = (function() {
                 plugged.fitToMarkers = updateBounds.bind( this );
 
                 $( '#resetmap' ).click( onResetMap.bind( this ) );
-                
+
             }
         } );
 
@@ -35,7 +35,7 @@ TWTU.MapPluginBounds = (function() {
 
         function onInsertMarker( event ) {
             this.viewportUpdate = false;
-            
+
             var item = event.item;
             item.bindEvent( 'onSet', onItemChange, this );
 
@@ -50,9 +50,9 @@ TWTU.MapPluginBounds = (function() {
         function onResetMap( event ) {
             event.preventDefault();
             this.viewportUpdate = false;
-            updateBounds.call( this );    
+            updateBounds.call( this );
         }
-        
+
         function onItemChange( event ) {
             if( 'destination' === event.target.get( 'type' ) ) {
                 updateBounds.call( this );
@@ -135,4 +135,4 @@ TWTU.MapPluginBounds = (function() {
         }
 
         return Plugin;
-}() );
+});

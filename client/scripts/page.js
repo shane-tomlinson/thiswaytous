@@ -1,31 +1,31 @@
-TWTU.Page = (function() {
+define(["aframe-current-jquery"], function(AFrame) {
 	"use strict";
 
-	var Page = AFrame.Class( AFrame.Display, {
-		importconfig: [ 'router' ],
+	var Page = AFrame.Class(AFrame.Display, {
+		importconfig: ['router'],
 		domevents: {
 			'click .submit': 'onSubmit',
 			'click .cancel': 'onCancel'
 		},
 
-		onSubmit: function( event ) {
+		onSubmit: function(event) {
 			this.hide();
 		},
 
-		onCancel: function( event ) {
+		onCancel: function(event) {
 			event.preventDefault();
 			history.back();
 			this.hide();
 		},
 
 		show: function() {
-			this.getTarget().removeClass( 'hiding' ).addClass( 'showing' );
+			this.getTarget().removeClass('hiding').addClass('showing');
 		},
 
 		hide: function() {
-			this.getTarget().removeClass( 'showing' ).addClass( 'hiding' );
+			this.getTarget().removeClass('showing').addClass('hiding');
 		}
-	} );
+	});
 
 	return Page;
-}() );
+});
